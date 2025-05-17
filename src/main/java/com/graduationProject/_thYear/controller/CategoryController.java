@@ -1,10 +1,10 @@
 package com.graduationProject._thYear.controller;
 
 
-import com.graduationProject._thYear.dto.request.CreateCategoryRequest;
-import com.graduationProject._thYear.dto.request.UpdateCategoryRequest;
-import com.graduationProject._thYear.dto.response.CategoryResponse;
-import com.graduationProject._thYear.dto.response.CategoryTreeResponse;
+import com.graduationProject._thYear.dto.request.category.CreateCategoryRequest;
+import com.graduationProject._thYear.dto.request.category.UpdateCategoryRequest;
+import com.graduationProject._thYear.dto.response.category.CategoryResponse;
+import com.graduationProject._thYear.dto.response.category.CategoryTreeResponse;
 import com.graduationProject._thYear.service.CategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

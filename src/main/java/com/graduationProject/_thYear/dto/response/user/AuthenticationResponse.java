@@ -1,4 +1,4 @@
-package com.graduationProject._thYear.dto;
+package com.graduationProject._thYear.dto.response.user;
 
 import com.graduationProject._thYear.model.user.Role;
 import lombok.AllArgsConstructor;

@@ -1,4 +1,4 @@
-package com.graduationProject._thYear.dto;
+package com.graduationProject._thYear.dto.request.user;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

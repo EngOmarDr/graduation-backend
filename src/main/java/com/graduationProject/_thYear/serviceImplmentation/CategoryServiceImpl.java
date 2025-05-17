@@ -1,10 +1,10 @@
 package com.graduationProject._thYear.serviceImplmentation;
 
 
-import com.graduationProject._thYear.dto.request.CreateCategoryRequest;
-import com.graduationProject._thYear.dto.request.UpdateCategoryRequest;
-import com.graduationProject._thYear.dto.response.CategoryResponse;
-import com.graduationProject._thYear.dto.response.CategoryTreeResponse;
+import com.graduationProject._thYear.dto.request.category.CreateCategoryRequest;
+import com.graduationProject._thYear.dto.request.category.UpdateCategoryRequest;
+import com.graduationProject._thYear.dto.response.category.CategoryResponse;
+import com.graduationProject._thYear.dto.response.category.CategoryTreeResponse;
 import com.graduationProject._thYear.exceptionHandler.ResourceNotFoundException;
 import com.graduationProject._thYear.model.product.Category;
 import com.graduationProject._thYear.repository.product.CategoryRepository;
@@ -110,7 +110,6 @@ public class CategoryServiceImpl implements CategoryService {
         categoryRepository.delete(category);
     }
 
-    // Helper methods for DTO conversion
     private CategoryResponse convertToResponse(Category category) {
         return CategoryResponse.builder()
                 .id(category.getId())

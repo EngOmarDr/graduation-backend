@@ -1,17 +1,19 @@
-package com.graduationProject._thYear.dto.response;
+package com.graduationProject._thYear.dto.response.category;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import java.util.List;
+
 @Setter
 @Getter
 @SuperBuilder
-public class CategoryResponse {
+public class CategoryTreeResponse {
     private Integer id;
     private String code;
     private String name;
     private String notes;
-    private Integer parentId;
-    private String parentName;
+    private List<CategoryTreeResponse> children;
+
 }

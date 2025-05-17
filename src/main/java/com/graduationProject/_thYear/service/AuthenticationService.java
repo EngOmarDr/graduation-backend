@@ -1,9 +1,9 @@
 package com.graduationProject._thYear.service;
 
 import com.graduationProject._thYear.config.JWTService;
-import com.graduationProject._thYear.dto.AuthenticationRequest;
-import com.graduationProject._thYear.dto.AuthenticationResponse;
-import com.graduationProject._thYear.dto.RegisterRequest;
+import com.graduationProject._thYear.dto.request.user.AuthenticationRequest;
+import com.graduationProject._thYear.dto.response.user.AuthenticationResponse;
+import com.graduationProject._thYear.dto.request.user.RegisterRequest;
 import com.graduationProject._thYear.exceptionHandler.LoginUnauthorizedException;
 import com.graduationProject._thYear.model.user.Role;
 import com.graduationProject._thYear.model.user.User;
