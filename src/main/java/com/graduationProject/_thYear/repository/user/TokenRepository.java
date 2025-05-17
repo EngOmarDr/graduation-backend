@@ -1,6 +1,6 @@
-package com.graduationProject._thYear.repository;
+package com.graduationProject._thYear.repository.user;
 
-import com.graduationProject._thYear.model.Token;
+import com.graduationProject._thYear.model.user.Token;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

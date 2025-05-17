@@ -1,9 +1,7 @@
-package com.graduationProject._thYear.model;
+package com.graduationProject._thYear.model.user;
 
+import com.graduationProject._thYear.model.user.Role;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

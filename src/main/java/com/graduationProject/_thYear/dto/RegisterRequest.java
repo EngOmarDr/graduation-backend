@@ -1,6 +1,5 @@
 package com.graduationProject._thYear.dto;
 
-import com.graduationProject._thYear.model.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

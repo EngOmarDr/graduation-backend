@@ -1,7 +1,6 @@
 package com.graduationProject._thYear.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.graduationProject._thYear.model.Role;
+import com.graduationProject._thYear.model.user.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

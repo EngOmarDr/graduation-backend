@@ -1,4 +1,4 @@
-package com.graduationProject._thYear.model;
+package com.graduationProject._thYear.model.user;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

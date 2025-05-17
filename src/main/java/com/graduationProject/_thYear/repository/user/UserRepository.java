@@ -1,8 +1,7 @@
-package com.graduationProject._thYear.repository;
+package com.graduationProject._thYear.repository.user;
 
-import com.graduationProject._thYear.model.User;
+import com.graduationProject._thYear.model.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
