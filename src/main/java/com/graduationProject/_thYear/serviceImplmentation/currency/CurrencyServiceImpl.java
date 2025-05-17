@@ -1,11 +1,11 @@
-package com.graduationProject._thYear.serviceImplmentation;
+package com.graduationProject._thYear.serviceImplmentation.currency;
 
 import com.graduationProject._thYear.dto.request.currency.CreateCurrencyRequest;
 import com.graduationProject._thYear.dto.request.currency.UpdateCurrencyRequest;
 import com.graduationProject._thYear.dto.response.currency.CurrencyResponse;
 import com.graduationProject._thYear.exceptionHandler.ResourceNotFoundException;
 import com.graduationProject._thYear.repository.CurrencyRepository;
-import com.graduationProject._thYear.service.CurrencyService;
+import com.graduationProject._thYear.service.currency.CurrencyService;
 import com.graduationProject._thYear.model.Currency;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

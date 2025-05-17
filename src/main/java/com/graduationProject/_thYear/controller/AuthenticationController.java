@@ -3,7 +3,7 @@ package com.graduationProject._thYear.controller;
 import com.graduationProject._thYear.dto.request.user.AuthenticationRequest;
 import com.graduationProject._thYear.dto.response.user.AuthenticationResponse;
 import com.graduationProject._thYear.dto.request.user.RegisterRequest;
-import com.graduationProject._thYear.service.AuthenticationService;
+import com.graduationProject._thYear.service.auth.AuthenticationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

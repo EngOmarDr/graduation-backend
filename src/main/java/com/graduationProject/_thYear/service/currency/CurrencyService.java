@@ -1,4 +1,4 @@
-package com.graduationProject._thYear.service;
+package com.graduationProject._thYear.service.currency;
 
 import com.graduationProject._thYear.dto.request.currency.CreateCurrencyRequest;
 import com.graduationProject._thYear.dto.request.currency.UpdateCurrencyRequest;

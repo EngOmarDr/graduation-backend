@@ -3,7 +3,7 @@ package com.graduationProject._thYear.controller;
 import com.graduationProject._thYear.dto.request.currency.CreateCurrencyRequest;
 import com.graduationProject._thYear.dto.request.currency.UpdateCurrencyRequest;
 import com.graduationProject._thYear.dto.response.currency.CurrencyResponse;
-import com.graduationProject._thYear.service.CurrencyService;
+import com.graduationProject._thYear.service.currency.CurrencyService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

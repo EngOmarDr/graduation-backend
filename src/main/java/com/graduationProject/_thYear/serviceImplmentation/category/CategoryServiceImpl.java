@@ -1,4 +1,4 @@
-package com.graduationProject._thYear.serviceImplmentation;
+package com.graduationProject._thYear.serviceImplmentation.category;
 
 
 import com.graduationProject._thYear.dto.request.category.CreateCategoryRequest;
@@ -8,7 +8,7 @@ import com.graduationProject._thYear.dto.response.category.CategoryTreeResponse;
 import com.graduationProject._thYear.exceptionHandler.ResourceNotFoundException;
 import com.graduationProject._thYear.model.product.Category;
 import com.graduationProject._thYear.repository.product.CategoryRepository;
-import com.graduationProject._thYear.service.CategoryService;
+import com.graduationProject._thYear.service.category.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -1,4 +1,4 @@
-package com.graduationProject._thYear.service;
+package com.graduationProject._thYear.service.auth;
 
 import com.graduationProject._thYear.config.JWTService;
 import com.graduationProject._thYear.dto.request.user.AuthenticationRequest;
