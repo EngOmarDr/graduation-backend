@@ -1,0 +1,104 @@
+package com.graduationProject._thYear.Unit.services;
+
+import com.graduationProject._thYear.Unit.dtos.requests.CreateUnitRequest;
+import com.graduationProject._thYear.Unit.dtos.requests.UpdateUnitRequest;
+import com.graduationProject._thYear.Unit.dtos.responses.UnitItemResponse;
+import com.graduationProject._thYear.Unit.dtos.responses.UnitResponse;
+import com.graduationProject._thYear.exceptionHandler.ResourceNotFoundException;
+import com.graduationProject._thYear.Unit.models.Unit;
+import com.graduationProject._thYear.Unit.models.UnitItem;
+import com.graduationProject._thYear.Unit.repositories.UnitRepository;
+import com.graduationProject._thYear.Unit.services.UnitService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@Transactional
+@RequiredArgsConstructor
+public class UnitServiceImpl implements UnitService {
+
+    private final UnitRepository unitRepository;
+
+    @Override
+    public UnitResponse createUnit(CreateUnitRequest request) {
+        Unit unit = new Unit();
+        unit.setName(request.getName());
+
+        Unit savedUnit = unitRepository.save(unit);
+        return convertToResponse(savedUnit);
+    }
+
+    @Override
+    public UnitResponse getUnitById(Integer id) {
+        Unit unit = unitRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Unit not found with id: " + id));
+        return convertToResponse(unit);
+    }
+
+    @Override
+    public List<UnitResponse> getAllUnits() {
+        return unitRepository.findAll().stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public UnitResponse updateUnit(Integer id, UpdateUnitRequest request) {
+        Unit unit = unitRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Unit not found with id: " + id));
+
+        unit.setName(request.getName());
+
+        Unit updatedUnit = unitRepository.save(unit);
+        return convertToResponse(updatedUnit);
+    }
+
+    @Override
+    public void deleteUnit(Integer id) {
+        Unit unit = unitRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Unit not found with id: " + id));
+
+        // Handle relationships before deletion
+        if (!unit.getUnitItems().isEmpty()) {
+            unit.getUnitItems().forEach(item -> item.setUnit(null));
+        }
+
+        if (!unit.getProductPrices().isEmpty()) {
+            unit.getProductPrices().forEach(price -> price.setPriceUnit(null));
+        }
+
+        if (!unit.getProducts().isEmpty()) {
+            unit.getProducts().forEach(product -> product.setDefaultUnit(null));
+        }
+
+        unitRepository.delete(unit);
+    }
+
+    private UnitResponse convertToResponse(Unit unit) {
+        return UnitResponse.builder()
+                .id(unit.getId())
+                .name(unit.getName())
+                .unitItems(convertUnitItemsToResponse(unit.getUnitItems()))
+                .build();
+    }
+
+    private List<UnitItemResponse> convertUnitItemsToResponse(List<UnitItem> unitItems) {
+        return unitItems.stream()
+                .map(this::convertUnitItemToResponse)
+                .collect(Collectors.toList());
+    }
+
+    private UnitItemResponse convertUnitItemToResponse(UnitItem unitItem) {
+        return UnitItemResponse.builder()
+                .id(unitItem.getId())
+                .unitId(unitItem.getUnit().getId())
+                .name(unitItem.getName())
+                .fact(unitItem.getFact())
+                .isDef(unitItem.getIsDef())
+                .build();
+    }
+}
