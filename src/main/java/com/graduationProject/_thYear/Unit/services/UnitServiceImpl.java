@@ -25,8 +25,12 @@ public class UnitServiceImpl implements UnitService {
 
     @Override
     public UnitResponse createUnit(CreateUnitRequest request) {
-        Unit unit = new Unit();
-        unit.setName(request.getName());
+        if (unitRepository.existsByName(request.getName())) {
+            throw new IllegalArgumentException("Unit with name '" + request.getName() + "' already exists");
+        }
+        Unit unit = Unit.builder()
+                .name(request.getName())
+                .build();
 
         Unit savedUnit = unitRepository.save(unit);
         return convertToResponse(savedUnit);
@@ -50,6 +54,12 @@ public class UnitServiceImpl implements UnitService {
     public UnitResponse updateUnit(Integer id, UpdateUnitRequest request) {
         Unit unit = unitRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Unit not found with id: " + id));
+
+        // Check if name is being changed and validate uniqueness
+        if (!unit.getName().equals(request.getName()) &&
+                unitRepository.existsByName(request.getName())) {
+            throw new IllegalArgumentException("Unit with name '" + request.getName() + "' already exists");
+        }
 
         unit.setName(request.getName());
 
@@ -96,9 +106,11 @@ public class UnitServiceImpl implements UnitService {
         return UnitItemResponse.builder()
                 .id(unitItem.getId())
                 .unitId(unitItem.getUnit().getId())
+                .unitName(unitItem.getUnit().getName())
                 .name(unitItem.getName())
                 .fact(unitItem.getFact())
                 .isDef(unitItem.getIsDef())
+                //.barcodes(unitItem.getBarcodes())
                 .build();
     }
 }
