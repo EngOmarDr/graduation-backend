@@ -24,6 +24,15 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryResponse createCategory(CreateCategoryRequest request) {
+
+// Validate name and code uniqueness
+        if (categoryRepository.existsByCode(request.getName())) {
+            throw new IllegalArgumentException("Category item with code '" + request.getCode() + "' already exists");
+        }
+        if (categoryRepository.existsByName(request.getName())) {
+            throw new IllegalArgumentException("Category item with name '" + request.getName() + "' already exists");
+        }
+
         Category category = new Category();
         category.setCode(request.getCode());
         category.setName(request.getName());
@@ -78,6 +87,16 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryResponse updateCategory(Integer id, UpdateCategoryRequest request) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+
+        if (!category.getCode().equals(request.getCode()) &&
+                categoryRepository.existsByCode(request.getCode())) {
+            throw new IllegalArgumentException("Category item with code '" + request.getCode() + "' already exists");
+        }
+
+        if (!category.getName().equals(request.getName()) &&
+                categoryRepository.existsByName(request.getName())) {
+            throw new IllegalArgumentException("Category item with name '" + request.getName() + "' already exists");
+        }
 
         category.setCode(request.getCode());
         category.setName(request.getName());

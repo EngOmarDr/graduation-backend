@@ -1,6 +1,6 @@
 package com.graduationProject._thYear.Unit.services;
 
-import com.graduationProject._thYear.Product.dtos.BarcodeResponse;
+import com.graduationProject._thYear.Product.dtos.response.BarcodeResponse;
 import com.graduationProject._thYear.Product.models.ProductBarcode;
 import com.graduationProject._thYear.Unit.dtos.requests.CreateUnitItemRequest;
 import com.graduationProject._thYear.Unit.dtos.requests.UpdateUnitItemRequest;

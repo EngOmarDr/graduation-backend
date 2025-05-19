@@ -1,4 +1,4 @@
-package com.graduationProject._thYear.Product.dtos;
+package com.graduationProject._thYear.Product.dtos.response;
 
 import lombok.Data;
 import lombok.experimental.SuperBuilder;

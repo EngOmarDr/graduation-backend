@@ -22,6 +22,15 @@ public class CurrencyServiceImpl implements CurrencyService {
 
     @Override
     public CurrencyResponse createCurrency(CreateCurrencyRequest request) {
+
+        // Validate name and code uniqueness
+        if (currencyRepository.existsByCode(request.getName())) {
+            throw new IllegalArgumentException("Currency item with code '" + request.getCode() + "' already exists");
+        }
+        if (currencyRepository.existsByName(request.getName())) {
+            throw new IllegalArgumentException("Currency item with name '" + request.getName() + "' already exists");
+        }
+
         Currency currency = new Currency();
         currency.setCode(request.getCode());
         currency.setName(request.getName());
@@ -51,6 +60,16 @@ public class CurrencyServiceImpl implements CurrencyService {
     public CurrencyResponse updateCurrency(Integer id, UpdateCurrencyRequest request) {
         Currency currency = currencyRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Currency not found with id: " + id));
+
+        if (!currency.getCode().equals(request.getCode()) &&
+                currencyRepository.existsByCode(request.getCode())) {
+            throw new IllegalArgumentException("Currency item with code '" + request.getCode() + "' already exists");
+        }
+
+        if (!currency.getName().equals(request.getName()) &&
+                currencyRepository.existsByName(request.getName())) {
+            throw new IllegalArgumentException("Currency item with name '" + request.getName() + "' already exists");
+        }
 
         currency.setCode(request.getCode());
         currency.setName(request.getName());
