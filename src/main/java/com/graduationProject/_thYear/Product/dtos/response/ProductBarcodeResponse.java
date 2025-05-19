@@ -7,7 +7,9 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class ProductBarcodeResponse {
     private Integer id;
-    private String barcode;
+    private Integer productId;
+    private String productName;
     private Integer unitItemId;
     private String unitItemName;
+    private String barcode;
 }

@@ -7,7 +7,11 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class ProductPriceResponse {
     private Integer id;
-    private Float price;
+    private Integer productId;
+    private String productName;
+    private Integer priceId;
+    private String priceName;
     private Integer unitId;
     private String unitName;
+    private Float price;
 }

@@ -1,6 +1,6 @@
 package com.graduationProject._thYear.Unit.services;
 
-import com.graduationProject._thYear.Product.dtos.response.BarcodeResponse;
+import com.graduationProject._thYear.Product.dtos.response.ProductBarcodeResponse;
 import com.graduationProject._thYear.Product.models.ProductBarcode;
 import com.graduationProject._thYear.Unit.dtos.requests.CreateUnitItemRequest;
 import com.graduationProject._thYear.Unit.dtos.requests.UpdateUnitItemRequest;
@@ -113,15 +113,19 @@ public class UnitItemServiceImpl implements UnitItemService{
                 .build();
     }
 
-    private List<BarcodeResponse> convertBarcodesToResponse(List<ProductBarcode> barcodes) {
+    private List<ProductBarcodeResponse> convertBarcodesToResponse(List<ProductBarcode> barcodes) {
         return barcodes.stream()
                 .map(this::convertBarcodeToResponse)
                 .collect(Collectors.toList());
     }
 
-    private BarcodeResponse convertBarcodeToResponse(ProductBarcode barcode) {
-        return BarcodeResponse.builder()
+    private ProductBarcodeResponse convertBarcodeToResponse(ProductBarcode barcode) {
+        return ProductBarcodeResponse.builder()
                 .id(barcode.getId())
+                .productId(barcode.getProduct().getId())
+                .productName(barcode.getProduct().getName())
+                .unitItemId(barcode.getUnitItem().getId())
+                .unitItemName(barcode.getUnitItem().getName())
                 .barcode(barcode.getBarcode())
                 .build();
     }

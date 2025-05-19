@@ -1,11 +1,15 @@
 package com.graduationProject._thYear.Product.dtos.response;
 
+import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.SuperBuilder;
 
+import java.util.List;
+
 @Data
 @SuperBuilder
-public class BarcodeResponse {
+public class PriceResponse {
     private Integer id;
-    private String barcode;
+    private String name;
+    private List<ProductPriceResponse> productPrices;
 }

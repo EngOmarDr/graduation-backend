@@ -1,6 +1,7 @@
 package com.graduationProject._thYear.Unit.dtos.responses;
 
-import com.graduationProject._thYear.Product.dtos.response.BarcodeResponse;
+
+import com.graduationProject._thYear.Product.dtos.response.ProductBarcodeResponse;
 import lombok.Data;
 import lombok.experimental.SuperBuilder;
 
@@ -15,5 +16,5 @@ public class UnitItemResponse {
     private String name;
     private Float fact;
     private Boolean isDef;
-    private List<BarcodeResponse> barcodes;
+    private List<ProductBarcodeResponse> barcodes;
 }
