@@ -1,7 +1,7 @@
 package com.graduationProject._thYear.Product.services;
 
-import com.graduationProject._thYear.Category.models.Category;
-import com.graduationProject._thYear.Category.repositories.CategoryRepository;
+import com.graduationProject._thYear.Group.models.Group;
+import com.graduationProject._thYear.Group.repositories.GroupRepository;
 import com.graduationProject._thYear.Product.dtos.request.CreateProductRequest;
 import com.graduationProject._thYear.Product.dtos.request.UpdateProductRequest;
 import com.graduationProject._thYear.Product.dtos.response.ProductBarcodeResponse;
@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService{
     private final ProductRepository productRepository;
-    private final CategoryRepository categoryRepository;
+    private final GroupRepository categoryRepository;
     private final UnitRepository unitRepository;
 
     @Override
@@ -39,7 +39,7 @@ public class ProductServiceImpl implements ProductService{
             throw new IllegalArgumentException("Product with name '" + request.getName() + "' already exists");
         }
 
-        Category category = categoryRepository.findById(request.getCategoryId())
+        Group category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + request.getCategoryId()));
 
         Unit defaultUnit = unitRepository.findById(request.getDefaultUnitId())
@@ -86,7 +86,7 @@ public class ProductServiceImpl implements ProductService{
             throw new IllegalArgumentException("Product with name '" + request.getName() + "' already exists");
         }
 
-        Category category = categoryRepository.findById(request.getCategoryId())
+        Group category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + request.getCategoryId()));
 
         Unit defaultUnit = unitRepository.findById(request.getDefaultUnitId())

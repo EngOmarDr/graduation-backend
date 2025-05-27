@@ -14,7 +14,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 public class UpdateProductRequest {
 
-    @NotNull    (message = "Code is required")
+    @NotNull(message = "Code is required")
     private String code;
 
     @NotNull(message = "Name is required")

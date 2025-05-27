@@ -1,4 +1,4 @@
-package com.graduationProject._thYear.Category.models;
+package com.graduationProject._thYear.Group.models;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -16,7 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class Category {
+public class Group {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -37,18 +37,18 @@ public class Category {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
-    private Category parent;
+    private Group parent;
 
-    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Category> children = new ArrayList<>();
+    @OneToMany(mappedBy = "parent")
+    private List<Group> children = new ArrayList<>();
 
 
-    public void addChild(Category child) {
+    public void addChild(Group child) {
         children.add(child);
         child.setParent(this);
     }
 
-    public void removeChild(Category child) {
+    public void removeChild(Group child) {
         children.remove(child);
         child.setParent(null);
     }

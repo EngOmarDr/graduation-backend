@@ -1,4 +1,4 @@
-package com.graduationProject._thYear.Category.dtos.request;
+package com.graduationProject._thYear.Group.dtos.request;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -12,7 +12,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class UpdateCategoryRequest {
+public class UpdateGroupRequest {
     @NotNull(message = "Code is required")
     private String code;
 

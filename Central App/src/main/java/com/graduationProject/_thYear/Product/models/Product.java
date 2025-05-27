@@ -1,6 +1,6 @@
 package com.graduationProject._thYear.Product.models;
 
-import com.graduationProject._thYear.Category.models.Category;
+import com.graduationProject._thYear.Group.models.Group;
 import com.graduationProject._thYear.Unit.models.Unit;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -35,8 +35,8 @@ public class Product {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", nullable = false)
-    private Category categoryId;
+    @JoinColumn(name = "group_id", nullable = false)
+    private Group categoryId;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
