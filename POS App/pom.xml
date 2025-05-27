@@ -76,12 +76,12 @@
 			<artifactId>spring-modulith-starter-jpa</artifactId>
 		</dependency>
 
-		<dependency>
+		<!-- <dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
 			<scope>runtime</scope>
 			<optional>true</optional>
-		</dependency>
+		</dependency> -->
 		<!-- <dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-docker-compose</artifactId>
@@ -128,6 +128,11 @@
 			<artifactId>spring-modulith-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+			<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-api</artifactId>
+			<version>0.11.5</version>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-test</artifactId>
@@ -143,10 +148,11 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
+	
 		</dependencies>
 	</dependencyManagement>
 
-	<build>
+	<!-- <build>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -176,6 +182,37 @@
 				</configuration>
 			</plugin>
 		</plugins>
+	</build> -->
+
+	<build>
+		<plugins>
+
+			<plugin>
+
+				<groupId>org.apache.maven.plugins</groupId>
+
+				<artifactId>maven-compiler-plugin</artifactId>
+
+				<configuration>
+
+					<source>21</source>
+
+					<target>21</target>
+
+				</configuration>
+
+			</plugin>
+
+			<plugin>
+
+				<groupId>org.springframework.boot</groupId>
+
+				<artifactId>spring-boot-maven-plugin</artifactId>
+
+			</plugin>
+
+		</plugins>
+
 	</build>
 	<repositories>
 		<repository>
