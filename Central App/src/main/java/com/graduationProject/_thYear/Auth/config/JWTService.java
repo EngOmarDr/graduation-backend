@@ -48,7 +48,7 @@ public JWTService(){}
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                // .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 24))
+                .setExpiration(null)
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
 
@@ -79,6 +79,8 @@ public boolean isTokenValid(String token , UserDetails userDetails){
     }
 
     private boolean isTokenExpired(String token) {
+        if (extractExpiration(token)== null)
+            return false;
         return extractExpiration(token).before(new Date() );
     }
 
