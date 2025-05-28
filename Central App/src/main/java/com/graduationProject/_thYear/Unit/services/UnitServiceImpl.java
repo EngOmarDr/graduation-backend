@@ -1,5 +1,6 @@
 package com.graduationProject._thYear.Unit.services;
 
+import com.graduationProject._thYear.Unit.dtos.requests.CreateUnitItemRequest;
 import com.graduationProject._thYear.Unit.dtos.requests.CreateUnitRequest;
 import com.graduationProject._thYear.Unit.dtos.requests.UpdateUnitRequest;
 import com.graduationProject._thYear.Unit.dtos.responses.UnitItemResponse;
@@ -27,10 +28,21 @@ public class UnitServiceImpl implements UnitService {
         if (unitRepository.existsByName(request.getName())) {
             throw new IllegalArgumentException("Unit with name '" + request.getName() + "' already exists");
         }
+
         Unit unit = Unit.builder()
                 .name(request.getName())
                 .build();
 
+        for (CreateUnitItemRequest itemRequest: request.getUnitItems()){
+            unit.addUnitItem(
+                    UnitItem.builder()
+                    .unit(unit)
+                    .name(itemRequest.getName())
+                    .isDef(itemRequest.getIsDef())
+                    .fact(itemRequest.getFact())
+                    .build()    
+                );
+        }
         Unit savedUnit = unitRepository.save(unit);
         return convertToResponse(savedUnit);
     }
