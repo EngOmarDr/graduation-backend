@@ -37,7 +37,7 @@ public class Account {
     @JoinColumn(name = "parent_id", nullable = true)
     private Account parent;
 
-    @OneToMany(mappedBy = "parent")
+    @OneToMany(mappedBy = "parent",fetch = FetchType.LAZY)
     private List<Account> children;
 
     public void addChild(Account child) {

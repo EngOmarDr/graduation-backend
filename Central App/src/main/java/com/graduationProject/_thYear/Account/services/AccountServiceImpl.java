@@ -147,15 +147,11 @@ public class AccountServiceImpl implements AccountService {
     }
 
     private AccountTreeResponse convertToTreeResponse(Account account) {
-        Account finalAccount = null;
-        if (account.getFinalAccount() != null) {
-            finalAccount = account.getFinalAccount();
-        }
+      
         return AccountTreeResponse.builder()
                 .id(account.getId())
                 .code(account.getCode())
                 .name(account.getName())
-                .finalAccount(finalAccount)
                 .children(account.getChildren().stream()
                         .map(this::convertToTreeResponse)
                         .collect(Collectors.toList()))
