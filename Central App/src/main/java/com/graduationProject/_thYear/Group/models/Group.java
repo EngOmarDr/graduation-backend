@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -40,7 +39,7 @@ public class Group {
     private Group parent;
 
     @OneToMany(mappedBy = "parent")
-    private List<Group> children = new ArrayList<>();
+    private List<Group> children ;
 
 
     public void addChild(Group child) {

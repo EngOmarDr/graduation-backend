@@ -36,7 +36,7 @@ public class Product {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "group_id", nullable = false)
-    private Group categoryId;
+    private Group groupId;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)

@@ -19,8 +19,8 @@ public class CreateProductRequest {
     @NotNull(message = "Name is required")
     private String name;
 
-    @NotNull(message = "Category ID is required")
-    private Integer categoryId;
+    @NotNull(message = "Group ID is required")
+    private Integer groupId;
 
     @NotNull(message = "Default unit ID is required")
     private Integer defaultUnitId;

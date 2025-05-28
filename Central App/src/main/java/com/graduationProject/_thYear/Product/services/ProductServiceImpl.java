@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService{
     private final ProductRepository productRepository;
-    private final GroupRepository categoryRepository;
+    private final GroupRepository groupRepository;
     private final UnitRepository unitRepository;
 
     @Override
@@ -38,9 +38,8 @@ public class ProductServiceImpl implements ProductService{
         if (productRepository.existsByName(request.getName())) {
             throw new IllegalArgumentException("Product with name '" + request.getName() + "' already exists");
         }
-
-        Group category = categoryRepository.findById(request.getCategoryId())
-                .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + request.getCategoryId()));
+        Group group = groupRepository.findById(request.getGroupId())
+                .orElseThrow(() -> new ResourceNotFoundException("Group not found with id: " + request.getGroupId()));
 
         Unit defaultUnit = unitRepository.findById(request.getDefaultUnitId())
                 .orElseThrow(() -> new ResourceNotFoundException("Unit not found with id: " + request.getDefaultUnitId()));
@@ -48,7 +47,7 @@ public class ProductServiceImpl implements ProductService{
         Product product = Product.builder()
                 .code(request.getCode())
                 .name(request.getName())
-                .categoryId(category)
+                .groupId(group)
                 .defaultUnit(defaultUnit)
                 .lowQty(request.getLowQty())
                 .build();
@@ -86,15 +85,15 @@ public class ProductServiceImpl implements ProductService{
             throw new IllegalArgumentException("Product with name '" + request.getName() + "' already exists");
         }
 
-        Group category = categoryRepository.findById(request.getCategoryId())
-                .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + request.getCategoryId()));
+        Group group = groupRepository.findById(request.getGroupId())
+                .orElseThrow(() -> new ResourceNotFoundException("Group not found with id: " + request.getGroupId()));
 
         Unit defaultUnit = unitRepository.findById(request.getDefaultUnitId())
                 .orElseThrow(() -> new ResourceNotFoundException("Unit not found with id: " + request.getDefaultUnitId()));
 
         product.setCode(request.getCode());
         product.setName(request.getName());
-        product.setCategoryId(category);
+        product.setGroupId(group);
         product.setDefaultUnit(defaultUnit);
         product.setLowQty(request.getLowQty());
 
@@ -123,8 +122,8 @@ public class ProductServiceImpl implements ProductService{
                 .id(product.getId())
                 .code(product.getCode())
                 .name(product.getName())
-                .categoryId(product.getCategoryId().getId())
-                .categoryName(product.getCategoryId().getName())
+                .groupId(product.getGroupId().getId())
+                .groupName(product.getGroupId().getName())
                 .defaultUnitId(product.getDefaultUnit().getId())
                 .defaultUnitName(product.getDefaultUnit().getName())
                 .lowQty(product.getLowQty())

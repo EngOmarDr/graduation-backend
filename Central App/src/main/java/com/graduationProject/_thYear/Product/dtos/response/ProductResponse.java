@@ -11,8 +11,8 @@ public class ProductResponse {
     private Integer id;
     private String code;
     private String name;
-    private Integer categoryId;
-    private String categoryName;
+    private Integer groupId;
+    private String groupName;
     private Integer defaultUnitId;
     private String defaultUnitName;
     private Float lowQty;
