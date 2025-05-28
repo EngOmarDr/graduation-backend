@@ -14,5 +14,6 @@ public class AccountTreeResponse {
     private Integer id;
     private String code;
     private String name;
+    private String finalAccountName;
     private List<AccountTreeResponse> children;
 }
