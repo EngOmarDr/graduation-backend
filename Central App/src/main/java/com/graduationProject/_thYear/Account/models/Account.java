@@ -1,4 +1,6 @@
-package com.graduationProject._thYear.Group.models;
+package com.graduationProject._thYear.Account.models;
+
+import java.util.List;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -7,47 +9,43 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Entity
-@Table(name = "`group`")
+@Table(name = "account")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class Group {
+public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Integer id;
 
-
     @NotNull
-    @Column(name = "code" , unique = true, nullable = false)
+    @Column(name = "code", unique = true, nullable = false)
     private String code;
 
     @NotNull
-    @Column(name = "name" , unique = true ,nullable = false)
+    @Column(name = "name", unique = true, nullable = false)
     private String name;
 
-
-    @Column(name = "notes")
-    private String notes;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "final_account", nullable = true)
+    private Account finalAccount;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_id")
-    private Group parent;
+    @JoinColumn(name = "parent_id", nullable = true)
+    private Account parent;
 
     @OneToMany(mappedBy = "parent")
-    private List<Group> children ;
+    private List<Account> children;
 
-
-    public void addChild(Group child) {
+    public void addChild(Account child) {
         children.add(child);
         child.setParent(this);
     }
 
-    public void removeChild(Group child) {
+    public void removeChild(Account child) {
         children.remove(child);
         child.setParent(null);
     }
