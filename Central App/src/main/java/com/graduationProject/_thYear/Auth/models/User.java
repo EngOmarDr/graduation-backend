@@ -31,8 +31,8 @@ private String firstName;
 @Column(name = "last_name")
 private String lastName;
 
-@Column(name = "email" , unique = true)
-private String email;
+@Column(name = "username" , unique = true)
+private String username;
 
 
 @Column(name = "password")
@@ -57,7 +57,7 @@ private Role role;
 
     @Override
     public String getUsername() {
-        return email;
+        return username;
     }
 
     @Override

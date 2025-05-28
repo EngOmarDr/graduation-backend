@@ -26,13 +26,13 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
 
     public AuthenticationResponse register(RegisterRequest request) {
-        if (repository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already in use");
+        if (repository.existsByUsername(request.getUsername())) {
+            throw new RuntimeException("Username already in use");
         }
         var user = User.builder()
                 .firstName(request.getFirstname())
                 .lastName(request.getLastname())
-                .email(request.getEmail())
+                .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.USER)
                 .build();
@@ -40,7 +40,7 @@ public class AuthenticationService {
         var jwtToken = jwtService.generateToken(user);
         return AuthenticationResponse.builder()
                 .token(jwtToken)
-                .email(user.getEmail())
+                .email(user.getUsername())
                 .firstname(user.getFirstName())
                 .lastname(user.getLastName())
                 .role(user.getRole())
@@ -50,13 +50,13 @@ public class AuthenticationService {
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
 
-        var user = repository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new LoginUnauthorizedException("User not found with email: " + request.getEmail()));
+        var user = repository.findByUsername(request.getUsername())
+                .orElseThrow(() -> new LoginUnauthorizedException("User not found with email: " + request.getUsername()));
 
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            request.getEmail(),
+                            request.getUsername(),
                             request.getPassword()
                     )
             );
@@ -68,7 +68,7 @@ public class AuthenticationService {
 
         return AuthenticationResponse.builder()
                 .token(jwtToken)
-                .email(user.getEmail())
+                .email(user.getUsername())
                 .firstname(user.getFirstName())
                 .lastname(user.getLastName())
                 .role(user.getRole())
@@ -83,14 +83,14 @@ public class AuthenticationService {
 //    ) throws IOException {
 //        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 //        final String refreshToken;
-//        final String userEmail;
+//        final String userUsername;
 //        if (authHeader == null ||!authHeader.startsWith("Bearer ")) {
 //            return;
 //        }
 //        refreshToken = authHeader.substring(7);
-//        userEmail = jwtService.extractUsername(refreshToken);
-//        if (userEmail != null) {
-//            var user = this.repository.findByEmail(userEmail)
+//        userUsername = jwtService.extractUsername(refreshToken);
+//        if (userUsername != null) {
+//            var user = this.repository.findByUsername(userUsername)
 //                    .orElseThrow();
 //            if (jwtService.isTokenValid(refreshToken, user)) {
 //                var accessToken = jwtService.generateToken(user);
