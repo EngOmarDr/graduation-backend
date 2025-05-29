@@ -32,9 +32,6 @@ public class AccountServiceImpl implements AccountService {
         if (request.getFinalAccount() == null) {
             throw new IllegalArgumentException("final Account must be not null");
         }
-        if (request.getParentId() == null) {
-            throw new IllegalArgumentException("parent must be not null");
-        }
         if (!List.of(1, 2, 3).contains(request.getFinalAccount())) {
             throw new IllegalArgumentException("final Account must be الميزانية or الأرباح و الخسائر or المتاجرة");
         }
