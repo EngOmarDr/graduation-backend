@@ -2,8 +2,6 @@ package com.graduationProject._thYear.Unit.dtos.requests;
 
 import java.util.List;
 
-import com.graduationProject._thYear.Unit.models.UnitItem;
-
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
