@@ -26,12 +26,12 @@ public class JournalItem {
     private Integer id;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "jornal_header_id", nullable = false)
     private JournalHeader jornalHeader;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
 
@@ -44,7 +44,7 @@ public class JournalItem {
     private BigDecimal credit = BigDecimal.ZERO;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "currency_id", nullable = false)
     private Currency currency;
 

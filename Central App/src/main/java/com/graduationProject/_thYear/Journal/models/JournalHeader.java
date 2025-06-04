@@ -2,6 +2,8 @@ package com.graduationProject._thYear.Journal.models;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.graduationProject._thYear.Branch.models.Branch;
 import com.graduationProject._thYear.Currency.models.Currency;
@@ -26,7 +28,7 @@ public class JournalHeader {
     private Integer id;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "brachId", nullable = false)
     private Branch branch;
 
@@ -42,8 +44,12 @@ public class JournalHeader {
     @Column(name = "credit", nullable = false, precision = 19, scale = 4)
     private BigDecimal credit = BigDecimal.ZERO;
 
+    @OneToMany(mappedBy = "jornalHeader", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<JournalItem> journalItems = new ArrayList<>();
+
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "currencyId", nullable = false)
     private Currency currency;
 
@@ -66,4 +72,10 @@ public class JournalHeader {
 
     @Column(name = "notes")
     private String notes;
+
+
+    public void addJournalItem(JournalItem journalItem) {
+        journalItems.add(journalItem);
+        journalItem.setJornalHeader(this);
+    }
 }

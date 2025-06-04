@@ -3,7 +3,7 @@ package com.graduationProject._thYear.Journal.services;
 import java.util.List;
 
 import com.graduationProject._thYear.Journal.dtos.request.CreateJournalRequest;
-import com.graduationProject._thYear.Journal.dtos.response.JournalItemResponse;
+import com.graduationProject._thYear.Journal.dtos.request.UpdateJournalRequest;
 import com.graduationProject._thYear.Journal.dtos.response.JournalResponse;
 
 public interface JournalService {
@@ -11,10 +11,11 @@ public interface JournalService {
 
     // JournalResponse getAccountById(Integer id);
 
-    List<JournalItemResponse> getAllJournals();
+    List<JournalResponse> getAllJournals();
 
-    // JournalResponse updateJournal(Integer id, UpdateJournalJournalRequest
-    // request);
+    JournalResponse updateJournal(Integer id, UpdateJournalRequest request);
+
+    JournalResponse getJournalById(Integer id);
 
     void deleteJournal(Integer id);
 }

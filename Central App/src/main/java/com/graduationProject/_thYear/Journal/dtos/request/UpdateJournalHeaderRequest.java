@@ -17,7 +17,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateJournalHeaderRequest {
+public class UpdateJournalHeaderRequest {
     @NotNull(message = "Branch id is required")
     private Integer branchId;
 

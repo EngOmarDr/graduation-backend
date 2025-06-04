@@ -17,8 +17,9 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class JournalItemResponse {
     private Integer id;
-    private JournalHeader jornalHeader;
-    private Account account;
+    private Integer jornalHeader;
+    private Integer accountId;
+    private String accountName;
     @Builder.Default
     private BigDecimal debit = BigDecimal.ZERO;
     @Builder.Default

@@ -13,10 +13,10 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateJournalRequest {
+public class UpdateJournalRequest {
     // @NotNull(message = "Journal header is required")
-    private CreateJournalHeaderRequest journalHeader;
+    private UpdateJournalHeaderRequest journalHeader;
 
     // @NotNull(message = "Journal items list is required")
-    private List<CreateJournalItemRequest> journalItems;
+    private List<UpdateJournalItemRequest> journalItems;
 }
