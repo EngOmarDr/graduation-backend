@@ -31,7 +31,7 @@ public class UpdateJournalTypeRequest {
 
     private Boolean fieldCurrencyEquilty;
 
-    private Currency defaultCurrency;
+    private Integer defaultCurrencyId;
 
     private Boolean fieldDate;
 
@@ -41,5 +41,5 @@ public class UpdateJournalTypeRequest {
 
     private String creditName;
 
-    private Account defaultAccountId;
+    private Integer defaultAccountId;
 }

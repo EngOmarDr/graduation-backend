@@ -52,7 +52,7 @@ public class JournalType {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "DefaultCurrency", nullable = true)
-    private Currency DefaultCurrency;
+    private Currency defaultCurrency;
 
     @Builder.Default
     @Column(name = "fieldDate")

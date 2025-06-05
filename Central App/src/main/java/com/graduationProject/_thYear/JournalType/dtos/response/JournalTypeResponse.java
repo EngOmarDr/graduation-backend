@@ -1,7 +1,7 @@
 package com.graduationProject._thYear.JournalType.dtos.response;
 
-import com.graduationProject._thYear.Account.models.Account;
-import com.graduationProject._thYear.Currency.models.Currency;
+import com.graduationProject._thYear.Account.dtos.response.AccountResponse;
+import com.graduationProject._thYear.Currency.dtos.responses.CurrencyResponse;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -29,7 +29,7 @@ public class JournalTypeResponse {
 
     private Boolean fieldCurrencyEquilty;
 
-    private Currency defaultCurrency;
+    private CurrencyResponse defaultCurrency;
 
     private String numberFormat;
 
@@ -37,5 +37,5 @@ public class JournalTypeResponse {
 
     private String creditName;
 
-    private Account defaultAccountId;
+    private AccountResponse defaultAccountId;
 }

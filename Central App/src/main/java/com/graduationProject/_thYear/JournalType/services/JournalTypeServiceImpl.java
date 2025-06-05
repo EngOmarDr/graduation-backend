@@ -1,7 +1,11 @@
 package com.graduationProject._thYear.JournalType.services;
 
+import com.graduationProject._thYear.Account.dtos.response.AccountResponse;
 import com.graduationProject._thYear.Account.models.Account;
 import com.graduationProject._thYear.Account.repositories.AccountRepository;
+import com.graduationProject._thYear.Currency.dtos.responses.CurrencyResponse;
+import com.graduationProject._thYear.Currency.models.Currency;
+import com.graduationProject._thYear.Currency.repositories.CurrencyRepository;
 import com.graduationProject._thYear.JournalType.dtos.request.CreateJournalTypeRequest;
 import com.graduationProject._thYear.JournalType.dtos.request.UpdateJournalTypeRequest;
 import com.graduationProject._thYear.JournalType.dtos.response.JournalTypeResponse;
@@ -22,6 +26,31 @@ import java.util.stream.Collectors;
 public class JournalTypeServiceImpl implements JournalTypeService {
     private final JournalTypeRepository repository;
     private final AccountRepository accountRepository;
+    private final CurrencyRepository currencyRepository;
+
+    private AccountResponse convertAcccountToResponse(Account account) {
+        Integer finalAccountId = null;
+        if (account.getFinalAccount() != null && account.getFinalAccount().getId() != null) {
+            finalAccountId = account.getFinalAccount().getId();
+        }
+        return AccountResponse.builder()
+                .id(account.getId())
+                .code(account.getCode())
+                .name(account.getName())
+                .finalAccount(finalAccountId)
+                .build();
+    }
+
+    private CurrencyResponse convertCurrencyToResponse(Currency currency) {
+        return CurrencyResponse.builder()
+                .id(currency.getId())
+                .code(currency.getCode())
+                .name(currency.getName())
+                .currencyValue(currency.getCurrencyValue())
+                .partName(currency.getPartName())
+                .partPrecision(currency.getPartPrecision())
+                .build();
+    }
 
     private JournalTypeResponse convertToResponse(JournalType journalType) {
         return JournalTypeResponse.builder()
@@ -30,8 +59,10 @@ public class JournalTypeServiceImpl implements JournalTypeService {
                 .autoPost(journalType.getAutoPost())
                 .creditName(journalType.getCreditName())
                 .debitName(journalType.getDebitName())
-                .defaultCurrency(journalType.getDefaultCurrency())
-                .defaultAccountId(journalType.getDefaultAccount())
+                .defaultCurrency(journalType.getDefaultCurrency() == null ? null
+                        : convertCurrencyToResponse(journalType.getDefaultCurrency()))
+                .defaultAccountId(journalType.getDefaultAccount() == null ? null
+                        : convertAcccountToResponse(journalType.getDefaultAccount()))
                 .fieldCredit(journalType.getFieldCredit())
                 .fieldCurrencyEquilty(journalType.getFieldCurrencyEquilty())
                 .fieldCurrencyName(journalType.getFieldCurrencyName())
@@ -53,13 +84,19 @@ public class JournalTypeServiceImpl implements JournalTypeService {
                     () -> new IllegalArgumentException(
                             "Account with id '" + request.getDefaultAccountId() + "' not exists"));
         }
+        Currency currency = null;
+        if (request.getDefaultCurrencyId() != null) {
+            currency = currencyRepository.findById(request.getDefaultCurrencyId()).orElseThrow(
+                    () -> new IllegalArgumentException(
+                            "currency with id '" + request.getDefaultCurrencyId() + "' not exists"));
+        }
 
         var journalType = new JournalType();
         journalType.setName(request.getName());
         journalType.setAutoPost(request.getAutoPost());
         journalType.setCreditName(request.getCreditName());
         journalType.setDebitName(request.getDebitName());
-        journalType.setDefaultCurrency(request.getDefaultCurrency());
+        journalType.setDefaultCurrency(currency);
         journalType.setDefaultAccount(account);
         journalType.setFieldCredit(request.getFieldCredit());
         journalType.setFieldCurrencyEquilty(request.getFieldCurrencyEquilty());
@@ -97,12 +134,25 @@ public class JournalTypeServiceImpl implements JournalTypeService {
             throw new IllegalArgumentException("Journal Type with name '" + request.getName() + "' already exists");
         }
 
+        Account account = null;
+        if (request.getDefaultAccountId() != null) {
+            account = accountRepository.findById(request.getDefaultAccountId()).orElseThrow(
+                    () -> new IllegalArgumentException(
+                            "Account with id '" + request.getDefaultAccountId() + "' not exists"));
+        }
+        Currency currency = null;
+        if (request.getDefaultCurrencyId() != null) {
+            currency = currencyRepository.findById(request.getDefaultCurrencyId()).orElseThrow(
+                    () -> new IllegalArgumentException(
+                            "currency with id '" + request.getDefaultCurrencyId() + "' not exists"));
+        }
+
         object.setName(request.getName());
         object.setAutoPost(request.getAutoPost());
         object.setCreditName(request.getCreditName());
         object.setDebitName(request.getDebitName());
-        object.setDefaultCurrency(request.getDefaultCurrency());
-        object.setDefaultAccount(request.getDefaultAccountId());
+        object.setDefaultCurrency(currency);
+        object.setDefaultAccount(account);
         object.setFieldCredit(request.getFieldCredit());
         object.setFieldCurrencyEquilty(request.getFieldCurrencyEquilty());
         object.setFieldCurrencyName(request.getFieldCurrencyName());

@@ -38,7 +38,7 @@ public class CreateJournalTypeRequest {
     @Builder.Default
     private Boolean fieldCurrencyEquilty = false;
 
-    private Currency defaultCurrency;
+    private Integer defaultCurrencyId;
 
     @Builder.Default
     private Boolean fieldDate = false;
