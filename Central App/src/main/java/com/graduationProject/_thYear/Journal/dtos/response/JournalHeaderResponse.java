@@ -2,6 +2,7 @@ package com.graduationProject._thYear.Journal.dtos.response;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import com.graduationProject._thYear.Branch.models.Branch;
 import com.graduationProject._thYear.Currency.models.Currency;
@@ -28,4 +29,5 @@ public class JournalHeaderResponse {
     private Boolean isPosted = true;
     private LocalDateTime postDate;
     private String notes;
+    private List<JournalItemResponse> items;
 }
