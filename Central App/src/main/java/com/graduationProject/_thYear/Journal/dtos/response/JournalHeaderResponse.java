@@ -17,17 +17,12 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class JournalHeaderResponse {
     private Integer id;
-    private Branch branch;
+    private Integer branchId;
     private LocalDateTime date;
-    private BigDecimal debit;
-    private BigDecimal credit;
-    private Currency currency;
+    private BigDecimal totalDebit;
+    private BigDecimal totalCredit;
+    private Integer currencyId;
     private BigDecimal currencyValue;
+    private Boolean isPosted;
     private Byte parentType;
-    private Integer parentId;
-    @Builder.Default
-    private Boolean isPosted = true;
-    private LocalDateTime postDate;
-    private String notes;
-    private List<JournalItemResponse> items;
 }

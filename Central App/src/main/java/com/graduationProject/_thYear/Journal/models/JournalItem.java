@@ -14,7 +14,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "journalItem")
+@Table(name = "journalItem", indexes = {
+        @Index(name = "idx_journalitem_account", columnList = "account_id"),
+        @Index(name = "idx_journalitem_date", columnList = "date"),
+        @Index(name = "idx_journalitem_header_date", columnList = "journal_header_id,date")
+})
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -26,12 +30,12 @@ public class JournalItem {
     private Integer id;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "jornal_header_id", nullable = false)
-    private JournalHeader jornalHeader;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "journal_header_id", nullable = false)
+    private JournalHeader journalHeader;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
 
@@ -44,7 +48,7 @@ public class JournalItem {
     private BigDecimal credit = BigDecimal.ZERO;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "currency_id", nullable = false)
     private Currency currency;
 

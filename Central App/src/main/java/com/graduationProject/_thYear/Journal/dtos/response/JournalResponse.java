@@ -10,6 +10,6 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @SuperBuilder
 public class JournalResponse {
-    private JournalHeaderResponse createJournalHeaderResponse;
-    private List<JournalItemResponse> createJournalItemResponse;
+    private JournalHeaderResponse journalHeader;
+    private List<JournalItemResponse> journalItems;
 }

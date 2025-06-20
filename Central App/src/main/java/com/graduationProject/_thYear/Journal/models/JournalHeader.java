@@ -24,12 +24,12 @@ import lombok.NoArgsConstructor;
 public class JournalHeader {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+    @Column(name = "id", nullable = false, updatable = false)
     private Integer id;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "brachId", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "branchId", nullable = false)
     private Branch branch;
 
     @NotNull
@@ -44,12 +44,12 @@ public class JournalHeader {
     @Column(name = "credit", nullable = false, precision = 19, scale = 4)
     private BigDecimal credit = BigDecimal.ZERO;
 
-    @OneToMany(mappedBy = "jornalHeader", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "journalHeader", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<JournalItem> journalItems = new ArrayList<>();
 
     @NotNull
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "currencyId", nullable = false)
     private Currency currency;
 
@@ -76,6 +76,6 @@ public class JournalHeader {
 
     public void addJournalItem(JournalItem journalItem) {
         journalItems.add(journalItem);
-        journalItem.setJornalHeader(this);
+        journalItem.setJournalHeader(this);
     }
 }

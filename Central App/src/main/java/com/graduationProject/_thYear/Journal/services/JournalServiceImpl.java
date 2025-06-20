@@ -94,7 +94,7 @@ public class JournalServiceImpl implements JournalService {
                                         headerRequest.getCurrencyValue();
 
                                 return JournalItem.builder()
-                                        .jornalHeader(finalJournalHeader)
+                                        .journalHeader(finalJournalHeader)
                                         .account(account)
                                         .debit(itemRequest.getDebit())
                                         .credit(itemRequest.getCredit())
@@ -110,6 +110,7 @@ public class JournalServiceImpl implements JournalService {
                 journalHeader.setJournalItems(journalItems);
 
                 return mapToJournalResponse(journalHeader);
+
         }
 
         @Override
@@ -235,7 +236,7 @@ public class JournalServiceImpl implements JournalService {
                                         headerCurrencyValue;
 
                                 return JournalItem.builder()
-                                        .jornalHeader(journalHeader)
+                                        .journalHeader(journalHeader)
                                         .account(account)
                                         .debit(itemRequest.getDebit())
                                         .credit(itemRequest.getCredit())
@@ -281,18 +282,19 @@ public class JournalServiceImpl implements JournalService {
 
         @Override
         public LedgerReport generateLedgerReport(Integer accountId, LocalDate startDate, LocalDate endDate) {
+
+                if (startDate.isAfter(endDate)) {
+                        throw new IllegalArgumentException("Start date must be before end date");
+                }
                 LocalDateTime startDateTime = startDate.atStartOfDay();
                 LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
 
-                // Get account details
                 Account account = accountRepository.findById(accountId)
                         .orElseThrow(() -> new EntityNotFoundException("Account not found with id: " + accountId));
 
                 // Calculate opening balance (sum of all entries before start date)
-                BigDecimal openingDebit = journalItemRepository.calculateDebitBeforeDate(
-                        accountId, startDateTime);
-                BigDecimal openingCredit = journalItemRepository.calculateCreditBeforeDate(
-                        accountId, startDateTime);
+                BigDecimal openingDebit = journalItemRepository.calculateDebitBeforeDate(accountId, startDateTime);
+                BigDecimal openingCredit = journalItemRepository.calculateCreditBeforeDate(accountId, startDateTime);
                 BigDecimal openingBalance = openingDebit.subtract(openingCredit);
 
                 // Get entries for the period
@@ -328,42 +330,40 @@ public class JournalServiceImpl implements JournalService {
         // ... (keep the existing mapping methods)
         private JournalResponse mapToJournalResponse(JournalHeader journalHeader) {
                 return JournalResponse.builder()
-                        .createJournalHeaderResponse(mapToJournalHeaderResponse(journalHeader))
-                        .createJournalItemResponse(journalHeader.getJournalItems().stream()
-                                .map(this::mapToJournalItemResponse)
-                                .collect(Collectors.toList()))
+                        .journalHeader(mapToJournalHeaderResponse(journalHeader))
+                        .journalItems(mapToJournalItemResponses(journalHeader.getJournalItems()))
                         .build();
         }
 
         private JournalHeaderResponse mapToJournalHeaderResponse(JournalHeader journalHeader) {
                 return JournalHeaderResponse.builder()
                         .id(journalHeader.getId())
-                        .branch(journalHeader.getBranch())
+                        .branchId(journalHeader.getBranch().getId())
                         .date(journalHeader.getDate())
-                        .debit(journalHeader.getDebit())
-                        .credit(journalHeader.getCredit())
-                        .currency(journalHeader.getCurrency())
+                        .totalDebit(journalHeader.getDebit())
+                        .totalCredit(journalHeader.getCredit())
+                        .currencyId(journalHeader.getCurrency().getId())
                         .currencyValue(journalHeader.getCurrencyValue())
-                        .parentType(journalHeader.getParentType())
-                       // .parentId(journalHeader.getParentId())
                         .isPosted(journalHeader.getIsPosted())
-                       // .postDate(journalHeader.getPostDate())
-                       // .notes(journalHeader.getNotes())
+                        .parentType(journalHeader.getParentType())
                         .build();
+        }
+
+        private List<JournalItemResponse> mapToJournalItemResponses(List<JournalItem> journalItems) {
+                return journalItems.stream()
+                        .map(this::mapToJournalItemResponse)
+                        .collect(Collectors.toList());
         }
 
         private JournalItemResponse mapToJournalItemResponse(JournalItem journalItem) {
                 return JournalItemResponse.builder()
                         .id(journalItem.getId())
-                        .jornalHeader(journalItem.getJornalHeader().getId())
                         .accountId(journalItem.getAccount().getId())
-                        .accountName(journalItem.getAccount().getName())
                         .debit(journalItem.getDebit())
                         .credit(journalItem.getCredit())
-                        .currency(journalItem.getCurrency())
+                        .currencyId(journalItem.getCurrency().getId())
                         .currencyValue(journalItem.getCurrencyValue())
                         .date(journalItem.getDate())
-                       // .notes(journalItem.getNotes())
                         .build();
         }
 

@@ -17,15 +17,12 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class JournalItemResponse {
     private Integer id;
-    private Integer jornalHeader;
     private Integer accountId;
-    private String accountName;
     @Builder.Default
     private BigDecimal debit = BigDecimal.ZERO;
     @Builder.Default
     private BigDecimal credit = BigDecimal.ZERO;
-    private Currency currency;
+    private Integer currencyId;
     private BigDecimal currencyValue;
     private LocalDateTime date;
-    private String notes;
 }
