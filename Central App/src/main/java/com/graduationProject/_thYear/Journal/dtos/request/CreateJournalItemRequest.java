@@ -26,10 +26,8 @@ public class CreateJournalItemRequest {
     @PositiveOrZero(message = "Credit must be zero or positive")
     private BigDecimal credit;
 
-    @NotNull(message = "Currency id is required")
-    private Integer currencyId;
 
-    @NotNull(message = "Currency value is required")
+    private Integer currencyId;
     private BigDecimal currencyValue;
 
     @NotNull(message = "Date is required")

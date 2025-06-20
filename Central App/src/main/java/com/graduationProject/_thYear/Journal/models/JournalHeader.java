@@ -60,18 +60,18 @@ public class JournalHeader {
     @Column(name = "parentType")
     private Byte parentType;
 
-    @Column(name = "parentId")
-    private Integer parentId;
+//    @Column(name = "parentId")
+//    private Integer parentId;
 
     @Builder.Default
     @Column(name = "isPosted", nullable = false)
     private Boolean isPosted = false;
 
-    @Column(name = "postDate")
-    private LocalDateTime postDate;
-
-    @Column(name = "notes")
-    private String notes;
+//    @Column(name = "postDate")
+//    private LocalDateTime postDate;
+//
+//    @Column(name = "notes")
+//    private String notes;
 
 
     public void addJournalItem(JournalItem journalItem) {

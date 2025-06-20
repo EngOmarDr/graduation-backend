@@ -55,8 +55,8 @@ public class JournalItem {
     @NotNull
     @Column(name = "date", nullable = false)
     private LocalDateTime date;
-
-    @Column(name = "notes")
-    private String notes;
+//
+//    @Column(name = "notes")
+//    private String notes;
 
 }

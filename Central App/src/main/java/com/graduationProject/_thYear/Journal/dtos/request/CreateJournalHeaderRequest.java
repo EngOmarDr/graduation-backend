@@ -29,19 +29,19 @@ public class CreateJournalHeaderRequest {
 
     @PositiveOrZero(message = "Credit must be zero or positive")
     private BigDecimal credit;
-    
+
     @NotNull(message = "Currency id is required")
     private Integer currencyId;
 
     @NotNull(message = "Currency value is required")
     private BigDecimal currencyValue;
-    
+
     private Byte parentType;
     private Integer parentId;
-    
+
     @Builder.Default
     private Boolean isPosted = true;
-    
+
     private LocalDateTime postDate;
     private String notes;
 }

@@ -40,6 +40,6 @@ public class LedgerReport {
         private LocalDateTime date;
         private BigDecimal debit;
         private BigDecimal credit;
-        private String notes;
+      //   private String notes;
     }
 }
