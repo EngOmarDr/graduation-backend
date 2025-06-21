@@ -114,19 +114,19 @@ public class JournalServiceImpl implements JournalService {
         }
 
         @Override
-        public List<JournalHeaderResponse> getAllJournals() {
+        public List<JournalResponse> getAllJournals() {
                 return journalHeaderRepository.findAll().stream()
-                        .map(this::mapToJournalHeaderResponse)
+                        .map(this::mapToJournalResponse)
                         .collect(Collectors.toList());
         }
 
         @Override
-        public List<JournalHeaderResponse> getJournalsByDateRange(LocalDate startDate, LocalDate endDate) {
+        public List<JournalResponse> getJournalsByDateRange(LocalDate startDate, LocalDate endDate) {
                 LocalDateTime startDateTime = startDate.atStartOfDay();
                 LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
 
                 return journalHeaderRepository.findByDateBetween(startDateTime, endDateTime).stream()
-                        .map(this::mapToJournalHeaderResponse)
+                        .map(this::mapToJournalResponse)
                         .collect(Collectors.toList());
         }
 
@@ -327,16 +327,8 @@ public class JournalServiceImpl implements JournalService {
         }
 
 
-        // ... (keep the existing mapping methods)
         private JournalResponse mapToJournalResponse(JournalHeader journalHeader) {
                 return JournalResponse.builder()
-                        .journalHeader(mapToJournalHeaderResponse(journalHeader))
-                        .journalItems(mapToJournalItemResponses(journalHeader.getJournalItems()))
-                        .build();
-        }
-
-        private JournalHeaderResponse mapToJournalHeaderResponse(JournalHeader journalHeader) {
-                return JournalHeaderResponse.builder()
                         .id(journalHeader.getId())
                         .branchId(journalHeader.getBranch().getId())
                         .date(journalHeader.getDate())
@@ -346,13 +338,11 @@ public class JournalServiceImpl implements JournalService {
                         .currencyValue(journalHeader.getCurrencyValue())
                         .isPosted(journalHeader.getIsPosted())
                         .parentType(journalHeader.getParentType())
+                 //       .parentId(journalHeader.getParentId())  // Uncomment if using parentId
+                        .journalItems(journalHeader.getJournalItems().stream()
+                                .map(this::mapToJournalItemResponse)
+                                .collect(Collectors.toList()))
                         .build();
-        }
-
-        private List<JournalItemResponse> mapToJournalItemResponses(List<JournalItem> journalItems) {
-                return journalItems.stream()
-                        .map(this::mapToJournalItemResponse)
-                        .collect(Collectors.toList());
         }
 
         private JournalItemResponse mapToJournalItemResponse(JournalItem journalItem) {

@@ -14,9 +14,9 @@ public interface JournalService {
 
     // JournalResponse getAccountById(Integer id);
 
-    List<JournalHeaderResponse> getAllJournals();
+    List<JournalResponse> getAllJournals();
 
-    List<JournalHeaderResponse> getJournalsByDateRange(LocalDate startDate, LocalDate endDate);
+    List<JournalResponse> getJournalsByDateRange(LocalDate startDate, LocalDate endDate);
 
     JournalResponse updateJournal(Integer id, UpdateJournalRequest request);
 

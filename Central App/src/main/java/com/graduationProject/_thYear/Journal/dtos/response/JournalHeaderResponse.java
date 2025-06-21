@@ -16,13 +16,5 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @SuperBuilder
 public class JournalHeaderResponse {
-    private Integer id;
-    private Integer branchId;
-    private LocalDateTime date;
-    private BigDecimal totalDebit;
-    private BigDecimal totalCredit;
-    private Integer currencyId;
-    private BigDecimal currencyValue;
-    private Boolean isPosted;
-    private Byte parentType;
+
 }

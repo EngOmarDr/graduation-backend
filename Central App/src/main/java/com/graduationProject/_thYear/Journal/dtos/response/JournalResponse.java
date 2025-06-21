@@ -1,5 +1,7 @@
 package com.graduationProject._thYear.Journal.dtos.response;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import lombok.Getter;
@@ -10,6 +12,15 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @SuperBuilder
 public class JournalResponse {
-    private JournalHeaderResponse journalHeader;
+
+    private Integer id;
+    private Integer branchId;
+    private LocalDateTime date;
+    private BigDecimal totalDebit;
+    private BigDecimal totalCredit;
+    private Integer currencyId;
+    private BigDecimal currencyValue;
+    private Boolean isPosted;
+    private Byte parentType;
     private List<JournalItemResponse> journalItems;
 }

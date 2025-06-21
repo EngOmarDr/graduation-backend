@@ -29,16 +29,16 @@ public class JournalController {
     }
 
     @GetMapping
-    public ResponseEntity<List<JournalHeaderResponse>> getAllJournals() {
-        List<JournalHeaderResponse> response = journalService.getAllJournals();
+    public ResponseEntity<List<JournalResponse>> getAllJournals() {
+        List<JournalResponse> response = journalService.getAllJournals();
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/date-range")
-    public ResponseEntity<List<JournalHeaderResponse>> getJournalsByDateRange(
+    public ResponseEntity<List<JournalResponse>> getJournalsByDateRange(
             @RequestParam LocalDate startDate,
             @RequestParam LocalDate endDate) {
-        List<JournalHeaderResponse> response = journalService.getJournalsByDateRange(startDate, endDate);
+        List<JournalResponse> response = journalService.getJournalsByDateRange(startDate, endDate);
         return ResponseEntity.ok(response);
     }
 
