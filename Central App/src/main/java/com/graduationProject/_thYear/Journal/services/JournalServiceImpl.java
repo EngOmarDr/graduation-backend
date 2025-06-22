@@ -43,11 +43,11 @@ public class JournalServiceImpl implements JournalService {
                 Branch branch = branchRepository.findById(request.getBranchId())
                         .orElseThrow(() -> new EntityNotFoundException("Branch not found with id: " + request.getBranchId()));
 
-                // Validate currency
+                // Validate currency (mandatory in header)
                 Currency currency = currencyRepository.findById(request.getCurrencyId())
                         .orElseThrow(() -> new EntityNotFoundException("Currency not found with id: " + request.getCurrencyId()));
 
-                // Create journal items with currency conversion
+                // Create journal items (store original values)
                 List<JournalItem> journalItems = request.getJournalItems().stream()
                         .map(itemRequest -> {
                                 Account account = accountRepository.findById(itemRequest.getAccountId())
@@ -63,29 +63,36 @@ public class JournalServiceImpl implements JournalService {
                                         itemRequest.getCurrencyValue() :
                                         request.getCurrencyValue();
 
-                                // Calculate converted amounts
-                                BigDecimal debit = itemRequest.getDebit().multiply(currencyValue);
-                                BigDecimal credit = itemRequest.getCredit().multiply(currencyValue);
-
                                 return JournalItem.builder()
                                         .journalHeader(null) // Will be set after header is created
                                         .account(account)
-                                        .debit(debit)
-                                        .credit(credit)
+                                        .debit(itemRequest.getDebit()) // Store original value
+                                        .credit(itemRequest.getCredit()) // Store original value
                                         .currency(itemCurrency)
                                         .currencyValue(currencyValue)
                                         .date(itemRequest.getDate() != null ? itemRequest.getDate() : request.getDate())
+                                        .notes(itemRequest.getNotes())
                                         .build();
                         })
                         .collect(Collectors.toList());
 
-                // Calculate totals with converted amounts
+                // Calculate totals with currency conversion
                 BigDecimal totalDebit = journalItems.stream()
-                        .map(JournalItem::getDebit)
+                        .map(item -> {
+                                BigDecimal rate = item.getCurrencyValue() != null ?
+                                        item.getCurrencyValue() :
+                                        request.getCurrencyValue();
+                                return item.getDebit().multiply(rate);
+                        })
                         .reduce(BigDecimal.ZERO, BigDecimal::add);
 
                 BigDecimal totalCredit = journalItems.stream()
-                        .map(JournalItem::getCredit)
+                        .map(item -> {
+                                BigDecimal rate = item.getCurrencyValue() != null ?
+                                        item.getCurrencyValue() :
+                                        request.getCurrencyValue();
+                                return item.getCredit().multiply(rate);
+                        })
                         .reduce(BigDecimal.ZERO, BigDecimal::add);
 
                 // Validate debit equals credit
@@ -112,7 +119,7 @@ public class JournalServiceImpl implements JournalService {
                 JournalHeader finalJournalHeader = journalHeader;
                 journalItems.forEach(item -> item.setJournalHeader(finalJournalHeader));
 
-                // Save all items
+                // Save all items (with original values)
                 journalItemRepository.saveAll(journalItems);
                 journalHeader.setJournalItems(journalItems);
 
@@ -246,6 +253,7 @@ public class JournalServiceImpl implements JournalService {
                                         .currency(currency)
                                         .currencyValue(currencyValue)
                                         .date(itemRequest.getDate() != null ? itemRequest.getDate() : headerDate)
+                                        .notes(itemRequest.getNotes())
                                         .build();
 
                                 journalHeader.getJournalItems().add(newItem);
@@ -370,6 +378,7 @@ public class JournalServiceImpl implements JournalService {
                         .currencyId(journalItem.getCurrency().getId())
                         .currencyValue(journalItem.getCurrencyValue())
                         .date(journalItem.getDate())
+                        .notes(journalItem.getNotes())
                         .build();
         }
 

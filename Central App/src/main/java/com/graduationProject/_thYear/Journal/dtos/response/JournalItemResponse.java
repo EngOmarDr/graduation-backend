@@ -25,4 +25,5 @@ public class JournalItemResponse {
     private Integer currencyId;
     private BigDecimal currencyValue;
     private LocalDateTime date;
+    private String notes;
 }
