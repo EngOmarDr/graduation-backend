@@ -13,6 +13,7 @@ import com.graduationProject._thYear.Account.repositories.AccountRepository;
 import com.graduationProject._thYear.Branch.repositories.BranchRepository;
 import com.graduationProject._thYear.Currency.repositories.CurrencyRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,15 +39,15 @@ public class JournalServiceImpl implements JournalService {
         @Override
         @Transactional
         public JournalResponse createJournal(CreateJournalRequest request) {
-                // Validate and create journal header
-                CreateJournalHeaderRequest headerRequest = request.getJournalHeader();
-                Branch branch = branchRepository.findById(headerRequest.getBranchId())
-                        .orElseThrow(() -> new EntityNotFoundException("Branch not found with id: " + headerRequest.getBranchId()));
+                // Validate branch
+                Branch branch = branchRepository.findById(request.getBranchId())
+                        .orElseThrow(() -> new EntityNotFoundException("Branch not found with id: " + request.getBranchId()));
 
-                Currency headerCurrency = currencyRepository.findById(headerRequest.getCurrencyId())
-                        .orElseThrow(() -> new EntityNotFoundException("Currency not found with id: " + headerRequest.getCurrencyId()));
+                // Validate currency
+                Currency currency = currencyRepository.findById(request.getCurrencyId())
+                        .orElseThrow(() -> new EntityNotFoundException("Currency not found with id: " + request.getCurrencyId()));
 
-                // Calculate total debit and credit from items
+                // Calculate totals from items
                 BigDecimal totalDebit = request.getJournalItems().stream()
                         .map(CreateJournalItemRequest::getDebit)
                         .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -55,7 +56,7 @@ public class JournalServiceImpl implements JournalService {
                         .map(CreateJournalItemRequest::getCredit)
                         .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-                // Validate debit equals credit (double-entry accounting principle)
+                // Validate debit equals credit
                 if (totalDebit.compareTo(totalCredit) != 0) {
                         throw new IllegalArgumentException("Total debit must equal total credit");
                 }
@@ -63,14 +64,14 @@ public class JournalServiceImpl implements JournalService {
                 // Create journal header
                 JournalHeader journalHeader = JournalHeader.builder()
                         .branch(branch)
-                        .date(headerRequest.getDate())
+                        .date(request.getDate())
                         .debit(totalDebit)
                         .credit(totalCredit)
-                        .currency(headerCurrency)
-                        .currencyValue(headerRequest.getCurrencyValue())
-                        .parentType(headerRequest.getParentType())
-                       // .parentId(headerRequest.getParentId())
-                        .isPosted(headerRequest.getIsPosted())
+                        .currency(currency)
+                        .currencyValue(request.getCurrencyValue())
+                        .parentType(request.getParentType())
+               //         .parentId(request.getParentId())
+                        .isPosted(request.getIsPosted())
                         .build();
 
                 // Save header first to generate ID
@@ -87,12 +88,12 @@ public class JournalServiceImpl implements JournalService {
                                 Currency itemCurrency = itemRequest.getCurrencyId() != null ?
                                         currencyRepository.findById(itemRequest.getCurrencyId())
                                                 .orElseThrow(() -> new EntityNotFoundException("Currency not found with id: " + itemRequest.getCurrencyId())) :
-                                        headerCurrency;
+                                        currency;
 
                                 // Use item currency value if specified, otherwise use header currency value
                                 BigDecimal itemCurrencyValue = itemRequest.getCurrencyValue() != null ?
                                         itemRequest.getCurrencyValue() :
-                                        headerRequest.getCurrencyValue();
+                                        request.getCurrencyValue();
 
                                 return JournalItem.builder()
                                         .journalHeader(finalJournalHeader)
@@ -101,17 +102,15 @@ public class JournalServiceImpl implements JournalService {
                                         .credit(itemRequest.getCredit())
                                         .currency(itemCurrency)
                                         .currencyValue(itemCurrencyValue)
-                                        .date(itemRequest.getDate() != null ? itemRequest.getDate() : headerRequest.getDate())
+                                        .date(itemRequest.getDate() != null ? itemRequest.getDate() : request.getDate())
                                         .build();
                         })
                         .collect(Collectors.toList());
 
-                // Save all items
                 journalItemRepository.saveAll(journalItems);
                 journalHeader.setJournalItems(journalItems);
 
                 return mapToJournalResponse(journalHeader);
-
         }
 
         @Override
@@ -144,82 +143,67 @@ public class JournalServiceImpl implements JournalService {
                 JournalHeader journalHeader = journalHeaderRepository.findById(id)
                         .orElseThrow(() -> new EntityNotFoundException("Journal not found with id: " + id));
 
-                // Update header if present in request
-                if (request.getJournalHeader() != null) {
-                        updateJournalHeader(journalHeader, request.getJournalHeader());
+                // Prevent modification of posted journals
+                if (journalHeader.getIsPosted()) {
+                        throw new IllegalStateException("Cannot modify a posted journal");
                 }
+
+                // Update header fields from request
+                updateJournalHeader(journalHeader, request);
 
                 // Update items if present in request
                 if (request.getJournalItems() != null && !request.getJournalItems().isEmpty()) {
                         updateJournalItems(journalHeader, request.getJournalItems());
-                }
-
-                // Recalculate totals if items were updated
-                if (request.getJournalItems() != null && !request.getJournalItems().isEmpty()) {
                         recalculateTotals(journalHeader);
                 }
 
                 // Save the updated journal
                 journalHeader = journalHeaderRepository.save(journalHeader);
-
                 return mapToJournalResponse(journalHeader);
         }
 
-        private void updateJournalHeader(JournalHeader journalHeader, UpdateJournalHeaderRequest headerRequest) {
+
+
+        private void updateJournalHeader(JournalHeader journalHeader, UpdateJournalRequest request) {
                 // Validation - prevent modification of posted journals
                 if (!journalHeader.getJournalItems().isEmpty() && journalHeader.getIsPosted()) {
                         throw new IllegalStateException("Cannot modify items of a posted journal");
                 }
 
-                if (headerRequest.getBranchId() != null) {
-                        Branch branch = branchRepository.findById(headerRequest.getBranchId())
-                                .orElseThrow(() -> new EntityNotFoundException("Branch not found with id: " + headerRequest.getBranchId()));
+                if (request.getBranchId() != null) {
+                        Branch branch = branchRepository.findById(request.getBranchId())
+                                .orElseThrow(() -> new EntityNotFoundException("Branch not found with id: " + request.getBranchId()));
                         journalHeader.setBranch(branch);
                 }
 
-                if (headerRequest.getDate() != null) {
-                        journalHeader.setDate(headerRequest.getDate());
+                if (request.getDate() != null) {
+                        journalHeader.setDate(request.getDate());
                 }
 
-                if (headerRequest.getCurrencyId() != null) {
-                        Currency currency = currencyRepository.findById(headerRequest.getCurrencyId())
-                                .orElseThrow(() -> new EntityNotFoundException("Currency not found with id: " + headerRequest.getCurrencyId()));
+                if (request.getCurrencyId() != null) {
+                        Currency currency = currencyRepository.findById(request.getCurrencyId())
+                                .orElseThrow(() -> new EntityNotFoundException("Currency not found with id: " + request.getCurrencyId()));
                         journalHeader.setCurrency(currency);
                 }
 
-                if (headerRequest.getCurrencyValue() != null) {
-                        journalHeader.setCurrencyValue(headerRequest.getCurrencyValue());
+                if (request.getCurrencyValue() != null) {
+                        journalHeader.setCurrencyValue(request.getCurrencyValue());
                 }
 
-                if (headerRequest.getParentType() != null) {
-                        journalHeader.setParentType(headerRequest.getParentType());
+                if (request.getParentType() != null) {
+                        journalHeader.setParentType(request.getParentType());
                 }
 
-//                if (headerRequest.getParentId() != null) {
-//                        journalHeader.setParentId(headerRequest.getParentId());
+//                if (request.getParentId() != null) {
+//                        journalHeader.setParentId(request.getParentId());
 //                }
 
-                if (headerRequest.getIsPosted() != null) {
-                        journalHeader.setIsPosted(headerRequest.getIsPosted());
+                if (request.getIsPosted() != null) {
+                        journalHeader.setIsPosted(request.getIsPosted());
                 }
-
-//                if (headerRequest.getPostDate() != null) {
-//                        journalHeader.setPostDate(headerRequest.getPostDate());
-//                }
-
-//                if (headerRequest.getNotes() != null) {
-//                        journalHeader.setNotes(headerRequest.getNotes());
-//                }
-
-                // Debit and credit are updated when items are updated
         }
 
-        private void updateJournalItems(JournalHeader journalHeader, List<UpdateJournalItemRequest> itemRequests) {
-                // Validation - prevent modification of posted journals
-                if (!journalHeader.getJournalItems().isEmpty() && journalHeader.getIsPosted()) {
-                        throw new IllegalStateException("Cannot modify items of a posted journal");
-                }
-
+        private void updateJournalItems(JournalHeader journalHeader, @NotNull(message = "Journal items are required") List<CreateJournalItemRequest> itemRequests) {
                 // Get header currency and values
                 Currency headerCurrency = journalHeader.getCurrency();
                 BigDecimal headerCurrencyValue = journalHeader.getCurrencyValue();

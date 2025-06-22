@@ -18,30 +18,30 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateJournalHeaderRequest {
-    @NotNull(message = "Branch id is required")
-    private Integer branchId;
-
-    @NotNull(message = "Date is required")
-    private LocalDateTime date;
-
-    @PositiveOrZero(message = "Debit must be zero or positive")
-    private BigDecimal debit;
-
-    @PositiveOrZero(message = "Credit must be zero or positive")
-    private BigDecimal credit;
-
-    @NotNull(message = "Currency id is required")
-    private Integer currencyId;
-
-    @NotNull(message = "Currency value is required")
-    private BigDecimal currencyValue;
-
-    private Byte parentType;
-    private Integer parentId;
-
-    @Builder.Default
-    private Boolean isPosted = true;
-
-    private LocalDateTime postDate;
-    private String notes;
+   @NotNull(message = "Branch id is required")
+   private Integer branchId;
+//
+//    @NotNull(message = "Date is required")
+//    private LocalDateTime date;
+//
+//    @PositiveOrZero(message = "Debit must be zero or positive")
+//    private BigDecimal debit;
+//
+//    @PositiveOrZero(message = "Credit must be zero or positive")
+//    private BigDecimal credit;
+//
+//    @NotNull(message = "Currency id is required")
+//    private Integer currencyId;
+//
+//    @NotNull(message = "Currency value is required")
+//    private BigDecimal currencyValue;
+//
+//    private Byte parentType;
+//    private Integer parentId;
+//
+//    @Builder.Default
+//    private Boolean isPosted = true;
+//
+//    private LocalDateTime postDate;
+//    private String notes;
 }

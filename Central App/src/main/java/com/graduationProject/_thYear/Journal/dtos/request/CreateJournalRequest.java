@@ -1,11 +1,11 @@
 package com.graduationProject._thYear.Journal.dtos.request;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 @Getter
@@ -14,9 +14,24 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateJournalRequest {
-    // @NotNull(message = "Journal header is required")
-    private CreateJournalHeaderRequest journalHeader;
+    @NotNull(message = "Branch id is required")
+    private Integer branchId;
 
-    // @NotNull(message = "Journal items list is required")
+    @NotNull(message = "Date is required")
+    private LocalDateTime date;
+
+    @NotNull(message = "Currency id is required")
+    private Integer currencyId;
+
+    @NotNull(message = "Currency value is required")
+    private BigDecimal currencyValue;
+
+    private Byte parentType;
+    private Integer parentId;
+
+    @Builder.Default
+    private Boolean isPosted = false;
+
+    @NotNull(message = "Journal items are required")
     private List<CreateJournalItemRequest> journalItems;
 }
