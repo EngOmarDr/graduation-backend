@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -165,6 +166,11 @@ public class JournalServiceImpl implements JournalService {
         }
 
         private void updateJournalHeader(JournalHeader journalHeader, UpdateJournalHeaderRequest headerRequest) {
+                // Validation - prevent modification of posted journals
+                if (!journalHeader.getJournalItems().isEmpty() && journalHeader.getIsPosted()) {
+                        throw new IllegalStateException("Cannot modify items of a posted journal");
+                }
+
                 if (headerRequest.getBranchId() != null) {
                         Branch branch = branchRepository.findById(headerRequest.getBranchId())
                                 .orElseThrow(() -> new EntityNotFoundException("Branch not found with id: " + headerRequest.getBranchId()));
@@ -209,33 +215,39 @@ public class JournalServiceImpl implements JournalService {
         }
 
         private void updateJournalItems(JournalHeader journalHeader, List<UpdateJournalItemRequest> itemRequests) {
-                // First remove all existing items
-                journalItemRepository.deleteAll(journalHeader.getJournalItems());
-                journalHeader.getJournalItems().clear();
+                // Validation - prevent modification of posted journals
+                if (!journalHeader.getJournalItems().isEmpty() && journalHeader.getIsPosted()) {
+                        throw new IllegalStateException("Cannot modify items of a posted journal");
+                }
 
                 // Get header currency and values
                 Currency headerCurrency = journalHeader.getCurrency();
                 BigDecimal headerCurrencyValue = journalHeader.getCurrencyValue();
                 LocalDateTime headerDate = journalHeader.getDate();
 
-                // Then add all new items
+                // Clear existing items through the managed collection
+                List<JournalItem> existingItems = new ArrayList<>(journalHeader.getJournalItems());
+                for (JournalItem item : existingItems) {
+                        journalHeader.getJournalItems().remove(item);
+                        journalItemRepository.delete(item);
+                }
+
+                // Add new items
                 List<JournalItem> newItems = itemRequests.stream()
                         .map(itemRequest -> {
                                 Account account = accountRepository.findById(itemRequest.getAccountId())
                                         .orElseThrow(() -> new EntityNotFoundException("Account not found with id: " + itemRequest.getAccountId()));
 
-                                // Use item currency if specified, otherwise use header currency
                                 Currency currency = itemRequest.getCurrencyId() != null ?
                                         currencyRepository.findById(itemRequest.getCurrencyId())
                                                 .orElseThrow(() -> new EntityNotFoundException("Currency not found with id: " + itemRequest.getCurrencyId())) :
                                         headerCurrency;
 
-                                // Use item currency value if specified, otherwise use header currency value
                                 BigDecimal currencyValue = itemRequest.getCurrencyValue() != null ?
                                         itemRequest.getCurrencyValue() :
                                         headerCurrencyValue;
 
-                                return JournalItem.builder()
+                                JournalItem newItem = JournalItem.builder()
                                         .journalHeader(journalHeader)
                                         .account(account)
                                         .debit(itemRequest.getDebit())
@@ -243,15 +255,16 @@ public class JournalServiceImpl implements JournalService {
                                         .currency(currency)
                                         .currencyValue(currencyValue)
                                         .date(itemRequest.getDate() != null ? itemRequest.getDate() : headerDate)
-                                      //  .notes(itemRequest.getNotes())
                                         .build();
+
+                                journalHeader.getJournalItems().add(newItem);
+                                return newItem;
                         })
                         .collect(Collectors.toList());
 
+                // Save all new items
                 journalItemRepository.saveAll(newItems);
-                journalHeader.setJournalItems(newItems);
         }
-
         private void recalculateTotals(JournalHeader journalHeader) {
                 BigDecimal totalDebit = journalHeader.getJournalItems().stream()
                         .map(JournalItem::getDebit)
