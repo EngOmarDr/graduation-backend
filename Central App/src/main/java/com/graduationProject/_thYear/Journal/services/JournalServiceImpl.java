@@ -47,13 +47,45 @@ public class JournalServiceImpl implements JournalService {
                 Currency currency = currencyRepository.findById(request.getCurrencyId())
                         .orElseThrow(() -> new EntityNotFoundException("Currency not found with id: " + request.getCurrencyId()));
 
-                // Calculate totals from items
-                BigDecimal totalDebit = request.getJournalItems().stream()
-                        .map(CreateJournalItemRequest::getDebit)
+                // Create journal items with currency conversion
+                List<JournalItem> journalItems = request.getJournalItems().stream()
+                        .map(itemRequest -> {
+                                Account account = accountRepository.findById(itemRequest.getAccountId())
+                                        .orElseThrow(() -> new EntityNotFoundException("Account not found with id: " + itemRequest.getAccountId()));
+
+                                // Determine currency to use (item currency has priority)
+                                Currency itemCurrency = itemRequest.getCurrencyId() != null ?
+                                        currencyRepository.findById(itemRequest.getCurrencyId())
+                                                .orElseThrow(() -> new EntityNotFoundException("Currency not found with id: " + itemRequest.getCurrencyId())) :
+                                        currency;
+
+                                BigDecimal currencyValue = itemRequest.getCurrencyValue() != null ?
+                                        itemRequest.getCurrencyValue() :
+                                        request.getCurrencyValue();
+
+                                // Calculate converted amounts
+                                BigDecimal debit = itemRequest.getDebit().multiply(currencyValue);
+                                BigDecimal credit = itemRequest.getCredit().multiply(currencyValue);
+
+                                return JournalItem.builder()
+                                        .journalHeader(null) // Will be set after header is created
+                                        .account(account)
+                                        .debit(debit)
+                                        .credit(credit)
+                                        .currency(itemCurrency)
+                                        .currencyValue(currencyValue)
+                                        .date(itemRequest.getDate() != null ? itemRequest.getDate() : request.getDate())
+                                        .build();
+                        })
+                        .collect(Collectors.toList());
+
+                // Calculate totals with converted amounts
+                BigDecimal totalDebit = journalItems.stream()
+                        .map(JournalItem::getDebit)
                         .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-                BigDecimal totalCredit = request.getJournalItems().stream()
-                        .map(CreateJournalItemRequest::getCredit)
+                BigDecimal totalCredit = journalItems.stream()
+                        .map(JournalItem::getCredit)
                         .reduce(BigDecimal.ZERO, BigDecimal::add);
 
                 // Validate debit equals credit
@@ -70,48 +102,23 @@ public class JournalServiceImpl implements JournalService {
                         .currency(currency)
                         .currencyValue(request.getCurrencyValue())
                         .parentType(request.getParentType())
-               //         .parentId(request.getParentId())
                         .isPosted(request.getIsPosted())
                         .build();
 
                 // Save header first to generate ID
                 journalHeader = journalHeaderRepository.save(journalHeader);
 
-                // Create and save journal items
+                // Set journal header reference for all items
                 JournalHeader finalJournalHeader = journalHeader;
-                List<JournalItem> journalItems = request.getJournalItems().stream()
-                        .map(itemRequest -> {
-                                Account account = accountRepository.findById(itemRequest.getAccountId())
-                                        .orElseThrow(() -> new EntityNotFoundException("Account not found with id: " + itemRequest.getAccountId()));
+                journalItems.forEach(item -> item.setJournalHeader(finalJournalHeader));
 
-                                // Use item currency if specified, otherwise use header currency
-                                Currency itemCurrency = itemRequest.getCurrencyId() != null ?
-                                        currencyRepository.findById(itemRequest.getCurrencyId())
-                                                .orElseThrow(() -> new EntityNotFoundException("Currency not found with id: " + itemRequest.getCurrencyId())) :
-                                        currency;
-
-                                // Use item currency value if specified, otherwise use header currency value
-                                BigDecimal itemCurrencyValue = itemRequest.getCurrencyValue() != null ?
-                                        itemRequest.getCurrencyValue() :
-                                        request.getCurrencyValue();
-
-                                return JournalItem.builder()
-                                        .journalHeader(finalJournalHeader)
-                                        .account(account)
-                                        .debit(itemRequest.getDebit())
-                                        .credit(itemRequest.getCredit())
-                                        .currency(itemCurrency)
-                                        .currencyValue(itemCurrencyValue)
-                                        .date(itemRequest.getDate() != null ? itemRequest.getDate() : request.getDate())
-                                        .build();
-                        })
-                        .collect(Collectors.toList());
-
+                // Save all items
                 journalItemRepository.saveAll(journalItems);
                 journalHeader.setJournalItems(journalItems);
 
                 return mapToJournalResponse(journalHeader);
         }
+
 
         @Override
         public List<JournalResponse> getAllJournals() {
@@ -139,6 +146,7 @@ public class JournalServiceImpl implements JournalService {
         }
 
         @Override
+        @Transactional
         public JournalResponse updateJournal(Integer id, UpdateJournalRequest request) {
                 JournalHeader journalHeader = journalHeaderRepository.findById(id)
                         .orElseThrow(() -> new EntityNotFoundException("Journal not found with id: " + id));
@@ -162,8 +170,7 @@ public class JournalServiceImpl implements JournalService {
                 return mapToJournalResponse(journalHeader);
         }
 
-
-
+        @Transactional
         private void updateJournalHeader(JournalHeader journalHeader, UpdateJournalRequest request) {
                 // Validation - prevent modification of posted journals
                 if (!journalHeader.getJournalItems().isEmpty() && journalHeader.getIsPosted()) {
@@ -202,7 +209,7 @@ public class JournalServiceImpl implements JournalService {
                         journalHeader.setIsPosted(request.getIsPosted());
                 }
         }
-
+        @Transactional
         private void updateJournalItems(JournalHeader journalHeader, @NotNull(message = "Journal items are required") List<CreateJournalItemRequest> itemRequests) {
                 // Get header currency and values
                 Currency headerCurrency = journalHeader.getCurrency();
@@ -251,11 +258,23 @@ public class JournalServiceImpl implements JournalService {
         }
         private void recalculateTotals(JournalHeader journalHeader) {
                 BigDecimal totalDebit = journalHeader.getJournalItems().stream()
-                        .map(JournalItem::getDebit)
+                        .map(item -> {
+                                // Use item's currency value if available, otherwise use header's
+                                BigDecimal rate = item.getCurrencyValue() != null ?
+                                        item.getCurrencyValue() :
+                                        journalHeader.getCurrencyValue();
+                                return item.getDebit().multiply(rate);
+                        })
                         .reduce(BigDecimal.ZERO, BigDecimal::add);
 
                 BigDecimal totalCredit = journalHeader.getJournalItems().stream()
-                        .map(JournalItem::getCredit)
+                        .map(item -> {
+                                // Use item's currency value if available, otherwise use header's
+                                BigDecimal rate = item.getCurrencyValue() != null ?
+                                        item.getCurrencyValue() :
+                                        journalHeader.getCurrencyValue();
+                                return item.getCredit().multiply(rate);
+                        })
                         .reduce(BigDecimal.ZERO, BigDecimal::add);
 
                 // Validate debit equals credit
