@@ -17,4 +17,8 @@ public interface JournalHeaderRepository extends JpaRepository<JournalHeader, In
     @EntityGraph(attributePaths = {"journalItems", "branch", "currency"})
     List<JournalHeader> findByDateBetween(LocalDateTime startDate, LocalDateTime endDate);
 
+    @EntityGraph(attributePaths = {"journalItems", "branch", "currency"})
+    List<JournalHeader> findByParentType(Byte parentType);
+
+
 }

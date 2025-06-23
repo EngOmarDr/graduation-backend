@@ -62,6 +62,13 @@ public class JournalController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<JournalResponse>> searchJournals(
+            @RequestParam(required = false) Byte parentType) {
+        List<JournalResponse> response = journalService.searchJournalsByParentType(parentType);
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/ledger-report")
     public ResponseEntity<LedgerReport> generateLedgerReport(
             @RequestParam Integer accountId,

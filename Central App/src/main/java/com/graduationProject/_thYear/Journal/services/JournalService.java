@@ -27,4 +27,6 @@ public interface JournalService {
     LedgerReport generateLedgerReport(Integer accountId,
             LocalDate startDate,
             LocalDate endDate);
+
+    List<JournalResponse> searchJournalsByParentType(Byte parentType);
 }

@@ -304,6 +304,20 @@ public class JournalServiceImpl implements JournalService {
                 journalHeaderRepository.delete(journalHeader);
         }
 
+        public List<JournalResponse> searchJournalsByParentType(Byte parentType) {
+                List<JournalHeader> journals;
+
+                if (parentType != null) {
+                        journals = journalHeaderRepository.findByParentType(parentType);
+                } else {
+                        journals = journalHeaderRepository.findAll();
+                }
+
+                return journals.stream()
+                        .map(this::mapToJournalResponse)
+                        .collect(Collectors.toList());
+        }
+
         @Override
         public LedgerReport generateLedgerReport(Integer accountId, LocalDate startDate, LocalDate endDate) {
 
