@@ -66,4 +66,10 @@ public class GroupController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<GroupResponse>> searchAccounts(@RequestParam String q) {
+        var responses = groupService.searchGroups(q);
+        return ResponseEntity.ok(responses);
+    }
+
 }

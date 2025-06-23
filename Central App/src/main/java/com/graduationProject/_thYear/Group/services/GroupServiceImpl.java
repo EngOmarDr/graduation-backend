@@ -132,6 +132,12 @@ public class GroupServiceImpl implements GroupService {
         groupRepository.delete(group);
     }
 
+    public List<GroupResponse> searchGroups(String searchTerm) {
+        return groupRepository.searchByNameOrCode(searchTerm).stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+    }
+
     private GroupResponse convertToResponse(Group group) {
         return GroupResponse.builder()
                 .id(group.getId())

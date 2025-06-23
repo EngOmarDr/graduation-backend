@@ -67,4 +67,9 @@ public class AccountController {
         aService.deleteAccount(id);
         return ResponseEntity.noContent().build();
     }
+    @GetMapping("/search")
+    public ResponseEntity<List<AccountResponse>> searchAccounts(@RequestParam String q) {
+        var responses = aService.searchAccounts(q);
+        return ResponseEntity.ok(responses);
+    }
 }

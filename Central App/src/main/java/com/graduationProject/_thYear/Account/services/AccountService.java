@@ -21,4 +21,6 @@ public interface AccountService {
     AccountResponse updateAccount(Integer id, UpdateAccountRequest request);
 
     void deleteAccount(Integer id);
+
+    List<AccountResponse> searchAccounts(String searchTerm);
 }

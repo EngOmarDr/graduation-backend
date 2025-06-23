@@ -17,4 +17,6 @@ public interface GroupService {
     List<GroupResponse> getChildGroups(Integer parentId);
     GroupResponse updateGroup(Integer id, UpdateGroupRequest request);
     void deleteGroup(Integer id);
+
+    List<GroupResponse> searchGroups(String searchTerm);
 }

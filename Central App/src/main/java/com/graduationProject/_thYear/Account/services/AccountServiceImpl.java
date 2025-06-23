@@ -128,6 +128,12 @@ public class AccountServiceImpl implements AccountService {
         accountRepository.delete(res);
     }
 
+    public List<AccountResponse> searchAccounts(String searchTerm) {
+        return accountRepository.searchByNameOrCode(searchTerm).stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+    }
+
     private AccountResponse convertToResponse(Account account) {
         Integer finalAccountId = null;
         if (account.getFinalAccount() != null && account.getFinalAccount().getId() != null) {
