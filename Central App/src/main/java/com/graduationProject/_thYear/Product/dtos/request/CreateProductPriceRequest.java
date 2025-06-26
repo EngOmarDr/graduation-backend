@@ -19,8 +19,8 @@ public class CreateProductPriceRequest {
     @NotNull(message = "Price ID is required")
     private Integer priceId;
 
-    @NotNull(message = "Unit ID is required")
-    private Integer unitId;
+    @NotNull(message = "Unit Item ID is required")
+    private Integer unitItemId;
 
     @NotNull(message = "Price value is required")
     private Float price;

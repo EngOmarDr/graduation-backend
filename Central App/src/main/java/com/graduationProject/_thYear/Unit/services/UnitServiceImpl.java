@@ -107,9 +107,9 @@ public class UnitServiceImpl implements UnitService {
             unit.getUnitItems().forEach(item -> item.setUnit(null));
         }
 
-        if (!unit.getProductPrices().isEmpty()) {
-            unit.getProductPrices().forEach(price -> price.setPriceUnit(null));
-        }
+//        if (!unit.getProductPrices().isEmpty()) {
+//            unit.getProductPrices().forEach(price -> price.setPriceUnit(null));
+//        }
 
         if (!unit.getProducts().isEmpty()) {
             unit.getProducts().forEach(product -> product.setDefaultUnit(null));

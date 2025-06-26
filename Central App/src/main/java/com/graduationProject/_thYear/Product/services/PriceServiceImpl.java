@@ -101,8 +101,8 @@ public class PriceServiceImpl implements PriceService{
                 .productId(productPrice.getProductId().getId())
                 .productName(productPrice.getProductId().getName())
                 .price(productPrice.getPrice())
-                .unitId(productPrice.getPriceUnit().getId())
-                .unitName(productPrice.getPriceUnit().getName())
+                .unitItemId(productPrice.getPriceUnit().getId())
+                .unitItemName(productPrice.getPriceUnit().getName())
                 .build();
     }
 }

@@ -6,7 +6,7 @@ import com.graduationProject._thYear.Product.dtos.response.ProductResponse;
 import com.graduationProject._thYear.Product.services.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,12 +18,12 @@ import java.util.List;
 public class ProductController {
     private final ProductService productService;
 
-    @PostMapping
-    public ResponseEntity<ProductResponse> createProduct(
-            @Valid @RequestBody CreateProductRequest request) {
-        ProductResponse response = productService.createProduct(request);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ProductResponse> createProduct(@ModelAttribute  @Valid CreateProductRequest request) {
+        ProductResponse createdProduct = productService.createProduct(request);
+        return ResponseEntity.ok(createdProduct);
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponse> getProductById(@PathVariable Integer id) {
@@ -37,10 +37,10 @@ public class ProductController {
         return ResponseEntity.ok(responses);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}" , consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ProductResponse> updateProduct(
             @PathVariable Integer id,
-            @Valid @RequestBody UpdateProductRequest request) {
+            @Valid @ModelAttribute UpdateProductRequest request) {
         ProductResponse response = productService.updateProduct(id, request);
         return ResponseEntity.ok(response);
     }

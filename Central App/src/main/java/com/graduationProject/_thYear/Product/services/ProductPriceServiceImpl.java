@@ -9,9 +9,10 @@ import com.graduationProject._thYear.Product.models.ProductPrice;
 import com.graduationProject._thYear.Product.repositories.PriceRepository;
 import com.graduationProject._thYear.Product.repositories.ProductPriceRepository;
 import com.graduationProject._thYear.Product.repositories.ProductRepository;
-import com.graduationProject._thYear.Unit.models.Unit;
-import com.graduationProject._thYear.Unit.repositories.UnitRepository;
+import com.graduationProject._thYear.Unit.models.UnitItem;
+import com.graduationProject._thYear.Unit.repositories.UnitItemRepository;
 import com.graduationProject._thYear.exceptionHandler.ResourceNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,38 +27,34 @@ public class ProductPriceServiceImpl implements ProductPriceService{
     private final ProductPriceRepository productPriceRepository;
     private final ProductRepository productRepository;
     private final PriceRepository priceRepository;
-    private final UnitRepository unitRepository;
+    private final UnitItemRepository unitItemRepository;
 
     @Override
     public ProductPriceResponse createProductPrice(CreateProductPriceRequest request) {
-        // Check if combination already exists
-        Unit unit = unitRepository.findById(request.getUnitId())
-                .orElseThrow(() -> new ResourceNotFoundException("Unit not found with id: " + request.getUnitId()));
-
-        if (productPriceRepository.existsByProductId_IdAndPriceId_IdAndPriceUnit(
-                request.getProductId(), request.getPriceId(), unit)) {
-            throw new IllegalArgumentException("Product price with this combination already exists");
-        }
-
+        // Fetch related entities first
         Product product = productRepository.findById(request.getProductId())
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + request.getProductId()));
+                .orElseThrow(() -> new EntityNotFoundException("Product not found with id: " + request.getProductId()));
 
         Price price = priceRepository.findById(request.getPriceId())
-                .orElseThrow(() -> new ResourceNotFoundException("Price not found with id: " + request.getPriceId()));
+                .orElseThrow(() -> new EntityNotFoundException("Price not found with id: " + request.getPriceId()));
 
-        // Verify unit item belongs to product's default unit
-        if (!unit.getId().equals(product.getDefaultUnit().getId())) {
-            throw new IllegalArgumentException("Unit does not belong to product's default unit");
+        UnitItem unitItem = unitItemRepository.findById(request.getUnitItemId())
+                .orElseThrow(() -> new EntityNotFoundException("UnitItem not found with id: " + request.getUnitItemId()));
+        // Only check for duplicates if the product isn't brand new
+        boolean exists = productPriceRepository.existsByProductId_IdAndPriceId_IdAndPriceUnit(product.getId(), price.getId(), unitItem);
+        if (exists) {
+            throw new IllegalArgumentException("Product price with these parameters already exists");
         }
-
+        // Create and save product price
         ProductPrice productPrice = ProductPrice.builder()
                 .productId(product)
                 .priceId(price)
-                .priceUnit(unit)
+                .priceUnit(unitItem)
                 .price(request.getPrice())
                 .build();
 
         ProductPrice savedProductPrice = productPriceRepository.save(productPrice);
+
         return convertToResponse(savedProductPrice);
     }
 
@@ -108,23 +105,23 @@ public class ProductPriceServiceImpl implements ProductPriceService{
         Price price = priceRepository.findById(request.getPriceId())
                 .orElseThrow(() -> new ResourceNotFoundException("Price not found with id: " + request.getPriceId()));
 
-        Unit unit = unitRepository.findById(request.getUnitId())
-                .orElseThrow(() -> new ResourceNotFoundException("Unit not found with id: " + request.getUnitId()));
+        UnitItem unitItem = unitItemRepository.findById(request.getUnitItemId())
+                .orElseThrow(() -> new ResourceNotFoundException("Unit not found with id: " + request.getUnitItemId()));
 
         // Check if combination already exists for another record
         if (!(productPrice.getProductId().getId().equals(request.getProductId()) ||
                 !(productPrice.getPriceId().getId().equals(request.getPriceId())) ||
-                !(productPrice.getPriceUnit().getId().equals(request.getUnitId())))) {
+                !(productPrice.getPriceUnit().getId().equals(request.getUnitItemId())))) {
 
             if (productPriceRepository.existsByProductId_IdAndPriceId_IdAndPriceUnit(
-                    request.getProductId(), request.getPriceId(), unit)) {
+                    request.getProductId(), request.getPriceId(), unitItem)) {
                 throw new IllegalArgumentException("Product price with this combination already exists");
             }
         }
 
         productPrice.setProductId(product);
         productPrice.setPriceId(price);
-        productPrice.setPriceUnit(unit);
+        productPrice.setPriceUnit(unitItem);
         productPrice.setPrice(request.getPrice());
 
         ProductPrice updatedProductPrice = productPriceRepository.save(productPrice);
@@ -146,8 +143,8 @@ public class ProductPriceServiceImpl implements ProductPriceService{
                 .productName(productPrice.getProductId().getName())
                 .priceId(productPrice.getPriceId().getId())
                 .priceName(productPrice.getPriceId().getName())
-                .unitId(productPrice.getPriceUnit().getId())
-                .unitName(productPrice.getPriceUnit().getName())
+                .unitItemId(productPrice.getPriceUnit().getId())
+                .unitItemName(productPrice.getPriceUnit().getName())
                 .price(productPrice.getPrice())
                 .build();
     }

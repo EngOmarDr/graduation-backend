@@ -2,6 +2,7 @@ package com.graduationProject._thYear.Unit.models;
 
 
 import com.graduationProject._thYear.Product.models.ProductBarcode;
+import com.graduationProject._thYear.Product.models.ProductPrice;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -44,6 +45,11 @@ public class UnitItem {
     @Builder.Default
     private List<ProductBarcode> barcodes = new ArrayList<>();
 
+
+    @OneToMany(mappedBy = "priceUnit", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<ProductPrice> productPrices = new ArrayList<>();
+
     // Convenience method
     public void addBarcode(ProductBarcode barcode) {
         barcodes.add(barcode);
@@ -53,6 +59,17 @@ public class UnitItem {
     public void removeBarcode(ProductBarcode barcode) {
         barcodes.remove(barcode);
         barcode.setUnitItem(null);
+    }
+
+
+    public void addProductPrice(ProductPrice productPrice) {
+        productPrices.add(productPrice);
+        productPrice.setPriceUnit(this);
+    }
+
+    public void removeProductPrice(ProductPrice productPrice) {
+        productPrices.remove(productPrice);
+        productPrice.setPriceUnit(null);
     }
 
 }

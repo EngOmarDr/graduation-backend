@@ -33,9 +33,9 @@ public class Unit {
     @Builder.Default
     private List<UnitItem> unitItems = new ArrayList<>();
 
-    @OneToMany(mappedBy = "priceUnit", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<ProductPrice> productPrices = new ArrayList<>();
+//    @OneToMany(mappedBy = "priceUnit", cascade = CascadeType.ALL, orphanRemoval = true)
+//    @Builder.Default
+//    private List<ProductPrice> productPrices = new ArrayList<>();
 
     @OneToMany(mappedBy = "defaultUnit", cascade = CascadeType.ALL)
     @Builder.Default
@@ -52,15 +52,6 @@ public class Unit {
         unitItem.setUnit(null);
     }
 
-    public void addProductPrice(ProductPrice productPrice) {
-        productPrices.add(productPrice);
-        productPrice.setPriceUnit(this);
-    }
-
-    public void removeProductPrice(ProductPrice productPrice) {
-        productPrices.remove(productPrice);
-        productPrice.setPriceUnit(null);
-    }
     public void addProduct(Product product) {
         products.add(product);
         product.setDefaultUnit(this);

@@ -12,10 +12,13 @@ public class ProductResponse {
     private String code;
     private String name;
     private Integer groupId;
-    private String groupName;
+    private String image;
     private Integer defaultUnitId;
-    private String defaultUnitName;
-    private Float lowQty;
+    private Float quantity;
+    private Float minQty;
+    private Float maxQty;
+    private Float orderQty;
+    private String notes;
     private List<ProductPriceResponse> prices;
     private List<ProductBarcodeResponse> barcodes;
 }

@@ -11,7 +11,7 @@ public class ProductPriceResponse {
     private String productName;
     private Integer priceId;
     private String priceName;
-    private Integer unitId;
-    private String unitName;
+    private Integer unitItemId;
+    private String unitItemName;
     private Float price;
 }

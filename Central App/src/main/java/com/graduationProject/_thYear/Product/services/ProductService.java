@@ -4,6 +4,7 @@ import com.graduationProject._thYear.Product.dtos.request.CreateProductRequest;
 import com.graduationProject._thYear.Product.dtos.request.UpdateProductRequest;
 import com.graduationProject._thYear.Product.dtos.response.ProductResponse;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface ProductService {
