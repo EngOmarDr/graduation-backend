@@ -27,16 +27,16 @@ public class UpdateProductRequest {
     @NotNull(message = "Group ID is required")
     private Integer groupId;
 
+    @NotNull(message = "Type is required")
+    private Byte type;
+
     @NotNull(message = "Default unit ID is required")
     private Integer defaultUnitId;
 
-    @NotNull(message = "min quantity is required")
     private Float minQty;
 
-    @NotNull(message = "max quantity is required")
     private Float maxQty;
 
-    @NotNull(message = "order quantity is required")
     private Float orderQty;
 
 

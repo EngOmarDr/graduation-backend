@@ -106,6 +106,7 @@ public class ProductServiceImpl implements ProductService{
                 .name(request.getName())
                 .image(saveImageToDisk(request.getImage()))
                 .groupId(group)
+                .type(request.getType())
                 .defaultUnit(defaultUnit)
                 .minQty(request.getMinQty())
                 .maxQty(request.getMaxQty())
@@ -171,23 +172,25 @@ public class ProductServiceImpl implements ProductService{
         Unit defaultUnit = unitRepository.findById(request.getDefaultUnitId())
                 .orElseThrow(() -> new EntityNotFoundException("Unit not found with id: " + request.getDefaultUnitId()));
 
-        // Optional: Replace image if new one is uploaded
+        // Replace image if new one is uploaded
         if (request.getImage() != null && !request.getImage().isEmpty()) {
             deleteOldImage(product.getImage()); // Delete old image
             String newImagePath = saveImageToDisk(request.getImage());
             product.setImage(newImagePath);
         }
 
-        // Update fields
+
         product.setCode(request.getCode());
         product.setName(request.getName());
         product.setGroupId(group);
+        product.setType(request.getType());
         product.setDefaultUnit(defaultUnit);
         product.setMinQty(request.getMinQty());
         product.setMaxQty(request.getMaxQty());
         product.setOrderQty(request.getOrderQty());
         product.setNotes(request.getNotes());
-        // ✅ Delete old prices
+
+
         for (ProductPrice price : product.getPrices()) {
             productPriceService.deleteProductPrice(price.getId());
         }
@@ -199,7 +202,7 @@ public class ProductServiceImpl implements ProductService{
         }
 
 
-        // ✅ Delete old barcodes
+
         for (ProductBarcode barcode : product.getBarcodes()) {
             productBarcodeService.deleteProductBarcode(barcode.getId());
         }
@@ -238,6 +241,8 @@ public class ProductServiceImpl implements ProductService{
                 .name(product.getName())
                 .image(product.getImage())
                 .groupId(product.getGroupId().getId())
+                .type(product.getType())
+                .typeName(getTypeName(product.getType()))
                 .defaultUnitId(product.getDefaultUnit().getId())
                 .quantity(product.getQuantity())
                 .minQty(product.getMinQty())
@@ -252,7 +257,13 @@ public class ProductServiceImpl implements ProductService{
                         .collect(Collectors.toList()))
                 .build();
     }
-
+    private String getTypeName(Byte type) {
+        return switch (type) {
+            case Product.TYPE_WAREHOUSE -> "TYPE_WAREHOUSE ";
+            case Product.TYPE_SERVICE -> "TYPE_SERVICE ";
+            default -> "anonymous";
+        };
+    }
     private List<ProductPriceResponse> convertPricesToResponse(List<ProductPrice> prices) {
         return prices.stream()
                 .map(this::convertPriceToResponse)

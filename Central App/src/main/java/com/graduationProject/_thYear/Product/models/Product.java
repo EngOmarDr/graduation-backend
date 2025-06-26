@@ -20,6 +20,10 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 public class Product {
+
+    public static final byte TYPE_WAREHOUSE = 0;  // Warehouse
+    public static final byte TYPE_SERVICE = 1;    // Service
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -40,6 +44,10 @@ public class Product {
 
     @Column(name = "image")
     private String image;
+
+    @NotNull
+    @Column(name = "type", nullable = false)
+    private Byte type;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)

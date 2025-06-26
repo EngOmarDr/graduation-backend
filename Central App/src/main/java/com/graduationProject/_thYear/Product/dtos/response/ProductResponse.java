@@ -13,6 +13,8 @@ public class ProductResponse {
     private String name;
     private Integer groupId;
     private String image;
+    private Byte type;
+    private String typeName;
     private Integer defaultUnitId;
     private Float quantity;
     private Float minQty;
