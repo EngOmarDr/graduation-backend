@@ -26,10 +26,6 @@ public class ProductBarcodeServiceImpl implements ProductBarcodeService{
 
     @Override
     public ProductBarcodeResponse createProductBarcode(CreateProductBarcodeRequest request) {
-        // Validate barcode uniqueness
-        if (productBarcodeRepository.existsByBarcode(request.getBarcode())) {
-            throw new IllegalArgumentException("Barcode '" + request.getBarcode() + "' already exists");
-        }
 
         Product product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + request.getProductId()));

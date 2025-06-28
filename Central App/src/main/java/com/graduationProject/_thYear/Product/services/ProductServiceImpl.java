@@ -24,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -38,104 +39,82 @@ public class ProductServiceImpl implements ProductService{
     private final UnitRepository unitRepository;
     private final ProductPriceService productPriceService;
     private final ProductBarcodeService productBarcodeService;
+    private final ImageStorageService imageStorageService;
     @PersistenceContext
     private EntityManager entityManager;
 
 
 
 
-    private String saveImageToDisk(MultipartFile image) {
-        if (image == null || image.isEmpty()) return null;
-
-        try {
-            String uploadDir = System.getProperty("user.dir") + "/uploads/images";
-            File dir = new File(uploadDir);
-            if (!dir.exists() && !dir.mkdirs()) {
-                throw new IOException("Could not create directory: " + uploadDir);
-            }
-
-            String originalName = image.getOriginalFilename();
-            if (originalName == null || !originalName.contains(".")) {
-                throw new RuntimeException("Invalid image file name");
-            }
-
-            String extension = originalName.substring(originalName.lastIndexOf('.'));
-            String uniqueFileName = UUID.randomUUID() + extension;
-            String fullPath = uploadDir + File.separator + uniqueFileName;
-
-            System.out.println("Saving to: " + fullPath);
-
-            image.transferTo(new File(fullPath));
-
-            return "/images/" + uniqueFileName;
-        } catch (IOException e) {
-            e.printStackTrace(); // Log the real error
-            throw new RuntimeException("Failed to store image", e);
-        }
-    }
-
-
-    private void deleteOldImage(String imagePath) {
-        if (imagePath == null || imagePath.isBlank()) return;
-
-        String fullPath = System.getProperty("user.dir") + "/uploads" + imagePath;
-        File file = new File(fullPath);
-        if (file.exists()) file.delete();
-    }
 
     @Override
     @Transactional
     public ProductResponse createProduct(CreateProductRequest request) {
-        // Check if product with same code or name already exists
-        if (productRepository.existsByCode(request.getCode())) {
-            throw new IllegalArgumentException("Product with code " + request.getCode() + " already exists");
-        }
-        if (productRepository.existsByName(request.getName())) {
-            throw new IllegalArgumentException("Product with name " + request.getName() + " already exists");
-        }
-
-        // Fetch related entities
-        Group group = groupRepository.findById(request.getGroupId())
-                .orElseThrow(() -> new EntityNotFoundException("Group not found with id: " + request.getGroupId()));
-        Unit defaultUnit = unitRepository.findById(request.getDefaultUnitId())
-                .orElseThrow(() -> new EntityNotFoundException("Unit not found with id: " + request.getDefaultUnitId()));
-
-        // Create and save product
-        Product product = Product.builder()
-                .code(request.getCode())
-                .name(request.getName())
-                .image(saveImageToDisk(request.getImage()))
-                .groupId(group)
-                .type(request.getType())
-                .defaultUnit(defaultUnit)
-                .minQty(request.getMinQty())
-                .maxQty(request.getMaxQty())
-                .orderQty(request.getOrderQty())
-                .notes(request.getNotes())
-                .quantity(0f) // Initial quantity is 0
-                .build();
-
-        Product savedProduct = productRepository.save(product);
-
-        // Process prices
-        if (request.getPrices() != null) {
-            for (CreateProductPriceRequest priceRequest : request.getPrices()) {
-                priceRequest.setProductId(savedProduct.getId());
-                productPriceService.createProductPrice(priceRequest);
+        String tempImagePath = null;
+        try {
+            if (request.getImage() != null && !request.getImage().isEmpty()) {
+                tempImagePath = imageStorageService.saveToTemp(request.getImage());
             }
-        }
 
-        // Process barcodes
-        if (request.getBarcodes() != null) {
-            for (CreateProductBarcodeRequest barcodeRequest : request.getBarcodes()) {
-                barcodeRequest.setProductId(savedProduct.getId());
-                productBarcodeService.createProductBarcode(barcodeRequest);
+            // Check if product with same code or name already exists
+            if (productRepository.existsByCode(request.getCode())) {
+                throw new IllegalArgumentException("Product with code " + request.getCode() + " already exists");
             }
+            if (productRepository.existsByName(request.getName())) {
+                throw new IllegalArgumentException("Product with name " + request.getName() + " already exists");
+            }
+
+            // Fetch related entities
+            Group group = groupRepository.findById(request.getGroupId())
+                    .orElseThrow(() -> new EntityNotFoundException("Group not found with id: " + request.getGroupId()));
+            Unit defaultUnit = unitRepository.findById(request.getDefaultUnitId())
+                    .orElseThrow(() -> new EntityNotFoundException("Unit not found with id: " + request.getDefaultUnitId()));
+
+            // Create and save product
+            Product product = Product.builder()
+                    .code(request.getCode())
+                    .name(request.getName())
+                    .groupId(group)
+                    .type(request.getType())
+                    .defaultUnit(defaultUnit)
+                    .minQty(request.getMinQty())
+                    .maxQty(request.getMaxQty())
+                    .orderQty(request.getOrderQty())
+                    .notes(request.getNotes())
+                    .quantity(0f) // Initial quantity is 0
+                    .build();
+
+            Product savedProduct = productRepository.save(product);
+
+            if (tempImagePath != null) {
+                String permanentImagePath = imageStorageService.moveToPermanent(tempImagePath);
+                product.setImage(permanentImagePath);
+                productRepository.save(product);
+            }
+
+            // Process prices
+            if (request.getPrices() != null) {
+                for (CreateProductPriceRequest priceRequest : request.getPrices()) {
+                    priceRequest.setProductId(savedProduct.getId());
+                    productPriceService.createProductPrice(priceRequest);
+                }
+            }
+
+            // Process barcodes
+            if (request.getBarcodes() != null) {
+                for (CreateProductBarcodeRequest barcodeRequest : request.getBarcodes()) {
+                    barcodeRequest.setProductId(savedProduct.getId());
+                    productBarcodeService.createProductBarcode(barcodeRequest);
+                }
+            }
+            entityManager.refresh(savedProduct);
+
+            return mapToProductResponse(savedProduct);
+
+        } catch (Exception e) {
+            if (tempImagePath != null) imageStorageService.deleteTemp(tempImagePath);
+            throw e;
         }
-        entityManager.refresh(savedProduct);
-
-        return mapToProductResponse(savedProduct);
-
     }
 
     @Override
@@ -172,12 +151,12 @@ public class ProductServiceImpl implements ProductService{
         Unit defaultUnit = unitRepository.findById(request.getDefaultUnitId())
                 .orElseThrow(() -> new EntityNotFoundException("Unit not found with id: " + request.getDefaultUnitId()));
 
-        // Replace image if new one is uploaded
-        if (request.getImage() != null && !request.getImage().isEmpty()) {
-            deleteOldImage(product.getImage()); // Delete old image
-            String newImagePath = saveImageToDisk(request.getImage());
-            product.setImage(newImagePath);
-        }
+        String tempImagePath = null;
+
+        try {
+            if (request.getImage() != null && !request.getImage().isEmpty()) {
+                tempImagePath = imageStorageService.saveToTemp(request.getImage());
+            }
 
 
         product.setCode(request.getCode());
@@ -215,8 +194,22 @@ public class ProductServiceImpl implements ProductService{
         }
 
         Product saved = productRepository.save(product);
+
+            if (tempImagePath != null) {
+                imageStorageService.deletePermanent(product.getImage());
+                String finalPath = imageStorageService.moveToPermanent(tempImagePath);
+                product.setImage(finalPath);
+                productRepository.save(product);
+            }
+
         entityManager.refresh(saved);
         return mapToProductResponse(saved);
+        } catch (Exception ex) {
+            if (tempImagePath != null) {
+                imageStorageService.deleteTemp(tempImagePath);
+            }
+            throw ex;
+        }
     }
 
     @Override
