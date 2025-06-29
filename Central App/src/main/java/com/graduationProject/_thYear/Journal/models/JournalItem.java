@@ -63,4 +63,10 @@ public class JournalItem {
     @Column(name = "notes")
     private String notes;
 
+    public String toString(){
+        return "Journal Item: [" +
+        this.getAccount().getName() + " " +
+        this.getCredit() + " " +
+        this.getDebit() + "]";
+    }
 }

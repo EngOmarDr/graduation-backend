@@ -2,9 +2,10 @@ package com.graduationProject._thYear.Journal.controllers;
 
 import com.graduationProject._thYear.Journal.dtos.request.CreateJournalRequest;
 import com.graduationProject._thYear.Journal.dtos.request.UpdateJournalRequest;
-import com.graduationProject._thYear.Journal.dtos.response.JournalHeaderResponse;
+import com.graduationProject._thYear.Journal.dtos.response.GeneralJournalReportResponse;
 import com.graduationProject._thYear.Journal.dtos.response.JournalResponse;
 import com.graduationProject._thYear.Journal.dtos.response.LedgerReport;
+import com.graduationProject._thYear.Journal.dtos.response.TrialBalanceReportResponse;
 import com.graduationProject._thYear.Journal.services.JournalService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -75,6 +76,21 @@ public class JournalController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
         LedgerReport response = journalService.generateLedgerReport(accountId, startDate, endDate);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/general-journal-report")
+    public ResponseEntity<List<GeneralJournalReportResponse>> generateGeneralJournalReport(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        List<GeneralJournalReportResponse> response = journalService.generateGeneralJournalReport( startDate, endDate);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/trial-balance-report")
+    public ResponseEntity<TrialBalanceReportResponse> generateTrialBalanceReport(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        TrialBalanceReportResponse response = journalService.generateTrialBalanceReport( date);
         return ResponseEntity.ok(response);
     }
 }

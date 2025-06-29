@@ -1,6 +1,7 @@
 package com.graduationProject._thYear.Journal.repositories;
 
 import java.math.BigDecimal;
+import java.sql.Date;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -11,6 +12,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.graduationProject._thYear.Journal.models.JournalItem;
+
+import jakarta.persistence.Tuple;
 
 public interface JournalItemRepository extends JpaRepository<JournalItem, Integer> {
 
@@ -48,6 +51,38 @@ public interface JournalItemRepository extends JpaRepository<JournalItem, Intege
                 @Param("accountId") Integer accountId,
                 @Param("date") LocalDateTime date);
 
+        @Query("SELECT DISTINCT FUNCTION('DATE',ji.date) AS date, COALESCE(SUM(ji.debit),0) AS total_debit, COALESCE(SUM(ji.credit),0) AS total_credit FROM JournalItem ji "+
+                "WHERE ji.date BETWEEN :startDate AND :endDate " +
+                "GROUP BY FUNCTION('DATE',ji.date)")
+        List<Tuple> getTotalDebitAndCreditByAccountWithinTimeRange(
+                @Param("startDate") LocalDateTime startDate,
+                @Param("endDate") LocalDateTime endDate);
+        
+        @Query("SELECT ji FROM JournalItem ji "+
+                "WHERE FUNCTION('DATE',ji.date) = :date")
+        List<JournalItem> getJournalItemsByDate(
+             @Param("date") Date date);
+
+         @Query("SELECT COALESCE(SUM(ji.debit),0) AS total_debit, COALESCE(SUM(ji.credit),0) AS total_credit " + 
+                "FROM JournalItem ji "+
+                "WHERE ji.date BETWEEN :startDate AND :endDate ")
+        Tuple getTotalDebitAndCreditWithinTimeRange(
+                @Param("startDate") LocalDateTime startDate,
+                @Param("endDate") LocalDateTime endDate);
+        
+        @Query("SELECT  a.id AS accountId, a.name AS accountName, a.code AS accountCode, " +
+                "COALESCE(SUM(ji.debit),0) AS total_debit, COALESCE(SUM(ji.credit),0) AS total_credit " + 
+                "FROM JournalItem ji "+
+                "JOIN ji.account a " +
+
+                "WHERE ji.date BETWEEN :startDate AND :endDate " +
+                "GROUP BY ji.account"
+                )
+        List<Tuple> getTotalDebitAndCreditByAccount(
+                @Param("startDate") LocalDateTime startDate,
+                @Param("endDate") LocalDateTime endDate);
+        
+        
         @Modifying
         @Query("DELETE FROM JournalItem ji WHERE ji.journalHeader = :journalHeader")
         void deleteAllByJournalHeader(@Param("journalHeader") JournalHeader journalHeader);

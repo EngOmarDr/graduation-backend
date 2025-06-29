@@ -5,6 +5,7 @@ import com.graduationProject._thYear.Branch.models.Branch;
 import com.graduationProject._thYear.Currency.models.Currency;
 import com.graduationProject._thYear.Journal.dtos.request.*;
 import com.graduationProject._thYear.Journal.dtos.response.*;
+import com.graduationProject._thYear.Journal.dtos.response.TrialBalanceReportResponse.BalanceEntry;
 import com.graduationProject._thYear.Journal.models.JournalHeader;
 import com.graduationProject._thYear.Journal.models.JournalItem;
 import com.graduationProject._thYear.Journal.repositories.JournalHeaderRepository;
@@ -13,15 +14,18 @@ import com.graduationProject._thYear.Account.repositories.AccountRepository;
 import com.graduationProject._thYear.Branch.repositories.BranchRepository;
 import com.graduationProject._thYear.Currency.repositories.CurrencyRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.Tuple;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -320,7 +324,7 @@ public class JournalServiceImpl implements JournalService {
 
         @Override
         public LedgerReport generateLedgerReport(Integer accountId, LocalDate startDate, LocalDate endDate) {
-
+        
                 if (startDate.isAfter(endDate)) {
                         throw new IllegalArgumentException("Start date must be before end date");
                 }
@@ -364,6 +368,51 @@ public class JournalServiceImpl implements JournalService {
                         .build();
         }
 
+        @Override
+        public TrialBalanceReportResponse generateTrialBalanceReport(LocalDate date) {
+
+                LocalDateTime startDateTime = date.withDayOfYear(1).atStartOfDay();
+                LocalDateTime endDateTime = date.atStartOfDay().plusYears(2);
+                Tuple totals = journalItemRepository.getTotalDebitAndCreditWithinTimeRange(startDateTime, endDateTime);
+                List<Tuple> entries = journalItemRepository.getTotalDebitAndCreditByAccount(startDateTime, endDateTime);
+                List<TrialBalanceReportResponse.BalanceEntry> items =  entries.stream().map(this::mapToBalanceEntry).collect(Collectors.toList());
+                return TrialBalanceReportResponse.builder()
+                        .startDate(startDateTime.toLocalDate())
+                        .endDate(endDateTime.toLocalDate())
+                        .totalDebit((BigDecimal) totals.get("total_debit"))
+                        .totalCredit((BigDecimal) totals.get("total_credit"))
+                        .entries(items)
+                        .build();
+        }
+        public List<GeneralJournalReportResponse> generateGeneralJournalReport(LocalDate startDate, LocalDate endDate) {
+
+                if (startDate.isAfter(endDate)) {
+                        throw new IllegalArgumentException("Start date must be before end date");
+                }
+
+
+                LocalDateTime startDateTime = startDate.atStartOfDay();
+                LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
+
+                List<Tuple> result = journalItemRepository.getTotalDebitAndCreditByAccountWithinTimeRange(startDateTime, endDateTime);
+                List<GeneralJournalReportResponse> report = new LinkedList<>();
+                for (Tuple tuple : result){
+                        List<JournalItem> items = journalItemRepository.getJournalItemsByDate((Date)tuple.get("date"));
+                        GeneralJournalReportResponse record = GeneralJournalReportResponse.builder()
+                                .date((Date)tuple.get("date"))
+                                .totalCredit((BigDecimal) tuple.get("total_credit"))
+                                .totalDebit((BigDecimal) tuple.get("total_debit"))
+                                .entries(items.stream()
+                                        .map(this::mapToGeneralJournalEntry)
+                                        .collect(Collectors.toList())
+                                )
+                                .build();
+                        report.add(record);
+                        System.out.println(items.get(0));
+                }
+      
+                return report;
+        }
 
         private JournalResponse mapToJournalResponse(JournalHeader journalHeader) {
                 return JournalResponse.builder()
@@ -403,6 +452,27 @@ public class JournalServiceImpl implements JournalService {
                         .debit(journalItem.getDebit())
                         .credit(journalItem.getCredit())
                        // .notes(journalItem.getNotes())
+                        .build();
+        }
+
+        private GeneralJournalReportResponse.JournalEntry mapToGeneralJournalEntry(JournalItem journalItem) {
+                return GeneralJournalReportResponse.JournalEntry.builder()
+                        .id(journalItem.getId())
+                        .accountId(journalItem.getAccount().getId())
+                        .accountCode(journalItem.getAccount().getCode())
+                        .accountName(journalItem.getAccount().getName())
+                        .debit(journalItem.getDebit())
+                        .credit(journalItem.getCredit())
+                        .notes(journalItem.getNotes())
+                        .build();
+        }
+        private TrialBalanceReportResponse.BalanceEntry mapToBalanceEntry(Tuple tuple) {
+                return TrialBalanceReportResponse.BalanceEntry.builder()
+                        .accountId((Integer) tuple.get("accountId"))
+                        .accountCode((String) tuple.get("accountCode"))
+                        .accountName((String) tuple.get("accountName"))
+                        .debit((BigDecimal) tuple.get("total_debit"))
+                        .credit((BigDecimal) tuple.get("total_credit"))
                         .build();
         }
 }
