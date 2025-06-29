@@ -1,14 +1,17 @@
 package com.graduationProject._thYear.Auth.models;
 
+import com.graduationProject._thYear.Branch.models.Branch;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.List;
 
 @Entity
 @Table(name = "user")
@@ -43,11 +46,13 @@ private Role role;
 //@OneToMany(mappedBy = "user")
 //private List<Token> tokens;
 
-
+    @ManyToOne
+    @JoinColumn(name = "branch_id")
+    private Branch branch;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
 
     @Override

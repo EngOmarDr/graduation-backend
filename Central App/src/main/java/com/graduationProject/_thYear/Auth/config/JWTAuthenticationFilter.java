@@ -66,7 +66,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
         // Skip auth check for authentication endpoints
-        if (request.getServletPath().contains("/api/auth")) {
+        if (request.getServletPath().contains("/api/auth/login")) {
             filterChain.doFilter(request, response);
             return;
         }

@@ -29,4 +29,8 @@ public class Branch {
 
     @Column(name = "notes", nullable = true)
     private String notes;
+
+    @ManyToOne
+    @JoinColumn(name = "branch_id")
+    private Branch branch;
 }

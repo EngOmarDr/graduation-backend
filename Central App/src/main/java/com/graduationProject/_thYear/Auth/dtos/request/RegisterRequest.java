@@ -1,5 +1,6 @@
 package com.graduationProject._thYear.Auth.dtos.request;
 
+import com.graduationProject._thYear.Auth.models.Role;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -28,6 +29,9 @@ public class RegisterRequest {
     @Size(min = 8, message = "Password must be at least 8 characters")
     private String password;
 
-//    private Role role;
+    private Integer branchId;
+
+    @NotBlank(message = "Role is required")
+    private String  role;
 
 }
