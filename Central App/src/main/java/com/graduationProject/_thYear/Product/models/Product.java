@@ -55,20 +55,16 @@ public class Product {
     private Unit defaultUnit;
 
     @NotNull
-    @Column(name = "quantity" ,nullable = false)
+    @Column(name = "quantity" )
     private Float quantity;
 
-    @NotNull
-    @Column(name = "minQty" ,nullable = false)
+    @Column(name = "minQty" )
     private Float minQty;
 
-
-    @NotNull
-    @Column(name = "maxQty" ,nullable = false)
+    @Column(name = "maxQty" )
     private Float maxQty;
 
-    @NotNull
-    @Column(name = "orderQty" ,nullable = false)
+    @Column(name = "orderQty" )
     private Float orderQty;
 
 
