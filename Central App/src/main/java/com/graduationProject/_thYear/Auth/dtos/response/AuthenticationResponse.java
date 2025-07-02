@@ -18,7 +18,8 @@ public class AuthenticationResponse {
 //    private String refreshToken;
     private String firstname;
     private String lastname;
-    private String email;
+    private String username;
+    private Integer warehouseId;
     private Role role;
     private  String token;
 
