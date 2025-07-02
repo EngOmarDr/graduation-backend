@@ -27,7 +27,7 @@ public class GroupServiceImpl implements GroupService {
     public GroupResponse createGroup(CreateGroupRequest request) {
 
 // Validate name and code uniqueness
-        if (groupRepository.existsByCode(request.getName())) {
+        if (groupRepository.existsByCode(request.getCode())) {
             throw new IllegalArgumentException("Group item with code '" + request.getCode() + "' already exists");
         }
         if (groupRepository.existsByName(request.getName())) {
