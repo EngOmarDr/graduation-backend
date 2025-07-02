@@ -1,10 +1,7 @@
 package com.graduationProject._thYear.Warehouse.services;
 
-import com.graduationProject._thYear.Auth.models.Role;
 import com.graduationProject._thYear.Branch.models.Branch;
 import com.graduationProject._thYear.Branch.repositories.BranchRepository;
-import com.graduationProject._thYear.Group.dtos.response.GroupTreeResponse;
-import com.graduationProject._thYear.Group.models.Group;
 import com.graduationProject._thYear.Warehouse.dtos.requests.CreateWarehouseRequest;
 import com.graduationProject._thYear.Warehouse.dtos.requests.UpdateWarehouseRequest;
 import com.graduationProject._thYear.Warehouse.dtos.responses.WarehouseResponse;
@@ -32,6 +29,7 @@ public class WarehouseServiceImpl implements WarehouseService{
     @Transactional
     public WarehouseResponse createWarehouse(CreateWarehouseRequest request) {
 
+        System.out.println("RECEIVED isActive = " + request.isActive());
         //Validate name and code and phone uniqueness
         if (warehouseRepository.existsByCode(request.getCode())) {
             throw new IllegalArgumentException("Warehouse item with code '" + request.getCode() + "' already exists");
@@ -39,9 +37,7 @@ public class WarehouseServiceImpl implements WarehouseService{
         if (warehouseRepository.existsByName(request.getName())) {
             throw new IllegalArgumentException("Warehouse item with name '" + request.getName() + "' already exists");
         }
-        if (warehouseRepository.existsByPhone(request.getPhone())) {
-            throw new IllegalArgumentException("Warehouse item with phone '" + request.getPhone() + "' already exists");
-        }
+
 
 
         Branch branch = branchRepository.findById(request.getBranchId())
@@ -95,10 +91,7 @@ public class WarehouseServiceImpl implements WarehouseService{
                 warehouseRepository.existsByName(request.getName())) {
             throw new IllegalArgumentException("Group item with name '" + request.getName() + "' already exists");
         }
-        if (!warehouse.getPhone().equals(request.getPhone()) &&
-                warehouseRepository.existsByPhone(request.getPhone())) {
-            throw new IllegalArgumentException("Group item with phone '" + request.getPhone() + "' already exists");
-        }
+
 
         WarehouseType warehouseType;
         try {

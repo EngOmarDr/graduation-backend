@@ -10,5 +10,5 @@ import java.util.List;
 public class PriceResponse {
     private Integer id;
     private String name;
-    private List<ProductPriceResponse> productPrices;
+  //  private List<ProductPriceResponse> productPrices;
 }

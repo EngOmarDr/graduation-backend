@@ -85,7 +85,7 @@ public class PriceServiceImpl implements PriceService{
         return PriceResponse.builder()
                 .id(price.getId())
                 .name(price.getName())
-                .productPrices(convertProductPricesToResponse(price.getProductPrices()))
+                //.productPrices(convertProductPricesToResponse(price.getProductPrices()))
                 .build();
     }
 

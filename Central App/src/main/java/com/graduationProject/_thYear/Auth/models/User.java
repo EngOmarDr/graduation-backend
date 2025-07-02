@@ -1,6 +1,7 @@
 package com.graduationProject._thYear.Auth.models;
 
 import com.graduationProject._thYear.Branch.models.Branch;
+import com.graduationProject._thYear.Warehouse.models.Warehouse;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -47,8 +48,8 @@ private Role role;
 //private List<Token> tokens;
 
     @ManyToOne
-    @JoinColumn(name = "branch_id")
-    private Branch branch;
+    @JoinColumn(name = "warehouse_id")
+    private Warehouse warehouse;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

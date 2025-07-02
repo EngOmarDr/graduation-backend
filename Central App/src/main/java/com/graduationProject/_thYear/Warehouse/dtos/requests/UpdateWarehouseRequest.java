@@ -1,5 +1,7 @@
 package com.graduationProject._thYear.Warehouse.dtos.requests;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graduationProject._thYear.Warehouse.models.WarehouseType;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -18,6 +20,8 @@ public class UpdateWarehouseRequest {
     private Integer branchId;
     private Integer parentId;
     private WarehouseType type;
+    @JsonProperty("isActive")
+    @JsonAlias({"isActive", "active"})
     private boolean isActive;
     private String notes;
 }

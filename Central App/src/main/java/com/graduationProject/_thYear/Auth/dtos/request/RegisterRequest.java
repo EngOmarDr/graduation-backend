@@ -29,7 +29,7 @@ public class RegisterRequest {
     @Size(min = 8, message = "Password must be at least 8 characters")
     private String password;
 
-    private Integer branchId;
+    private Integer warehouseId;
 
     @NotBlank(message = "Role is required")
     private String  role;

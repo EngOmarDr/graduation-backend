@@ -9,6 +9,8 @@ import com.graduationProject._thYear.Auth.dtos.request.RegisterRequest;
 import com.graduationProject._thYear.Auth.dtos.response.UserResponse;
 import com.graduationProject._thYear.Branch.models.Branch;
 import com.graduationProject._thYear.Branch.repositories.BranchRepository;
+import com.graduationProject._thYear.Warehouse.models.Warehouse;
+import com.graduationProject._thYear.Warehouse.repositories.WarehouseRepository;
 import com.graduationProject._thYear.exceptionHandler.LoginUnauthorizedException;
 import com.graduationProject._thYear.Auth.models.Role;
 import com.graduationProject._thYear.Auth.models.User;
@@ -32,7 +34,7 @@ public class AuthenticationService {
     private final JWTService jwtService;
     private final AuthenticationManager authenticationManager;
 
-    private final BranchRepository branchRepository;
+    private final WarehouseRepository warehouseRepository;
 
 
     public AuthenticationResponse register(RegisterRequest request, User currentUser) {
@@ -47,14 +49,14 @@ public class AuthenticationService {
             throw new IllegalArgumentException("Invalid role: " + request.getRole());
         }
 
-        Branch branch = null;
+        Warehouse warehouse = null;
 
         if (roleEnum != Role.ADMIN) {
-            if (request.getBranchId() == null) {
-                throw new IllegalArgumentException("Branch ID is required for non-admin users.");
+            if (request.getWarehouseId() == null) {
+                throw new IllegalArgumentException("Warehouse ID is required for non-admin users.");
             }
-            branch = branchRepository.findById(request.getBranchId())
-                    .orElseThrow(() -> new RuntimeException("Branch not found"));
+            warehouse = warehouseRepository.findById(request.getWarehouseId())
+                    .orElseThrow(() -> new RuntimeException("Warehouse not found"));
         }
 
         var user = User.builder()
@@ -63,7 +65,7 @@ public class AuthenticationService {
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(roleEnum)
-                .branch(branch)
+                .warehouse(warehouse)
                 .build();
 
         repository.save(user);
@@ -163,13 +165,13 @@ public class AuthenticationService {
         if (request.getRole() != null) user.setRole(request.getRole());
 
         // Handle branch (admin can be branchless)
-        if (request.getBranchId() != null) {
+        if (request.getWarehouseId() != null) {
             if (user.getRole() == Role.ADMIN) {
-                user.setBranch(null);
+                user.setWarehouse(null);
             } else {
-                Branch branch = branchRepository.findById(request.getBranchId())
+                Warehouse warehouse = warehouseRepository.findById(request.getWarehouseId())
                         .orElseThrow(() -> new RuntimeException("Branch not found"));
-                user.setBranch(branch);
+                user.setWarehouse(warehouse);
             }
         }
 
@@ -203,7 +205,7 @@ public class AuthenticationService {
                 .lastName(user.getLastName())
                 .username(user.getUsername())
                 .role(user.getRole())
-                .branchId(user.getBranch() != null ? user.getBranch().getId() : null)
+                .warehouseId(user.getWarehouse() != null ? user.getWarehouse().getId() : null)
                 .build();
     }
 }

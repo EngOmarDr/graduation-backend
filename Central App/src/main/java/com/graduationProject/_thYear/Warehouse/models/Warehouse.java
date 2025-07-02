@@ -32,11 +32,11 @@ public class Warehouse {
     @Column(name = "code" , unique = true, nullable = false)
     private String code;
 
-    @Column(name = "phone", unique = true, nullable = false)
+    @Column(name = "phone")
     private String phone;
 
-    @NotNull
-    @Column(name = "address" , nullable = false)
+
+    @Column(name = "address" )
     private String address;
 
     @NotNull
@@ -55,7 +55,7 @@ public class Warehouse {
     @Enumerated(EnumType.STRING)
     private WarehouseType type; // WAREHOUSE , POS
 
-    private boolean isActive = true ;
+    private boolean isActive ;
 
     @Column(name = "notes")
     private String notes;
