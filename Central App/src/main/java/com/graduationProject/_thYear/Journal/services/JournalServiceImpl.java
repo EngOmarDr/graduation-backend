@@ -13,6 +13,8 @@ import com.graduationProject._thYear.Journal.repositories.JournalItemRepository;
 import com.graduationProject._thYear.Account.repositories.AccountRepository;
 import com.graduationProject._thYear.Branch.repositories.BranchRepository;
 import com.graduationProject._thYear.Currency.repositories.CurrencyRepository;
+import com.graduationProject._thYear.Warehouse.models.Warehouse;
+import com.graduationProject._thYear.Warehouse.repositories.WarehouseRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.Tuple;
 import jakarta.validation.constraints.NotNull;
@@ -36,7 +38,7 @@ public class JournalServiceImpl implements JournalService {
 
         private final JournalHeaderRepository journalHeaderRepository;
         private final JournalItemRepository journalItemRepository;
-        private final BranchRepository branchRepository;
+        private final WarehouseRepository warehouseRepository;
         private final CurrencyRepository currencyRepository;
         private final AccountRepository accountRepository;
 
@@ -44,8 +46,8 @@ public class JournalServiceImpl implements JournalService {
         @Transactional
         public JournalResponse createJournal(CreateJournalRequest request) {
                 // Validate branch
-                Branch branch = branchRepository.findById(request.getBranchId())
-                        .orElseThrow(() -> new EntityNotFoundException("Branch not found with id: " + request.getBranchId()));
+                Warehouse warehouse = warehouseRepository.findById(request.getWarehouseId())
+                        .orElseThrow(() -> new EntityNotFoundException("Warehouse not found with id: " + request.getWarehouseId()));
 
                 // Validate currency (mandatory in header)
                 Currency currency = currencyRepository.findById(request.getCurrencyId())
@@ -106,7 +108,7 @@ public class JournalServiceImpl implements JournalService {
 
                 // Create journal header
                 JournalHeader journalHeader = JournalHeader.builder()
-                        .branch(branch)
+                        .warehouse(warehouse)
                         .date(request.getDate())
                         .debit(totalDebit)
                         .credit(totalCredit)
@@ -188,10 +190,10 @@ public class JournalServiceImpl implements JournalService {
                         throw new IllegalStateException("Cannot modify items of a posted journal");
                 }
 
-                if (request.getBranchId() != null) {
-                        Branch branch = branchRepository.findById(request.getBranchId())
-                                .orElseThrow(() -> new EntityNotFoundException("Branch not found with id: " + request.getBranchId()));
-                        journalHeader.setBranch(branch);
+                if (request.getWarehouseId() != null) {
+                        Warehouse warehouse = warehouseRepository.findById(request.getWarehouseId())
+                                .orElseThrow(() -> new EntityNotFoundException("Warehouse not found with id: " + request.getWarehouseId()));
+                        journalHeader.setWarehouse(warehouse);
                 }
 
                 if (request.getDate() != null) {
@@ -417,7 +419,7 @@ public class JournalServiceImpl implements JournalService {
         private JournalResponse mapToJournalResponse(JournalHeader journalHeader) {
                 return JournalResponse.builder()
                         .id(journalHeader.getId())
-                        .branchId(journalHeader.getBranch().getId())
+                        .warehouseId(journalHeader.getWarehouse().getId())
                         .date(journalHeader.getDate())
                         .totalDebit(journalHeader.getDebit())
                         .totalCredit(journalHeader.getCredit())

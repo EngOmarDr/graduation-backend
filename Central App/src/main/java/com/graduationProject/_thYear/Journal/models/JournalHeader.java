@@ -8,6 +8,7 @@ import java.util.List;
 import com.graduationProject._thYear.Branch.models.Branch;
 import com.graduationProject._thYear.Currency.models.Currency;
 
+import com.graduationProject._thYear.Warehouse.models.Warehouse;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -29,8 +30,8 @@ public class JournalHeader {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "branchId", nullable = false)
-    private Branch branch;
+    @JoinColumn(name = "warehouseId", nullable = false)
+    private Warehouse warehouse;
 
     @NotNull
     @Column(name = "date", nullable = false)

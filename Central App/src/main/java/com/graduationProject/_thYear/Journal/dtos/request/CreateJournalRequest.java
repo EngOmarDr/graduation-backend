@@ -14,8 +14,8 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateJournalRequest {
-    @NotNull(message = "Branch id is required")
-    private Integer branchId;
+    @NotNull(message = "Warehouse id is required")
+    private Integer warehouseId;
 
     @NotNull(message = "Date is required")
     private LocalDateTime date;
