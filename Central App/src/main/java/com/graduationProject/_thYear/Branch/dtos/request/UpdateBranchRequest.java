@@ -14,10 +14,8 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 public class UpdateBranchRequest {
 
-    @NotNull(message = "name is required")
     private String name;
 
-    @NotNull(message = "phone is required")
     private String phone;
 
     private String address;

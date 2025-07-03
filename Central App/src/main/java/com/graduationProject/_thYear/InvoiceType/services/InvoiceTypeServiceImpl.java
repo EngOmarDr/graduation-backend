@@ -69,7 +69,6 @@ public class InvoiceTypeServiceImpl implements InvoiceTypeService{
         invoiceTypeRepository.deleteById(id);
     }
 
-    // 🔄 Mapping Helpers
 
     private InvoiceType mapToEntity(CreateInvoiceTypeRequest dto) {
         return InvoiceType.builder()
@@ -102,36 +101,36 @@ public class InvoiceTypeServiceImpl implements InvoiceTypeService{
                 .defaultCurrencyId(findCurrency(dto.getDefaultCurrencyId()))
                 .build();
     }
-
     private void updateEntity(InvoiceType entity, UpdateInvoiceTypeRequest dto) {
-        entity.setType(dto.getType());
-        entity.setName(dto.getName());
-        entity.setDefaultPriceId(findPrice(dto.getDefaultPriceId()));
-        entity.setMinDefaultPriceId(findPrice(dto.getMinDefaultPriceId()));
-        entity.setIsAffectCostPrice(dto.getIsAffectCostPrice());
-        entity.setIsAffectLastPrice(dto.getIsAffectLastPrice());
-        entity.setIsAffectCustPrice(dto.getIsAffectCustPrice());
-        entity.setIsAffectProfit(dto.getIsAffectProfit());
-        entity.setIsDiscAffectCost(dto.getIsDiscAffectCost());
-        entity.setIsExtraAffectCost(dto.getIsExtraAffectCost());
-        entity.setIsNoEntry(dto.getIsNoEntry());
-        entity.setIsAutoEntry(dto.getIsAutoEntry());
-        entity.setIsAutoEntryPost(dto.getIsAutoEntryPost());
-        entity.setIsNoPost(dto.getIsNoPost());
-        entity.setIsAutoPost(dto.getIsAutoPost());
-        entity.setDefaultWarehouseId(findWarehouse(dto.getDefaultWarehouseId()));
-        entity.setDefaultBillAccId(dto.getDefaultBillAccId());
-        entity.setDefaultCashAccId(dto.getDefaultCashAccId());
-        entity.setDefaultDiscAccId(dto.getDefaultDiscAccId());
-        entity.setDefaultExtraAccId(dto.getDefaultExtraAccId());
-        entity.setDefaultCostAccId(dto.getDefaultCostAccId());
-        entity.setDefaultStockAccId(dto.getDefaultStockAccId());
-        entity.setIsShortEntry(dto.getIsShortEntry());
-        entity.setIsCashBill(dto.getIsCashBill());
-        entity.setPrintAfterInsert(dto.getPrintAfterInsert());
-        entity.setIsBarcode(dto.getIsBarcode());
-        entity.setDefaultCurrencyId(findCurrency(dto.getDefaultCurrencyId()));
+        if (dto.getType() != null) entity.setType(dto.getType());
+        if (dto.getName() != null) entity.setName(dto.getName());
+        if (dto.getDefaultPriceId() != null) entity.setDefaultPriceId(findPrice(dto.getDefaultPriceId()));
+        if (dto.getMinDefaultPriceId() != null) entity.setMinDefaultPriceId(findPrice(dto.getMinDefaultPriceId()));
+        if (dto.getIsAffectCostPrice() != null) entity.setIsAffectCostPrice(dto.getIsAffectCostPrice());
+        if (dto.getIsAffectLastPrice() != null) entity.setIsAffectLastPrice(dto.getIsAffectLastPrice());
+        if (dto.getIsAffectCustPrice() != null) entity.setIsAffectCustPrice(dto.getIsAffectCustPrice());
+        if (dto.getIsAffectProfit() != null) entity.setIsAffectProfit(dto.getIsAffectProfit());
+        if (dto.getIsDiscAffectCost() != null) entity.setIsDiscAffectCost(dto.getIsDiscAffectCost());
+        if (dto.getIsExtraAffectCost() != null) entity.setIsExtraAffectCost(dto.getIsExtraAffectCost());
+        if (dto.getIsNoEntry() != null) entity.setIsNoEntry(dto.getIsNoEntry());
+        if (dto.getIsAutoEntry() != null) entity.setIsAutoEntry(dto.getIsAutoEntry());
+        if (dto.getIsAutoEntryPost() != null) entity.setIsAutoEntryPost(dto.getIsAutoEntryPost());
+        if (dto.getIsNoPost() != null) entity.setIsNoPost(dto.getIsNoPost());
+        if (dto.getIsAutoPost() != null) entity.setIsAutoPost(dto.getIsAutoPost());
+        if (dto.getDefaultWarehouseId() != null) entity.setDefaultWarehouseId(findWarehouse(dto.getDefaultWarehouseId()));
+        if (dto.getDefaultBillAccId() != null) entity.setDefaultBillAccId(dto.getDefaultBillAccId());
+        if (dto.getDefaultCashAccId() != null) entity.setDefaultCashAccId(dto.getDefaultCashAccId());
+        if (dto.getDefaultDiscAccId() != null) entity.setDefaultDiscAccId(dto.getDefaultDiscAccId());
+        if (dto.getDefaultExtraAccId() != null) entity.setDefaultExtraAccId(dto.getDefaultExtraAccId());
+        if (dto.getDefaultCostAccId() != null) entity.setDefaultCostAccId(dto.getDefaultCostAccId());
+        if (dto.getDefaultStockAccId() != null) entity.setDefaultStockAccId(dto.getDefaultStockAccId());
+        if (dto.getIsShortEntry() != null) entity.setIsShortEntry(dto.getIsShortEntry());
+        if (dto.getIsCashBill() != null) entity.setIsCashBill(dto.getIsCashBill());
+        if (dto.getPrintAfterInsert() != null) entity.setPrintAfterInsert(dto.getPrintAfterInsert());
+        if (dto.getIsBarcode() != null) entity.setIsBarcode(dto.getIsBarcode());
+        if (dto.getDefaultCurrencyId() != null) entity.setDefaultCurrencyId(findCurrency(dto.getDefaultCurrencyId()));
     }
+
 
     private InvoiceTypeResponse mapToResponse(InvoiceType entity) {
         return InvoiceTypeResponse.builder()

@@ -14,16 +14,12 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateJournalRequest {
-    @NotNull(message = "Warehouse id is required")
     private Integer WarehouseId;
 
-    @NotNull(message = "Date is required")
     private LocalDateTime date;
 
-    @NotNull(message = "Currency id is required")
     private Integer currencyId;
 
-    @NotNull(message = "Currency value is required")
     private BigDecimal currencyValue;
 
     private Byte parentType;
@@ -32,6 +28,5 @@ public class UpdateJournalRequest {
     @Builder.Default
     private Boolean isPosted = false;
 
-    @NotNull(message = "Journal items are required")
     private List<CreateJournalItemRequest> journalItems;
 }

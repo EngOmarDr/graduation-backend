@@ -16,7 +16,6 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @SuperBuilder
 public class UpdateJournalTypeRequest {
-    @NotNull(message = "Name is required")
     private String name;
 
     private Boolean autoPost;

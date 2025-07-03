@@ -83,37 +83,43 @@ public class GroupServiceImpl implements GroupService {
                 .collect(Collectors.toList());
     }
 
-
     @Override
     public GroupResponse updateGroup(Integer id, UpdateGroupRequest request) {
         Group group = groupRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Group not found"));
 
-        if (!group.getCode().equals(request.getCode()) &&
-                groupRepository.existsByCode(request.getCode())) {
-            throw new IllegalArgumentException("Group item with code '" + request.getCode() + "' already exists");
+        // Check and update code if provided
+        if (request.getCode() != null && !group.getCode().equals(request.getCode())) {
+            if (groupRepository.existsByCode(request.getCode())) {
+                throw new IllegalArgumentException("Group item with code '" + request.getCode() + "' already exists");
+            }
+            group.setCode(request.getCode());
         }
 
-        if (!group.getName().equals(request.getName()) &&
-                groupRepository.existsByName(request.getName())) {
-            throw new IllegalArgumentException("Group item with name '" + request.getName() + "' already exists");
+        // Check and update name if provided
+        if (request.getName() != null && !group.getName().equals(request.getName())) {
+            if (groupRepository.existsByName(request.getName())) {
+                throw new IllegalArgumentException("Group item with name '" + request.getName() + "' already exists");
+            }
+            group.setName(request.getName());
         }
 
-        group.setCode(request.getCode());
-        group.setName(request.getName());
-        group.setNotes(request.getNotes());
+        // Update notes if present
+        if (request.getNotes() != null) {
+            group.setNotes(request.getNotes());
+        }
 
+        // Update parent if present
         if (request.getParentId() != null) {
             Group parent = groupRepository.findById(request.getParentId())
                     .orElseThrow(() -> new ResourceNotFoundException("Parent group not found"));
             group.setParent(parent);
-        } else {
-            group.setParent(null);
         }
 
         Group updatedGroup = groupRepository.save(group);
         return convertToResponse(updatedGroup);
     }
+
 
     @Override
     public void deleteGroup(Integer id) {

@@ -16,21 +16,16 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateProductRequest {
-    @NotNull(message = "Code is required")
     private String code;
 
-    @NotNull(message = "Name is required")
     private String name;
 
     private MultipartFile image;
 
-    @NotNull(message = "Group ID is required")
     private Integer groupId;
 
-    @NotNull(message = "Type is required")
     private Byte type;
 
-    @NotNull(message = "Default unit ID is required")
     private Integer defaultUnitId;
 
     private Float minQty;
@@ -42,10 +37,8 @@ public class UpdateProductRequest {
 
     private String notes;
 
-    @NotNull(message = "product prices are required")
     private List<CreateProductPriceRequest> prices   ;
 
-    @NotNull(message = "product barcodes are required")
     private List<CreateProductBarcodeRequest> barcodes   ;
 
 

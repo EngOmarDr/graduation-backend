@@ -14,13 +14,10 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 public class UpdateAccountRequest {
 
-    @NotNull(message = "Code is required")
     private String code;
 
-    @NotNull(message = "Name is required")
     private String name;
 
-    @NotNull(message = "final Account is required")
     private Integer finalAccount;
 
     private Integer parentId;

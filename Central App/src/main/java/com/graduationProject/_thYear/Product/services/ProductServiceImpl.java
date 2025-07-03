@@ -137,64 +137,83 @@ public class ProductServiceImpl implements ProductService{
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
 
-        if (!product.getCode().equals(request.getCode()) && productRepository.existsByCode(request.getCode())) {
-            throw new IllegalArgumentException("Another product with code " + request.getCode() + " already exists");
-        }
-
-        if (!product.getName().equals(request.getName()) && productRepository.existsByName(request.getName())) {
-            throw new IllegalArgumentException("Another product with name " + request.getName() + " already exists");
-        }
-
-        Group group = groupRepository.findById(request.getGroupId())
-                .orElseThrow(() -> new EntityNotFoundException("Group not found with id: " + request.getGroupId()));
-
-        Unit defaultUnit = unitRepository.findById(request.getDefaultUnitId())
-                .orElseThrow(() -> new EntityNotFoundException("Unit not found with id: " + request.getDefaultUnitId()));
-
         String tempImagePath = null;
 
         try {
+            // Update code
+            if (request.getCode() != null && !product.getCode().equals(request.getCode())) {
+                if (productRepository.existsByCode(request.getCode())) {
+                    throw new IllegalArgumentException("Another product with code " + request.getCode() + " already exists");
+                }
+                product.setCode(request.getCode());
+            }
+
+            // Update name
+            if (request.getName() != null && !product.getName().equals(request.getName())) {
+                if (productRepository.existsByName(request.getName())) {
+                    throw new IllegalArgumentException("Another product with name " + request.getName() + " already exists");
+                }
+                product.setName(request.getName());
+            }
+
+            // Group
+            if (request.getGroupId() != null) {
+                Group group = groupRepository.findById(request.getGroupId())
+                        .orElseThrow(() -> new EntityNotFoundException("Group not found with id: " + request.getGroupId()));
+                product.setGroupId(group);
+            }
+
+            // Default unit
+            if (request.getDefaultUnitId() != null) {
+                Unit defaultUnit = unitRepository.findById(request.getDefaultUnitId())
+                        .orElseThrow(() -> new EntityNotFoundException("Unit not found with id: " + request.getDefaultUnitId()));
+                product.setDefaultUnit(defaultUnit);
+            }
+
+            // Type
+            if (request.getType() != null) {
+                product.setType(request.getType());
+            }
+
+            if (request.getMinQty() != null) product.setMinQty(request.getMinQty());
+            if (request.getMaxQty() != null) product.setMaxQty(request.getMaxQty());
+            if (request.getOrderQty() != null) product.setOrderQty(request.getOrderQty());
+            if (request.getNotes() != null) product.setNotes(request.getNotes());
+
+            // Handle image upload
             if (request.getImage() != null && !request.getImage().isEmpty()) {
                 tempImagePath = imageStorageService.saveToTemp(request.getImage());
             }
 
+            // Prices
+            if (request.getPrices() != null) {
+                for (ProductPrice price : product.getPrices()) {
+                    productPriceService.deleteProductPrice(price.getId());
+                }
+                product.getPrices().clear();
 
-        product.setCode(request.getCode());
-        product.setName(request.getName());
-        product.setGroupId(group);
-        product.setType(request.getType());
-        product.setDefaultUnit(defaultUnit);
-        product.setMinQty(request.getMinQty());
-        product.setMaxQty(request.getMaxQty());
-        product.setOrderQty(request.getOrderQty());
-        product.setNotes(request.getNotes());
+                for (CreateProductPriceRequest priceRequest : request.getPrices()) {
+                    priceRequest.setProductId(product.getId());
+                    productPriceService.createProductPrice(priceRequest);
+                }
+            }
 
+            // Barcodes
+            if (request.getBarcodes() != null) {
+                for (ProductBarcode barcode : product.getBarcodes()) {
+                    productBarcodeService.deleteProductBarcode(barcode.getId());
+                }
+                product.getBarcodes().clear();
 
-        for (ProductPrice price : product.getPrices()) {
-            productPriceService.deleteProductPrice(price.getId());
-        }
-        product.getPrices().clear();
+                for (CreateProductBarcodeRequest barcodeRequest : request.getBarcodes()) {
+                    barcodeRequest.setProductId(product.getId());
+                    productBarcodeService.createProductBarcode(barcodeRequest);
+                }
+            }
 
-        for (CreateProductPriceRequest priceRequest : request.getPrices()) {
-            priceRequest.setProductId(product.getId());
-            productPriceService.createProductPrice(priceRequest);
-        }
+            Product saved = productRepository.save(product);
 
-
-
-        for (ProductBarcode barcode : product.getBarcodes()) {
-            productBarcodeService.deleteProductBarcode(barcode.getId());
-        }
-        product.getBarcodes().clear();
-
-
-        for (CreateProductBarcodeRequest barcodeRequest : request.getBarcodes()) {
-            barcodeRequest.setProductId(product.getId());
-            productBarcodeService.createProductBarcode(barcodeRequest);
-        }
-
-        Product saved = productRepository.save(product);
-
+            // Move image to permanent if needed
             if (tempImagePath != null) {
                 imageStorageService.deletePermanent(product.getImage());
                 String finalPath = imageStorageService.moveToPermanent(tempImagePath);
@@ -202,8 +221,9 @@ public class ProductServiceImpl implements ProductService{
                 productRepository.save(product);
             }
 
-        entityManager.refresh(saved);
-        return mapToProductResponse(saved);
+            entityManager.refresh(saved);
+            return mapToProductResponse(saved);
+
         } catch (Exception ex) {
             if (tempImagePath != null) {
                 imageStorageService.deleteTemp(tempImagePath);

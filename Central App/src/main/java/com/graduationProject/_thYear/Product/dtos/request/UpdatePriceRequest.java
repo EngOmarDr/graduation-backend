@@ -13,6 +13,5 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdatePriceRequest {
-    @NotNull(message = "Name is required")
     private String name;
 }

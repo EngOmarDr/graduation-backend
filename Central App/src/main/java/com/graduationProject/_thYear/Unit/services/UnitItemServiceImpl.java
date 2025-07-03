@@ -71,22 +71,31 @@ public class UnitItemServiceImpl implements UnitItemService{
         UnitItem unitItem = unitItemRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("UnitItem not found with id: " + id));
 
-        if (!unitItem.getName().equals(request.getName()) &&
-                unitItemRepository.existsByName(request.getName())) {
-            throw new IllegalArgumentException("Unit item with name '" + request.getName() + "' already exists");
+        if (request.getName() != null && !unitItem.getName().equals(request.getName())) {
+            if (unitItemRepository.existsByName(request.getName())) {
+                throw new IllegalArgumentException("Unit item with name '" + request.getName() + "' already exists");
+            }
+            unitItem.setName(request.getName());
         }
 
-        Unit unit = unitRepository.findById(request.getUnitId())
-                .orElseThrow(() -> new ResourceNotFoundException("Unit not found with id: " + request.getUnitId()));
+        if (request.getUnitId() != null) {
+            Unit unit = unitRepository.findById(request.getUnitId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Unit not found with id: " + request.getUnitId()));
+            unitItem.setUnit(unit);
+        }
 
-        unitItem.setUnit(unit);
-        unitItem.setName(request.getName());
-        unitItem.setFact(request.getFact());
-        unitItem.setIsDef(request.getIsDef());
+        if (request.getFact() != null) {
+            unitItem.setFact(request.getFact());
+        }
+
+        if (request.getIsDef() != null) {
+            unitItem.setIsDef(request.getIsDef());
+        }
 
         UnitItem updatedUnitItem = unitItemRepository.save(unitItem);
         return convertToResponse(updatedUnitItem);
     }
+
 
     @Override
     public void deleteUnitItem(Integer id) {

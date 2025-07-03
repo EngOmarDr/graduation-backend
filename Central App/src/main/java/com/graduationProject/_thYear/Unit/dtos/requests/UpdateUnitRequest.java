@@ -16,8 +16,6 @@ import java.util.List;
 @AllArgsConstructor
 public class UpdateUnitRequest {
 
-    @NotNull(message = "Name is required")
     private String name;
-    @NotNull(message = "unit items are required")
     private List<UpdateUnitItemRequest> unitItems;
 }

@@ -13,12 +13,9 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateProductBarcodeRequest {
-    @NotNull(message = "Product ID is required")
     private Integer productId;
 
-    @NotNull(message = "Unit item ID is required")
     private Integer unitItemId;
 
-    @NotNull(message = "Barcode is required")
     private String barcode;
 }

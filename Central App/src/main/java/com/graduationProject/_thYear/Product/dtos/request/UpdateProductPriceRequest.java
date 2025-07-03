@@ -13,15 +13,11 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateProductPriceRequest {
-    @NotNull(message = "Product ID is required")
     private Integer productId;
 
-    @NotNull(message = "Price ID is required")
     private Integer priceId;
 
-    @NotNull(message = "Unit Item ID is required")
     private Integer unitItemId;
 
-    @NotNull(message = "Price value is required")
     private Float price;
 }

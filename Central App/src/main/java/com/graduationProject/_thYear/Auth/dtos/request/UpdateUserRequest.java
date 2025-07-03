@@ -22,6 +22,9 @@ public class UpdateUserRequest {
     @Pattern(regexp = "[a-zA-Z0-9]{4,}", message = "Username should be alphanumeric with at least 4 characters")
     private String username;
 
+    @Size(min = 8, message = "Password must be at least 8 characters")
+    private String password;
+
     private Role role;
     private Integer warehouseId;
 }

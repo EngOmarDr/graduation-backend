@@ -17,22 +17,16 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateJournalItemRequest {
-    @NotNull(message = "Account id is required")
     private Integer accountId;
 
-    @PositiveOrZero(message = "Debit must be zero or positive")
     private BigDecimal debit;
 
-    @PositiveOrZero(message = "Credit must be zero or positive")
     private BigDecimal credit;
 
-    @NotNull(message = "Currency id is required")
     private Integer currencyId;
 
-    @NotNull(message = "Currency value is required")
     private BigDecimal currencyValue;
 
-    @NotNull(message = "Date is required")
     private LocalDateTime date;
 
     private String notes;

@@ -52,29 +52,36 @@ public class BranchServiceImpl implements BranchService {
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
     }
-
     @Override
     public BranchResponse updateBranch(Integer id, UpdateBranchRequest request) {
-        var res = repository.findById(id)
+        var branch = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Branch not found with id: " + id));
 
-        // Validate unique code and name if changed
-        if (!res.getPhone().equals(request.getPhone()) &&
-                repository.existsByPhone(request.getPhone())) {
-            throw new IllegalArgumentException("Branch with code '" + request.getPhone() + "' already exists");
-        }
-        if (!res.getName().equals(request.getName()) &&
-                repository.existsByName(request.getName())) {
-            throw new IllegalArgumentException("Branch with name '" + request.getName() + "' already exists");
+        if (request.getPhone() != null && !branch.getPhone().equals(request.getPhone())) {
+            if (repository.existsByPhone(request.getPhone())) {
+                throw new IllegalArgumentException("Branch with phone '" + request.getPhone() + "' already exists");
+            }
+            branch.setPhone(request.getPhone());
         }
 
-        res.setName(request.getName());
-        res.setPhone(request.getPhone());
-        res.setAddress(request.getAddress());
-        res.setNotes(request.getNotes());
+        if (request.getName() != null && !branch.getName().equals(request.getName())) {
+            if (repository.existsByName(request.getName())) {
+                throw new IllegalArgumentException("Branch with name '" + request.getName() + "' already exists");
+            }
+            branch.setName(request.getName());
+        }
 
-        var updatedRes = repository.save(res);
-        return convertToResponse(updatedRes);
+
+        if (request.getAddress() != null) {
+            branch.setAddress(request.getAddress());
+        }
+
+        if (request.getNotes() != null) {
+            branch.setNotes(request.getNotes());
+        }
+
+        var updatedBranch = repository.save(branch);
+        return convertToResponse(updatedBranch);
     }
 
     @Override

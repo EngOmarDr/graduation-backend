@@ -56,17 +56,17 @@ public class PriceServiceImpl implements PriceService{
         Price price = priceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Price not found with id: " + id));
 
-        // Check if name is being changed and validate uniqueness
-        if (!price.getName().equals(request.getName()) &&
-                priceRepository.existsByName(request.getName())) {
-            throw new IllegalArgumentException("Price with name '" + request.getName() + "' already exists");
+        if (request.getName() != null && !price.getName().equals(request.getName())) {
+            if (priceRepository.existsByName(request.getName())) {
+                throw new IllegalArgumentException("Price with name '" + request.getName() + "' already exists");
+            }
+            price.setName(request.getName());
         }
 
-        price.setName(request.getName());
-
-        Price updatedPrice = priceRepository.save(price);
-        return convertToResponse(updatedPrice);
+        Price updated = priceRepository.save(price);
+        return convertToResponse(updated);
     }
+
 
     @Override
     public void deletePrice(Integer id) {

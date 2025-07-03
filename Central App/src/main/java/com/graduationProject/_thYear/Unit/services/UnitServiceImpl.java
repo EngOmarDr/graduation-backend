@@ -14,10 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -80,15 +77,15 @@ public class UnitServiceImpl implements UnitService {
         Unit unit = unitRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Unit not found with id: " + id));
 
-        // Check if name is being changed and validate uniqueness
-        if (!unit.getName().equals(request.getName()) &&
-                unitRepository.existsByName(request.getName())) {
-            throw new IllegalArgumentException("Unit with name '" + request.getName() + "' already exists");
+        // Update name only if it's provided
+        if (request.getName() != null && !unit.getName().equals(request.getName())) {
+            if (unitRepository.existsByName(request.getName())) {
+                throw new IllegalArgumentException("Unit with name '" + request.getName() + "' already exists");
+            }
+            unit.setName(request.getName());
         }
 
-        unit.setName(request.getName());
-
-        // Only update unit items if they are provided in the request
+        // Only update unit items if provided
         if (request.getUnitItems() != null && !request.getUnitItems().isEmpty()) {
             validateAndUpdateUnitItems(unit, request.getUnitItems());
         }
@@ -135,27 +132,29 @@ public class UnitServiceImpl implements UnitService {
         }
     }
     private void validateAndUpdateUnitItems(Unit unit, List<UpdateUnitItemRequest> unitItems) {
-        // Validate unit item names uniqueness
         validateUnitItemNamesForUpdate(unit, unitItems);
 
-        // Create a map of existing unit items by name for quick lookup
+        // Map existing items by name
         Map<String, UnitItem> existingItemsMap = unit.getUnitItems().stream()
                 .collect(Collectors.toMap(UnitItem::getName, Function.identity()));
 
-        // Clear the current items collection (orphanRemoval will handle deletion)
-        unit.getUnitItems().clear();
+        Set<String> incomingNames = unitItems.stream()
+                .map(UpdateUnitItemRequest::getName)
+                .collect(Collectors.toSet());
 
-        // Process each item from the request
+        // Items to retain (update or keep)
+        List<UnitItem> updatedItems = new ArrayList<>();
+
         for (UpdateUnitItemRequest itemRequest : unitItems) {
             UnitItem unitItem;
 
-            // If item exists with this name, update it
             if (existingItemsMap.containsKey(itemRequest.getName())) {
+                // Update existing item
                 unitItem = existingItemsMap.get(itemRequest.getName());
-                unitItem.setFact(itemRequest.getFact());
-                unitItem.setIsDef(itemRequest.getIsDef());
+                if (itemRequest.getFact() != null) unitItem.setFact(itemRequest.getFact());
+                if (itemRequest.getIsDef() != null) unitItem.setIsDef(itemRequest.getIsDef());
             } else {
-                // Create new item
+                // New item
                 unitItem = UnitItem.builder()
                         .unit(unit)
                         .name(itemRequest.getName())
@@ -164,12 +163,26 @@ public class UnitServiceImpl implements UnitService {
                         .build();
             }
 
-            unit.addUnitItem(unitItem);
+            updatedItems.add(unitItem);
         }
 
-        // Set default unit item if needed
+        // Remove items that are not in the incoming list (optional, only if you want to support deletion)
+        List<UnitItem> toRemove = unit.getUnitItems().stream()
+                .filter(item -> !incomingNames.contains(item.getName()))
+                .collect(Collectors.toList());
+
+        unit.getUnitItems().removeAll(toRemove);
+
+        // Now update or add new ones
+        for (UnitItem item : updatedItems) {
+            if (!unit.getUnitItems().contains(item)) {
+                unit.addUnitItem(item); // Maintains bidirectional relationship
+            }
+        }
+
         setDefaultUnitItemIfNeeded(unit);
     }
+
     private void validateUnitItemNamesForUpdate(Unit unit, List<UpdateUnitItemRequest> unitItems) {
         List<String> newNames = unitItems.stream()
                 .map(UpdateUnitItemRequest::getName)

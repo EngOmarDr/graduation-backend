@@ -93,39 +93,38 @@ public class ProductPriceServiceImpl implements ProductPriceService{
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
     }
-
     @Override
     public ProductPriceResponse updateProductPrice(Integer id, UpdateProductPriceRequest request) {
         ProductPrice productPrice = productPriceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product price not found with id: " + id));
 
-        Product product = productRepository.findById(request.getProductId())
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + request.getProductId()));
-
-        Price price = priceRepository.findById(request.getPriceId())
-                .orElseThrow(() -> new ResourceNotFoundException("Price not found with id: " + request.getPriceId()));
-
-        UnitItem unitItem = unitItemRepository.findById(request.getUnitItemId())
-                .orElseThrow(() -> new ResourceNotFoundException("Unit not found with id: " + request.getUnitItemId()));
-
-        // Check if combination already exists for another record
-        if (!(productPrice.getProductId().getId().equals(request.getProductId()) ||
-                !(productPrice.getPriceId().getId().equals(request.getPriceId())) ||
-                !(productPrice.getPriceUnit().getId().equals(request.getUnitItemId())))) {
-
-            if (productPriceRepository.existsByProductId_IdAndPriceId_IdAndPriceUnit(
-                    request.getProductId(), request.getPriceId(), unitItem)) {
-                throw new IllegalArgumentException("Product price with this combination already exists");
-            }
+        // Update product reference
+        if (request.getProductId() != null) {
+            Product product = productRepository.findById(request.getProductId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+            productPrice.setProductId(product);
         }
 
-        productPrice.setProductId(product);
-        productPrice.setPriceId(price);
-        productPrice.setPriceUnit(unitItem);
-        productPrice.setPrice(request.getPrice());
+        // Update price reference
+        if (request.getPriceId() != null) {
+            Price price = priceRepository.findById(request.getPriceId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Price not found"));
+            productPrice.setPriceId(price);
+        }
 
-        ProductPrice updatedProductPrice = productPriceRepository.save(productPrice);
-        return convertToResponse(updatedProductPrice);
+        // Update unit item
+        if (request.getUnitItemId() != null) {
+            UnitItem unitItem = unitItemRepository.findById(request.getUnitItemId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Unit not found"));
+            productPrice.setPriceUnit(unitItem);
+        }
+
+        if (request.getPrice() != null) {
+            productPrice.setPrice(request.getPrice());
+        }
+
+        ProductPrice updated = productPriceRepository.save(productPrice);
+        return convertToResponse(updated);
     }
 
     @Override

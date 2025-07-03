@@ -61,25 +61,38 @@ public class CurrencyServiceImpl implements CurrencyService {
         Currency currency = currencyRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Currency not found with id: " + id));
 
-        if (!currency.getCode().equals(request.getCode()) &&
-                currencyRepository.existsByCode(request.getCode())) {
-            throw new IllegalArgumentException("Currency item with code '" + request.getCode() + "' already exists");
+        // Update code if provided and unique
+        if (request.getCode() != null && !currency.getCode().equals(request.getCode())) {
+            if (currencyRepository.existsByCode(request.getCode())) {
+                throw new IllegalArgumentException("Currency item with code '" + request.getCode() + "' already exists");
+            }
+            currency.setCode(request.getCode());
         }
 
-        if (!currency.getName().equals(request.getName()) &&
-                currencyRepository.existsByName(request.getName())) {
-            throw new IllegalArgumentException("Currency item with name '" + request.getName() + "' already exists");
+        // Update name if provided and unique
+        if (request.getName() != null && !currency.getName().equals(request.getName())) {
+            if (currencyRepository.existsByName(request.getName())) {
+                throw new IllegalArgumentException("Currency item with name '" + request.getName() + "' already exists");
+            }
+            currency.setName(request.getName());
         }
 
-        currency.setCode(request.getCode());
-        currency.setName(request.getName());
-        currency.setCurrencyValue(request.getCurrencyValue());
-        currency.setPartName(request.getPartName());
-        currency.setPartPrecision(request.getPartPrecision());
+        if (request.getCurrencyValue() != null) {
+            currency.setCurrencyValue(request.getCurrencyValue());
+        }
+
+        if (request.getPartName() != null) {
+            currency.setPartName(request.getPartName());
+        }
+
+        if (request.getPartPrecision() != null) {
+            currency.setPartPrecision(request.getPartPrecision());
+        }
 
         Currency updatedCurrency = currencyRepository.save(currency);
         return convertToResponse(updatedCurrency);
     }
+
 
     @Override
     public void deleteCurrency(Integer id) {

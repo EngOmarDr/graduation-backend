@@ -72,36 +72,42 @@ public class ProductBarcodeServiceImpl implements ProductBarcodeService{
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
     }
-
     @Override
     public ProductBarcodeResponse updateProductBarcode(Integer id, UpdateProductBarcodeRequest request) {
         ProductBarcode productBarcode = productBarcodeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product barcode not found with id: " + id));
 
-        // Validate barcode uniqueness if changed
-        if (!productBarcode.getBarcode().equals(request.getBarcode()) &&
-                productBarcodeRepository.existsByBarcode(request.getBarcode())) {
-            throw new IllegalArgumentException("Barcode '" + request.getBarcode() + "' already exists");
+        // Barcode (check uniqueness)
+        if (request.getBarcode() != null && !request.getBarcode().equals(productBarcode.getBarcode())) {
+            if (productBarcodeRepository.existsByBarcode(request.getBarcode())) {
+                throw new IllegalArgumentException("Barcode '" + request.getBarcode() + "' already exists");
+            }
+            productBarcode.setBarcode(request.getBarcode());
         }
 
-        Product product = productRepository.findById(request.getProductId())
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + request.getProductId()));
-
-        UnitItem unitItem = unitItemRepository.findById(request.getUnitItemId())
-                .orElseThrow(() -> new ResourceNotFoundException("Unit item not found with id: " + request.getUnitItemId()));
-
-        // Verify unit item belongs to product's default unit
-        if (!unitItem.getUnit().getId().equals(product.getDefaultUnit().getId())) {
-            throw new IllegalArgumentException("Unit item does not belong to product's default unit");
+        // Product
+        if (request.getProductId() != null) {
+            Product product = productRepository.findById(request.getProductId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+            productBarcode.setProduct(product);
         }
 
-        productBarcode.setProduct(product);
-        productBarcode.setUnitItem(unitItem);
-        productBarcode.setBarcode(request.getBarcode());
+        // Unit item
+        if (request.getUnitItemId() != null) {
+            UnitItem unitItem = unitItemRepository.findById(request.getUnitItemId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Unit item not found"));
 
-        ProductBarcode updatedBarcode = productBarcodeRepository.save(productBarcode);
-        return convertToResponse(updatedBarcode);
+            // Validate relation
+            if (!productBarcode.getProduct().getDefaultUnit().getId().equals(unitItem.getUnit().getId())) {
+                throw new IllegalArgumentException("Unit item does not belong to product's default unit");
+            }
+            productBarcode.setUnitItem(unitItem);
+        }
+
+        ProductBarcode updated = productBarcodeRepository.save(productBarcode);
+        return convertToResponse(updated);
     }
+
 
     @Override
     public void deleteProductBarcode(Integer id) {

@@ -16,10 +16,12 @@ import lombok.NoArgsConstructor;
 public class RegisterRequest {
 
     @NotBlank(message = "First name is required")
-    private String firstname;
+    @Size(min = 2, max = 50)
+    private String firstName;
 
     @NotBlank(message = "Last name is required")
-    private String lastname;
+    @Size(min = 2, max = 50)
+    private String lastName;
 
     @NotBlank(message = "Username is required")
     @Pattern(regexp = "[a-zA-Z0-9]{4,}",message = "Username should be valid")

@@ -60,8 +60,8 @@ public class AuthenticationService {
         }
 
         var user = User.builder()
-                .firstName(request.getFirstname())
-                .lastName(request.getLastname())
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(roleEnum)
@@ -74,8 +74,8 @@ public class AuthenticationService {
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .username(user.getUsername())
-                .firstname(user.getFirstName())
-                .lastname(user.getLastName())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
                 .role(user.getRole())
                 .build();
     }
@@ -101,8 +101,8 @@ public class AuthenticationService {
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .username(user.getUsername())
-                .firstname(user.getFirstName())
-                .lastname(user.getLastName())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
                 .role(user.getRole())
                 .warehouseId(user.getWarehouse() != null ?user.getWarehouse().getId() :null)
                 .build();
@@ -163,6 +163,7 @@ public class AuthenticationService {
         if (request.getFirstName() != null) user.setFirstName(request.getFirstName());
         if (request.getLastName() != null) user.setLastName(request.getLastName());
         if (request.getUsername() != null) user.setUsername(request.getUsername());
+        if (request.getPassword() != null) user.setPassword(passwordEncoder.encode(request.getPassword()));
         if (request.getRole() != null) user.setRole(request.getRole());
 
         // Handle branch (admin can be branchless)

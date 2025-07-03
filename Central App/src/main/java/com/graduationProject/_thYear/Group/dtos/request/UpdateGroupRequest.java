@@ -13,10 +13,8 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @SuperBuilder
 public class UpdateGroupRequest {
-    @NotNull(message = "Code is required")
     private String code;
 
-    @NotNull(message = "Name is required")
     private String name;
 
     private String notes;
