@@ -33,7 +33,7 @@ public class InvoiceController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<InvoiceResponse> update(@PathVariable Integer id, @RequestBody UpdateInvoiceRequest request) {
+    public ResponseEntity<InvoiceResponse> update(@PathVariable Integer id, @RequestBody @Valid UpdateInvoiceRequest request) {
         return ResponseEntity.ok(service.update(id, request));
     }
 
