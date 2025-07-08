@@ -1,0 +1,45 @@
+package com.graduationProject._thYear.Invoice.controllers;
+
+import com.graduationProject._thYear.Invoice.dtos.requests.*;
+import com.graduationProject._thYear.Invoice.dtos.responses.*;
+import com.graduationProject._thYear.Invoice.services.InvoiceService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/invoices")
+@RequiredArgsConstructor
+public class InvoiceController {
+
+    private final InvoiceService service;
+
+    @PostMapping
+    public ResponseEntity<InvoiceResponse> create(@Valid @RequestBody CreateInvoiceRequest request) {
+        return ResponseEntity.ok(service.create(request));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<InvoiceResponse> getById(@PathVariable Integer id) {
+        return ResponseEntity.ok(service.getById(id));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<InvoiceResponse>> getAll() {
+        return ResponseEntity.ok(service.getAll());
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<InvoiceResponse> update(@PathVariable Integer id, @RequestBody UpdateInvoiceRequest request) {
+        return ResponseEntity.ok(service.update(id, request));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Integer id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+}
