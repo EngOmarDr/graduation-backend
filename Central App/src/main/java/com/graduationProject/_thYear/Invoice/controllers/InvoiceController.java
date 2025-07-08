@@ -32,7 +32,7 @@ public class InvoiceController {
         return ResponseEntity.ok(service.getAll());
     }
 
-    @PatchMapping("/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<InvoiceResponse> update(@PathVariable Integer id, @RequestBody UpdateInvoiceRequest request) {
         return ResponseEntity.ok(service.update(id, request));
     }
