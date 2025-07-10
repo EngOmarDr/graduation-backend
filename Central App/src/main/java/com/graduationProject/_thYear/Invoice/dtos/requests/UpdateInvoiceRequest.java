@@ -1,5 +1,6 @@
 package com.graduationProject._thYear.Invoice.dtos.requests;
 
+import com.graduationProject._thYear.Invoice.annotationValidator.UniqueInvoiceItemProducts;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.Positive;
 import lombok.Data;
@@ -10,6 +11,7 @@ import java.util.Date;
 import java.util.List;
 
 @Data
+@UniqueInvoiceItemProducts
 public class UpdateInvoiceRequest {
 
     private Integer warehouseId;
