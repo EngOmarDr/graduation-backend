@@ -22,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -56,13 +57,17 @@ public class InvoiceService {
                 .invoiceType(invoiceType)
                 .currency(currency)
                 .currencyValue(req.getCurrencyValue())
-                .date(req.getDate())
+                .date(Optional.ofNullable(req.getDate()).orElse(LocalDateTime.now()))
                 .isSuspended(Optional.ofNullable(req.getIsSuspended()).orElse(false))
                 .isPosted(Optional.ofNullable(req.getIsPosted()).orElse(false))
                 .payType(req.getPayType())
                 .notes(req.getNotes())
                 .postedDate(req.getPostedDate())
                 .build();
+
+        if (Boolean.TRUE.equals(invoice.getIsPosted()) && invoice.getPostedDate() == null) {
+            invoice.setPostedDate(LocalDateTime.now());
+        }
 
         List<InvoiceItem> items = req.getInvoiceItems().stream().map(itemReq -> {
             Product product = productRepo.findById(itemReq.getProductId())
@@ -154,8 +159,17 @@ public class InvoiceService {
         if (req.getNotes() != null) invoice.setNotes(req.getNotes());
         if (req.getIsSuspended() != null) invoice.setIsSuspended(req.getIsSuspended());
         if (req.getPayType() != null) invoice.setPayType(req.getPayType());
-        if (req.getIsPosted() != null) invoice.setIsPosted(req.getIsPosted());
-        if (req.getPostedDate() != null) invoice.setPostedDate(req.getPostedDate());
+        if (req.getIsPosted() != null) {
+            invoice.setIsPosted(req.getIsPosted());
+
+            if (req.getIsPosted() && req.getPostedDate() == null) {
+                invoice.setPostedDate(LocalDateTime.now());
+            }
+        }
+
+        if (req.getPostedDate() != null) {
+            invoice.setPostedDate(req.getPostedDate());
+        }
 
         // Update items if provided
         if (req.getInvoiceItems() != null) {

@@ -22,8 +22,6 @@ public class CreateInvoiceRequest {
     private Integer warehouseId;
     @NotNull(message = "invoiceTypeId is required")
     private Integer invoiceTypeId;
-    @NotNull(message = "date is required")
-    @FutureOrPresent(message = "Invoice date cannot be in the past")
     private LocalDateTime date;
 
     private Boolean isSuspended;
