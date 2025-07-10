@@ -23,7 +23,7 @@ public class AdminSeeder implements CommandLineRunner {
                     .firstName("Super")
                     .lastName("Admin")
                     .username("admin")
-                    .password(passwordEncoder.encode("admin1234"))
+                    .password(passwordEncoder.encode("12345678"))
                     .role(Role.ADMIN)
                     .build();
             userRepository.save(admin);

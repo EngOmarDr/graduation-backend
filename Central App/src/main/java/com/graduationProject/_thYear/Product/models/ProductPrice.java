@@ -1,6 +1,7 @@
 package com.graduationProject._thYear.Product.models;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.graduationProject._thYear.Unit.models.Unit;
 import com.graduationProject._thYear.Unit.models.UnitItem;
@@ -27,7 +28,7 @@ public class ProductPrice {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
-    @JsonIgnore
+    @JsonBackReference
     private Product productId;
 
     @NotNull

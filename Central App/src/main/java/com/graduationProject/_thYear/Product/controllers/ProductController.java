@@ -50,4 +50,10 @@ public class ProductController {
         productService.deleteProduct(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/by-barcode")
+    public ResponseEntity<List<ProductResponse>> getByBarcodeParam(@RequestParam String barcode) {
+        return ResponseEntity.ok(productService.getByBarcode(barcode));
+    }
+
 }

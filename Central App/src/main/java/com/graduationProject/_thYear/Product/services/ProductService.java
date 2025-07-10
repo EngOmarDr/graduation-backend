@@ -13,4 +13,7 @@ public interface ProductService {
     List<ProductResponse> getAllProducts();
     ProductResponse updateProduct(Integer id, UpdateProductRequest request);
     void deleteProduct(Integer id);
+
+    List<ProductResponse> getByBarcode(String barcode);
+
 }

@@ -1,5 +1,6 @@
 package com.graduationProject._thYear.Product.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.graduationProject._thYear.Group.models.Group;
 import com.graduationProject._thYear.Unit.models.Unit;
@@ -73,12 +74,12 @@ public class Product {
 
     @OneToMany(mappedBy = "productId", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    @JsonIgnore
+    @JsonBackReference
     private List<ProductPrice> prices = new ArrayList<>();
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    @JsonIgnore
+    @JsonBackReference
     private List<ProductBarcode> barcodes = new ArrayList<>();
 
     // Convenience method

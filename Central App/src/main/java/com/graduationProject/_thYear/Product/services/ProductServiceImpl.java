@@ -9,6 +9,7 @@ import com.graduationProject._thYear.Product.dtos.response.ProductResponse;
 import com.graduationProject._thYear.Product.models.Product;
 import com.graduationProject._thYear.Product.models.ProductBarcode;
 import com.graduationProject._thYear.Product.models.ProductPrice;
+import com.graduationProject._thYear.Product.repositories.ProductBarcodeRepository;
 import com.graduationProject._thYear.Product.repositories.ProductRepository;
 import com.graduationProject._thYear.Unit.models.Unit;
 import com.graduationProject._thYear.Unit.repositories.UnitRepository;
@@ -37,6 +38,7 @@ public class ProductServiceImpl implements ProductService{
     private final ProductRepository productRepository;
     private final GroupRepository groupRepository;
     private final UnitRepository unitRepository;
+    private final ProductBarcodeRepository productBarcodeRepository;
     private final ProductPriceService productPriceService;
     private final ProductBarcodeService productBarcodeService;
     private final ImageStorageService imageStorageService;
@@ -247,7 +249,25 @@ public class ProductServiceImpl implements ProductService{
         productRepository.delete(product);
     }
 
+    public List<ProductResponse> getByBarcode(String barcode) {
+        List<ProductBarcode> matches = productBarcodeRepository.findAllByBarcode(barcode);
+
+        if (matches.isEmpty()) {
+            throw new ResourceNotFoundException("No products found with barcode: " + barcode);
+        }
+
+        return matches.stream()
+                .map(ProductBarcode::getProduct)
+                .distinct()
+                .map(this::mapToProductResponse)
+                .collect(Collectors.toList());
+    }
+
+
     private ProductResponse mapToProductResponse(Product product) {
+        Hibernate.initialize(product.getPrices());
+        Hibernate.initialize(product.getBarcodes());
+
         return ProductResponse.builder()
                 .id(product.getId())
                 .code(product.getCode())
@@ -263,10 +283,10 @@ public class ProductServiceImpl implements ProductService{
                 .orderQty(product.getOrderQty())
                 .notes(product.getNotes())
                 .prices(product.getPrices().stream()
-                        .map(this::convertPriceToResponse)
+                        .map(p -> convertPriceToResponse(p, product.getId(), product.getName()))
                         .collect(Collectors.toList()))
                 .barcodes(product.getBarcodes().stream()
-                        .map(this::convertBarcodeToResponse)
+                        .map(b -> convertBarcodeToResponse(b,product.getId(), product.getName()))
                         .collect(Collectors.toList()))
                 .build();
     }
@@ -277,17 +297,17 @@ public class ProductServiceImpl implements ProductService{
             default -> "anonymous";
         };
     }
-    private List<ProductPriceResponse> convertPricesToResponse(List<ProductPrice> prices) {
-        return prices.stream()
-                .map(this::convertPriceToResponse)
-                .collect(Collectors.toList());
-    }
+//    private List<ProductPriceResponse> convertPricesToResponse(List<ProductPrice> prices) {
+//        return prices.stream()
+//                .map(this::convertPriceToResponse)
+//                .collect(Collectors.toList());
+//    }
 
-    private ProductPriceResponse convertPriceToResponse(ProductPrice price) {
+    private ProductPriceResponse convertPriceToResponse(ProductPrice price, Integer productId, String productName) {
         return ProductPriceResponse.builder()
                 .id(price.getId())
-                .productId(price.getProductId().getId())
-                .productName(price.getProductId().getName())
+                .productId(productId)
+                .productName(productName)
                 .priceId(price.getPriceId().getId())
                 .priceName(price.getPriceId().getName())
                 .price(price.getPrice())
@@ -296,17 +316,17 @@ public class ProductServiceImpl implements ProductService{
                 .build();
     }
 
-    private List<ProductBarcodeResponse> convertBarcodesToResponse(List<ProductBarcode> barcodes) {
-        return barcodes.stream()
-                .map(this::convertBarcodeToResponse)
-                .collect(Collectors.toList());
-    }
+//    private List<ProductBarcodeResponse> convertBarcodesToResponse(List<ProductBarcode> barcodes) {
+//        return barcodes.stream()
+//                .map(this::convertBarcodeToResponse)
+//                .collect(Collectors.toList());
+//    }
 
-    private ProductBarcodeResponse convertBarcodeToResponse(ProductBarcode barcode) {
+    private ProductBarcodeResponse convertBarcodeToResponse(ProductBarcode barcode, Integer productId, String productName) {
         return ProductBarcodeResponse.builder()
                 .id(barcode.getId())
-                .productId(barcode.getProduct().getId())
-                .productName(barcode.getProduct().getName())
+                .productId(productId)
+                .productName(productName)
                 .barcode(barcode.getBarcode())
                 .unitItemId(barcode.getUnitItem().getId())
                 .unitItemName(barcode.getUnitItem().getName())
