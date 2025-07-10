@@ -56,4 +56,10 @@ public class ProductController {
         return ResponseEntity.ok(productService.getByBarcode(barcode));
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<ProductResponse>> searchAccounts(@RequestParam String q) {
+        var responses = productService.searchProducts(q);
+        return ResponseEntity.ok(responses);
+    }
+
 }

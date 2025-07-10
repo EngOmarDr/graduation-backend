@@ -1,5 +1,6 @@
 package com.graduationProject._thYear.Product.services;
 
+import com.graduationProject._thYear.Account.dtos.response.AccountResponse;
 import com.graduationProject._thYear.Group.models.Group;
 import com.graduationProject._thYear.Group.repositories.GroupRepository;
 import com.graduationProject._thYear.Product.dtos.request.*;
@@ -259,6 +260,12 @@ public class ProductServiceImpl implements ProductService{
         return matches.stream()
                 .map(ProductBarcode::getProduct)
                 .distinct()
+                .map(this::mapToProductResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<ProductResponse> searchProducts(String searchTerm) {
+        return productRepository.searchByNameOrCode(searchTerm).stream()
                 .map(this::mapToProductResponse)
                 .collect(Collectors.toList());
     }

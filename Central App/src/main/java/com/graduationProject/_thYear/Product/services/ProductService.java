@@ -16,4 +16,6 @@ public interface ProductService {
 
     List<ProductResponse> getByBarcode(String barcode);
 
+    List<ProductResponse> searchProducts(String searchTerm);
+
 }
