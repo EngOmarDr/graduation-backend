@@ -289,12 +289,8 @@ public class ProductServiceImpl implements ProductService{
                 .maxQty(product.getMaxQty())
                 .orderQty(product.getOrderQty())
                 .notes(product.getNotes())
-                .prices(product.getPrices().stream()
-                        .map(p -> convertPriceToResponse(p, product.getId(), product.getName()))
-                        .collect(Collectors.toList()))
-                .barcodes(product.getBarcodes().stream()
-                        .map(b -> convertBarcodeToResponse(b,product.getId(), product.getName()))
-                        .collect(Collectors.toList()))
+                .prices(convertPricesToResponse(product.getPrices()))
+                .barcodes(convertBarcodesToResponse(product.getBarcodes()))
                 .build();
     }
     private String getTypeName(Byte type) {
@@ -304,17 +300,17 @@ public class ProductServiceImpl implements ProductService{
             default -> "anonymous";
         };
     }
-//    private List<ProductPriceResponse> convertPricesToResponse(List<ProductPrice> prices) {
-//        return prices.stream()
-//                .map(this::convertPriceToResponse)
-//                .collect(Collectors.toList());
-//    }
+    private List<ProductPriceResponse> convertPricesToResponse(List<ProductPrice> prices) {
+        return prices.stream()
+                .map(this::convertPriceToResponse)
+                .collect(Collectors.toList());
+    }
 
-    private ProductPriceResponse convertPriceToResponse(ProductPrice price, Integer productId, String productName) {
+    private ProductPriceResponse convertPriceToResponse(ProductPrice price) {
         return ProductPriceResponse.builder()
                 .id(price.getId())
-                .productId(productId)
-                .productName(productName)
+                .productId(price.getProductId().getId())
+                .productName(price.getProductId().getName())
                 .priceId(price.getPriceId().getId())
                 .priceName(price.getPriceId().getName())
                 .price(price.getPrice())
@@ -323,17 +319,17 @@ public class ProductServiceImpl implements ProductService{
                 .build();
     }
 
-//    private List<ProductBarcodeResponse> convertBarcodesToResponse(List<ProductBarcode> barcodes) {
-//        return barcodes.stream()
-//                .map(this::convertBarcodeToResponse)
-//                .collect(Collectors.toList());
-//    }
+    private List<ProductBarcodeResponse> convertBarcodesToResponse(List<ProductBarcode> barcodes) {
+        return barcodes.stream()
+                .map(this::convertBarcodeToResponse)
+                .collect(Collectors.toList());
+    }
 
-    private ProductBarcodeResponse convertBarcodeToResponse(ProductBarcode barcode, Integer productId, String productName) {
+    private ProductBarcodeResponse convertBarcodeToResponse(ProductBarcode barcode) {
         return ProductBarcodeResponse.builder()
                 .id(barcode.getId())
-                .productId(productId)
-                .productName(productName)
+                .productId(barcode.getProduct().getId())
+                .productName(barcode.getProduct().getName())
                 .barcode(barcode.getBarcode())
                 .unitItemId(barcode.getUnitItem().getId())
                 .unitItemName(barcode.getUnitItem().getName())
