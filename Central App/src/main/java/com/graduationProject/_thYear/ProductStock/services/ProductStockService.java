@@ -1,5 +1,6 @@
 package com.graduationProject._thYear.ProductStock.services;
 
+import com.graduationProject._thYear.Invoice.models.InvoiceHeader;
 import com.graduationProject._thYear.Product.models.Product;
 import com.graduationProject._thYear.Product.repositories.ProductRepository;
 import com.graduationProject._thYear.ProductStock.dtos.requests.CreateProductStockRequest;
@@ -11,6 +12,7 @@ import com.graduationProject._thYear.Unit.models.UnitItem;
 import com.graduationProject._thYear.Unit.repositories.UnitItemRepository;
 import com.graduationProject._thYear.Warehouse.models.Warehouse;
 import com.graduationProject._thYear.Warehouse.repositories.WarehouseRepository;
+import com.graduationProject._thYear.exceptionHandler.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -94,7 +96,9 @@ public class ProductStockService {
     }
 
     public void delete(Integer id) {
-        stockRepo.deleteById(id);
+        ProductStock stock = stockRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("product stock not found with id: " + id));
+        stockRepo.delete(stock);
     }
 
     public List<ProductStockResponse> getByWarehouseId(Integer warehouseId) {
