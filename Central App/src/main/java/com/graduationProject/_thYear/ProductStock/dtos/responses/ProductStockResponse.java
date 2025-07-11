@@ -13,5 +13,7 @@ public class ProductStockResponse {
     private String productName;
     private Integer warehouseId;
     private String warehouseName;
+    private Integer unitItemId;
+    private String unitItemName;
     private BigDecimal quantity;
 }

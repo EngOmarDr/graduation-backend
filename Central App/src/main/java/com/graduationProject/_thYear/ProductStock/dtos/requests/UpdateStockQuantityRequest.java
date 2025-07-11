@@ -15,6 +15,9 @@ public class UpdateStockQuantityRequest {
     @NotNull(message = "warehouseId is required")
     private Integer warehouseId;
 
+    @NotNull(message = "unitItemId is required")
+    private Integer unitItemId;
+
     @DecimalMin("0.0")
     @NotNull(message = "quantity is required")
     private BigDecimal quantity;

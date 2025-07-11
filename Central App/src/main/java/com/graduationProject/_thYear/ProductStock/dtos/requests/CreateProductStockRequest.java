@@ -16,6 +16,9 @@ public class CreateProductStockRequest {
     private Integer warehouseId;
 
     @NotNull
+    private Integer unitItemId;
+
+    @NotNull
     @PositiveOrZero
     private BigDecimal quantity;
 }

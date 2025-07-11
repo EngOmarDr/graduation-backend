@@ -7,6 +7,8 @@ import com.graduationProject._thYear.ProductStock.dtos.requests.UpdateProductSto
 import com.graduationProject._thYear.ProductStock.dtos.responses.ProductStockResponse;
 import com.graduationProject._thYear.ProductStock.models.ProductStock;
 import com.graduationProject._thYear.ProductStock.repositories.ProductStockRepository;
+import com.graduationProject._thYear.Unit.models.UnitItem;
+import com.graduationProject._thYear.Unit.repositories.UnitItemRepository;
 import com.graduationProject._thYear.Warehouse.models.Warehouse;
 import com.graduationProject._thYear.Warehouse.repositories.WarehouseRepository;
 import jakarta.transaction.Transactional;
@@ -24,6 +26,7 @@ public class ProductStockService {
     private final ProductStockRepository stockRepo;
     private final ProductRepository productRepo;
     private final WarehouseRepository warehouseRepo;
+    private final UnitItemRepository unitItemRepo;
 
     @Transactional
     public ProductStockResponse create(CreateProductStockRequest req) {
@@ -31,14 +34,17 @@ public class ProductStockService {
                 .orElseThrow(() -> new RuntimeException("Product not found"));
         Warehouse warehouse = warehouseRepo.findById(req.getWarehouseId())
                 .orElseThrow(() -> new RuntimeException("Warehouse not found"));
+        UnitItem unitItem = unitItemRepo.findById(req.getUnitItemId())
+                .orElseThrow(() -> new RuntimeException("UnitItem not found"));
 
-        if (stockRepo.findByProductIdAndWarehouseId(product.getId(), warehouse.getId()).isPresent()) {
-            throw new RuntimeException("Stock already exists for this product and warehouse");
+        if (stockRepo.findByProductIdAndWarehouseIdAndUnitItemId(product.getId(), warehouse.getId(), unitItem.getId()).isPresent()) {
+            throw new RuntimeException("Stock already exists for this product, warehouse and unit item");
         }
 
         ProductStock stock = ProductStock.builder()
                 .product(product)
                 .warehouse(warehouse)
+                .unitItem(unitItem)
                 .quantity(req.getQuantity())
                 .build();
 
@@ -74,6 +80,12 @@ public class ProductStockService {
             stock.setWarehouse(warehouse);
         }
 
+        if (req.getUnitItemId() != null) {
+            UnitItem unitItem = unitItemRepo.findById(req.getUnitItemId())
+                    .orElseThrow(() -> new RuntimeException("UnitItem not found"));
+            stock.setUnitItem(unitItem);
+        }
+
         if (req.getQuantity() != null) {
             stock.setQuantity(req.getQuantity());
         }
@@ -98,16 +110,16 @@ public class ProductStockService {
     }
 
     @Transactional
-    public void increaseStock(Integer productId, Integer warehouseId, BigDecimal qtyToAdd) {
-        ProductStock stock = stockRepo.findByProductIdAndWarehouseId(productId, warehouseId)
+    public void increaseStock(Integer productId, Integer warehouseId, Integer unitItemId, BigDecimal qtyToAdd) {
+        ProductStock stock = stockRepo.findByProductIdAndWarehouseIdAndUnitItemId(productId, warehouseId, unitItemId)
                 .orElseThrow(() -> new RuntimeException("Stock record not found"));
         stock.setQuantity(stock.getQuantity().add(qtyToAdd));
         stockRepo.save(stock);
     }
 
     @Transactional
-    public void decreaseStock(Integer productId, Integer warehouseId, BigDecimal qtyToSubtract) {
-        ProductStock stock = stockRepo.findByProductIdAndWarehouseId(productId, warehouseId)
+    public void decreaseStock(Integer productId, Integer warehouseId, Integer unitItemId, BigDecimal qtyToSubtract) {
+        ProductStock stock = stockRepo.findByProductIdAndWarehouseIdAndUnitItemId(productId, warehouseId, unitItemId)
                 .orElseThrow(() -> new RuntimeException("Stock record not found"));
 
         if (stock.getQuantity().compareTo(qtyToSubtract) < 0) {
@@ -118,15 +130,11 @@ public class ProductStockService {
         stockRepo.save(stock);
     }
 
-    public ProductStockResponse getQuantity(Integer productId, Integer warehouseId) {
-        ProductStock stock = stockRepo.findByProductIdAndWarehouseId(productId, warehouseId)
+    public ProductStockResponse getQuantity(Integer productId, Integer warehouseId, Integer unitItemId) {
+        ProductStock stock = stockRepo.findByProductIdAndWarehouseIdAndUnitItemId(productId, warehouseId, unitItemId)
                 .orElseThrow(() -> new RuntimeException("Stock record not found"));
-        // return stock.getQuantity();
         return toResponse(stock);
     }
-
-
-
 
     private ProductStockResponse toResponse(ProductStock stock) {
         return ProductStockResponse.builder()
@@ -135,6 +143,8 @@ public class ProductStockService {
                 .productName(stock.getProduct().getName())
                 .warehouseId(stock.getWarehouse().getId())
                 .warehouseName(stock.getWarehouse().getName())
+                .unitItemId(stock.getUnitItem().getId())
+                .unitItemName(stock.getUnitItem().getName())
                 .quantity(stock.getQuantity())
                 .build();
     }

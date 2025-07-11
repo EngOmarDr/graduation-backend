@@ -10,6 +10,7 @@ public class UpdateProductStockRequest {
 
     private Integer productId;
     private Integer warehouseId;
+    private Integer unitItemId;
 
     @PositiveOrZero
     private BigDecimal quantity;

@@ -217,7 +217,9 @@ public class InvoiceService {
     }
 
     public void delete(Integer id) {
-        headerRepo.deleteById(id);
+        InvoiceHeader invoive = headerRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("invoice not found with id: " + id));
+        headerRepo.delete(invoive);
     }
 
     private BigDecimal calculateTotal(List<InvoiceItem> items) {

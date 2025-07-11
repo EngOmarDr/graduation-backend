@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -58,22 +57,31 @@ public class ProductStockController {
 
     @PostMapping("/increase")
     public ResponseEntity<Void> increaseStock(@Valid @RequestBody UpdateStockQuantityRequest request) {
-        service.increaseStock(request.getProductId(), request.getWarehouseId(), request.getQuantity());
+        service.increaseStock(
+                request.getProductId(),
+                request.getWarehouseId(),
+                request.getUnitItemId(),
+                request.getQuantity()
+        );
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/decrease")
     public ResponseEntity<Void> decreaseStock(@Valid @RequestBody UpdateStockQuantityRequest request) {
-        service.decreaseStock(request.getProductId(), request.getWarehouseId(), request.getQuantity());
+        service.decreaseStock(
+                request.getProductId(),
+                request.getWarehouseId(),
+                request.getUnitItemId(),
+                request.getQuantity()
+        );
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/quantity")
     public ResponseEntity<ProductStockResponse> getQuantity(
             @RequestParam Integer productId,
-            @RequestParam Integer warehouseId) {
-        return ResponseEntity.ok(service.getQuantity(productId, warehouseId));
+            @RequestParam Integer warehouseId,
+            @RequestParam Integer unitItemId) {
+        return ResponseEntity.ok(service.getQuantity(productId, warehouseId, unitItemId));
     }
-
-
 }
