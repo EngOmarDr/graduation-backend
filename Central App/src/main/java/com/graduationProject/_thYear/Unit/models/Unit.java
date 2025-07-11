@@ -1,7 +1,6 @@
 package com.graduationProject._thYear.Unit.models;
 
 import com.graduationProject._thYear.Product.models.Product;
-import com.graduationProject._thYear.Product.models.ProductPrice;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

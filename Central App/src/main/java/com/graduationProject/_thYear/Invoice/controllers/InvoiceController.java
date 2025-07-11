@@ -3,11 +3,14 @@ package com.graduationProject._thYear.Invoice.controllers;
 import com.graduationProject._thYear.Invoice.dtos.requests.*;
 import com.graduationProject._thYear.Invoice.dtos.responses.*;
 import com.graduationProject._thYear.Invoice.services.InvoiceService;
+import com.graduationProject._thYear.Warehouse.dtos.responses.MaterialMovementResponse;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -32,6 +35,18 @@ public class InvoiceController {
         return ResponseEntity.ok(service.getAll());
     }
 
+    @GetMapping("/material-movement-report")
+    public List<MaterialMovementResponse> reportMaterialMovement(
+            @RequestParam LocalDate startDate, 
+            @RequestParam LocalDate endDate,
+            @RequestParam(required = false) Integer productId,
+            @RequestParam(required = false) Integer groupId,
+            @RequestParam(required = false) Integer warehouseId
+        ) {
+        var response = service.reportMaterialMovement(startDate, endDate, productId, groupId, warehouseId);
+        return response;
+    }
+    
     @PutMapping("/{id}")
     public ResponseEntity<InvoiceResponse> update(@PathVariable Integer id, @RequestBody @Valid UpdateInvoiceRequest request) {
         return ResponseEntity.ok(service.update(id, request));

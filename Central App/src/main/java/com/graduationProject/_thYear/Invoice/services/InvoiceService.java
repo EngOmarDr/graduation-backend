@@ -13,15 +13,19 @@ import com.graduationProject._thYear.Unit.models.UnitItem;
 import com.graduationProject._thYear.Unit.repositories.UnitItemRepository;
 import com.graduationProject._thYear.Account.repositories.AccountRepository;
 import com.graduationProject._thYear.InvoiceType.repositories.InvoiceTypeRepository;
+import com.graduationProject._thYear.Warehouse.dtos.responses.MaterialMovementResponse;
 import com.graduationProject._thYear.Warehouse.models.Warehouse;
 import com.graduationProject._thYear.Warehouse.repositories.WarehouseRepository;
 import com.graduationProject._thYear.Currency.repositories.CurrencyRepository;
 import com.graduationProject._thYear.exceptionHandler.ResourceNotFoundException;
+
+import jakarta.persistence.Tuple;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -34,6 +38,7 @@ public class InvoiceService {
     private final UnitItemRepository unitItemRepo;
     private final WarehouseRepository warehouseRepo;
     private final AccountRepository accountRepo;
+    // private final InvoiceItemRepository ItemRepo;
     private final InvoiceTypeRepository invoiceTypeRepo;
     private final CurrencyRepository currencyRepo;
 
@@ -205,7 +210,35 @@ public class InvoiceService {
     public void delete(Integer id) {
         headerRepo.deleteById(id);
     }
-
+    
+    public List<MaterialMovementResponse> reportMaterialMovement(LocalDate startDate, LocalDate endDate,Integer productId, Integer groupId, Integer warehouseId){
+        List<MaterialMovementResponse> result = new LinkedList<>();
+        List<Tuple> headers = headerRepo.getMaterialMovementHeaderBetweenTwoDates(
+            startDate.atStartOfDay(),
+            endDate.plusDays(1).atStartOfDay(),
+            productId ,
+            groupId,
+            warehouseId
+        );
+        System.out.println(headers.size());
+        for (Tuple header: headers){
+            System.out.println(header);
+            MaterialMovementResponse responseHeader = MaterialMovementResponse.fromTuple(header);
+            List<Tuple> items = headerRepo.getMaterialMovementItemsBetweenTwoDates(
+                startDate.atStartOfDay(),
+                endDate.plusDays(1).atStartOfDay(), 
+                (Integer) header.get("product_id"),
+                warehouseId
+            ); 
+            for (Tuple item : items){
+                responseHeader.addItem(MaterialMovementResponse.MaterialMovementItem.fromTuple(item));
+            }
+            result.add(responseHeader);
+        }
+      
+       
+        return result;
+    }
     private BigDecimal calculateTotal(List<InvoiceItem> items) {
         return items.stream()
                 .map(i -> i.getPrice().multiply(i.getQty()))
@@ -285,4 +318,6 @@ public class InvoiceService {
                 .notes(d.getNotes())
                 .build();
     }
+
+
 }
