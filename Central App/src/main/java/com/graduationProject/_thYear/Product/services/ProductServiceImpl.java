@@ -1,5 +1,6 @@
 package com.graduationProject._thYear.Product.services;
 
+import com.graduationProject._thYear.Account.dtos.response.AccountResponse;
 import com.graduationProject._thYear.Group.models.Group;
 import com.graduationProject._thYear.Group.repositories.GroupRepository;
 import com.graduationProject._thYear.Product.dtos.request.*;
@@ -9,6 +10,7 @@ import com.graduationProject._thYear.Product.dtos.response.ProductResponse;
 import com.graduationProject._thYear.Product.models.Product;
 import com.graduationProject._thYear.Product.models.ProductBarcode;
 import com.graduationProject._thYear.Product.models.ProductPrice;
+import com.graduationProject._thYear.Product.repositories.ProductBarcodeRepository;
 import com.graduationProject._thYear.Product.repositories.ProductRepository;
 import com.graduationProject._thYear.Unit.models.Unit;
 import com.graduationProject._thYear.Unit.repositories.UnitRepository;
@@ -37,6 +39,7 @@ public class ProductServiceImpl implements ProductService{
     private final ProductRepository productRepository;
     private final GroupRepository groupRepository;
     private final UnitRepository unitRepository;
+    private final ProductBarcodeRepository productBarcodeRepository;
     private final ProductPriceService productPriceService;
     private final ProductBarcodeService productBarcodeService;
     private final ImageStorageService imageStorageService;
@@ -247,7 +250,31 @@ public class ProductServiceImpl implements ProductService{
         productRepository.delete(product);
     }
 
+    public List<ProductResponse> getByBarcode(String barcode) {
+        List<ProductBarcode> matches = productBarcodeRepository.findAllByBarcode(barcode);
+
+        if (matches.isEmpty()) {
+            throw new ResourceNotFoundException("No products found with barcode: " + barcode);
+        }
+
+        return matches.stream()
+                .map(ProductBarcode::getProduct)
+                .distinct()
+                .map(this::mapToProductResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<ProductResponse> searchProducts(String searchTerm) {
+        return productRepository.searchByNameOrCode(searchTerm).stream()
+                .map(this::mapToProductResponse)
+                .collect(Collectors.toList());
+    }
+
+
     private ProductResponse mapToProductResponse(Product product) {
+        Hibernate.initialize(product.getPrices());
+        Hibernate.initialize(product.getBarcodes());
+
         return ProductResponse.builder()
                 .id(product.getId())
                 .code(product.getCode())
@@ -262,12 +289,8 @@ public class ProductServiceImpl implements ProductService{
                 .maxQty(product.getMaxQty())
                 .orderQty(product.getOrderQty())
                 .notes(product.getNotes())
-                .prices(product.getPrices().stream()
-                        .map(this::convertPriceToResponse)
-                        .collect(Collectors.toList()))
-                .barcodes(product.getBarcodes().stream()
-                        .map(this::convertBarcodeToResponse)
-                        .collect(Collectors.toList()))
+                .prices(convertPricesToResponse(product.getPrices()))
+                .barcodes(convertBarcodesToResponse(product.getBarcodes()))
                 .build();
     }
     private String getTypeName(Byte type) {

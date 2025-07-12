@@ -28,7 +28,7 @@ public class ProductBarcode {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
-    @JsonIgnore
+    @JsonBackReference
     private Product product;
 
     @NotNull

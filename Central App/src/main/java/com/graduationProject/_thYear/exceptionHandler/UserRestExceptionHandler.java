@@ -38,18 +38,18 @@ public class UserRestExceptionHandler {
         return new ResponseEntity<>(error,HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationExceptions(
-            MethodArgumentNotValidException ex) {
-
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-        return ResponseEntity.badRequest().body(errors);
-    }
+//    @ExceptionHandler(MethodArgumentNotValidException.class)
+//    public ResponseEntity<Map<String, String>> handleValidationExceptions(
+//            MethodArgumentNotValidException ex) {
+//
+//        Map<String, String> errors = new HashMap<>();
+//        ex.getBindingResult().getAllErrors().forEach((error) -> {
+//            String fieldName = ((FieldError) error).getField();
+//            String errorMessage = error.getDefaultMessage();
+//            errors.put(fieldName, errorMessage);
+//        });
+//        return ResponseEntity.badRequest().body(errors);
+//    }
 
     // Add another exception handler .... to catch any exception (catch all)
     @ExceptionHandler
@@ -61,6 +61,15 @@ public class UserRestExceptionHandler {
         error.setTimeStamp(System.currentTimeMillis());
 
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, Object>> handleValidation(MethodArgumentNotValidException ex) {
+        Map<String, Object> error = new HashMap<>();
+        error.put("status", 400);
+        error.put("message", ex.getBindingResult().getAllErrors().get(0).getDefaultMessage());
+        error.put("timeStamp", System.currentTimeMillis());
+        return ResponseEntity.badRequest().body(error);
     }
 
 }
