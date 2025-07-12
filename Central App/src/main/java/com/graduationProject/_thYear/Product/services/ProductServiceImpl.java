@@ -84,7 +84,6 @@ public class ProductServiceImpl implements ProductService{
                     .maxQty(request.getMaxQty())
                     .orderQty(request.getOrderQty())
                     .notes(request.getNotes())
-                    .quantity(0f) // Initial quantity is 0
                     .build();
 
             Product savedProduct = productRepository.save(product);
@@ -284,7 +283,6 @@ public class ProductServiceImpl implements ProductService{
                 .type(product.getType())
                 .typeName(getTypeName(product.getType()))
                 .defaultUnitId(product.getDefaultUnit().getId())
-                .quantity(product.getQuantity())
                 .minQty(product.getMinQty())
                 .maxQty(product.getMaxQty())
                 .orderQty(product.getOrderQty())

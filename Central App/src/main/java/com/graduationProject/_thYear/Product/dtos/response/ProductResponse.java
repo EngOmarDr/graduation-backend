@@ -16,7 +16,6 @@ public class ProductResponse {
     private Byte type;
     private String typeName;
     private Integer defaultUnitId;
-    private Float quantity;
     private Float minQty;
     private Float maxQty;
     private Float orderQty;
