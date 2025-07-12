@@ -67,4 +67,41 @@ public interface InvoiceHeaderRepository extends JpaRepository<InvoiceHeader,Int
         )
     List<Tuple> getDailyMovementSideItems(LocalDateTime startDate, LocalDateTime endDate,Integer productId, Integer groupId, Integer warehouseId);
 
+    
+
+     @Query(value="SELECT  item.product.id as product_id, item.product.name as product_name, ih.warehouse.id as warehouse_id, item.unitItem.id as unit_id, item.unitItem.name unit_name, " + 
+        "SUM(CASE WHEN ty.type IN (1,3,5) THEN item.qty ELSE 0 END) - SUM(CASE WHEN ty.type IN (2,4,6) THEN item.qty ELSE 0 END)  as total_quantity, " + 
+        "SUM(CASE WHEN ty.type IN (1,3,5) THEN item.qty * item.price ELSE 0 END) - SUM(CASE WHEN ty.type IN (2,4,6) THEN item.qty * item.price ELSE 0 END) as total_price " + 
+        "FROM InvoiceHeader ih " +
+        "JOIN ih.invoiceItems item " +
+        "JOIN ih.invoiceType ty " +
+        "WHERE ih.date BETWEEN :startDate AND :endDate " +
+        "AND (:productId IS NULL OR item.product.id = (:productId)) " +
+        "AND (:groupId IS NULL OR item.product.groupId.id = (:groupId)) " +
+        "AND (:warehouseId IS NULL OR ih.warehouse.id = (:warehouseId)) " +
+        "GROUP BY item.product "
+    )
+    List<Tuple> getProductStockMainItems(LocalDateTime startDate, LocalDateTime endDate,Integer productId, Integer groupId, Integer warehouseId);
+
+    @Query(value="SELECT  SUM(CASE WHEN total_quantity > 0 THEN total_quantity ELSE 0 END)  as total_quantity_positive, " + 
+        "SUM(CASE WHEN total_quantity < 0 THEN total_quantity ELSE 0 END)  as total_quantity_negative, " +
+        "SUM(CASE WHEN total_price > 0 THEN total_price ELSE 0 END)  as total_price_positive, " +
+        "SUM(CASE WHEN total_price < 0 THEN total_price ELSE 0 END)  as total_price_negative, " +
+        "COALESCE(SUM(total_price),0)  as total_price, " +
+        "COALESCE(SUM(total_quantity),0)  as total_quantity " +
+        "FROM (" + "SELECT  item.product.id as product_id, item.product.name as product_name, ih.warehouse.id as warehouse_id, item.unitItem.id as unit_id, item.unitItem.name unit_name, " + 
+        "SUM(CASE WHEN ty.type IN (1,3,5) THEN item.qty ELSE 0 END) - SUM(CASE WHEN ty.type IN (2,4,6) THEN item.qty ELSE 0 END)  as total_quantity, " + 
+        "SUM(CASE WHEN ty.type IN (1,3,5) THEN item.qty * item.price ELSE 0 END) - SUM(CASE WHEN ty.type IN (2,4,6) THEN item.qty * item.price ELSE 0 END) as total_price " + 
+        "FROM InvoiceHeader ih " +
+        "JOIN ih.invoiceItems item " +
+        "JOIN ih.invoiceType ty " +
+        "WHERE ih.date BETWEEN :startDate AND :endDate " +
+        "AND (:productId IS NULL OR item.product.id = (:productId)) " +
+        "AND (:groupId IS NULL OR item.product.groupId.id = (:groupId)) " +
+        "AND (:warehouseId IS NULL OR ih.warehouse.id = (:warehouseId)) " +
+        "GROUP BY item.product " +
+        ")" 
+    )
+    Tuple getProductStockSideItems(LocalDateTime startDate, LocalDateTime endDate,Integer productId, Integer groupId, Integer warehouseId);
+
 }

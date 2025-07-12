@@ -6,6 +6,8 @@ import com.graduationProject._thYear.Invoice.dtos.requests.*;
 import com.graduationProject._thYear.Invoice.dtos.responses.*;
 import com.graduationProject._thYear.Invoice.dtos.responses.DailyMovementResponse.DailyMovemntMainItems;
 import com.graduationProject._thYear.Invoice.dtos.responses.DailyMovementResponse.DailyMovemntSideItems;
+import com.graduationProject._thYear.Invoice.dtos.responses.ProductStockResponse.ProductStockMainItems;
+import com.graduationProject._thYear.Invoice.dtos.responses.ProductStockResponse.ProductStockSideItems;
 import com.graduationProject._thYear.Invoice.models.*;
 import com.graduationProject._thYear.Invoice.repositories.*;
 import com.graduationProject._thYear.InvoiceType.models.InvoiceType;
@@ -273,6 +275,24 @@ public class InvoiceService {
         return response;
     }
 
+    public ProductStockResponse reportProductStock(LocalDate startDate, LocalDate endDate,Integer productId, Integer groupId, Integer warehouseId){
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        LocalDateTime endDateTime = endDate.plusDays(1).atStartOfDay();
+
+        List<Tuple> mainItemsTuples = headerRepo.getProductStockMainItems(startDateTime, endDateTime, productId, groupId, warehouseId);
+        Tuple sideItemsTuples = headerRepo.getProductStockSideItems(startDateTime, endDateTime, productId, groupId, warehouseId);
+        
+        var response = ProductStockResponse.builder()
+            .startDate(startDate)
+            .endDate(endDate)
+            .currency("ل.س")
+            .mainItems(mainItemsTuples.stream()
+                .map((tuple) -> ProductStockMainItems.fromTuple(tuple))
+                .collect(Collectors.toList()))
+            .sideItems(ProductStockSideItems.fromTuple(sideItemsTuples))
+            .build();
+        return response;
+    }
     private BigDecimal calculateTotal(List<InvoiceItem> items) {
         return items.stream()
                 .map(i -> i.getPrice().multiply(i.getQty()))
