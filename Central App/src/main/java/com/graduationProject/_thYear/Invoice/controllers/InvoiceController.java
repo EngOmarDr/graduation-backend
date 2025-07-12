@@ -3,7 +3,6 @@ package com.graduationProject._thYear.Invoice.controllers;
 import com.graduationProject._thYear.Invoice.dtos.requests.*;
 import com.graduationProject._thYear.Invoice.dtos.responses.*;
 import com.graduationProject._thYear.Invoice.services.InvoiceService;
-import com.graduationProject._thYear.Warehouse.dtos.responses.MaterialMovementResponse;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +43,18 @@ public class InvoiceController {
             @RequestParam(required = false) Integer warehouseId
         ) {
         var response = service.reportMaterialMovement(startDate, endDate, productId, groupId, warehouseId);
+        return response;
+    }
+    
+    @GetMapping("/daily-movement-report")
+    public DailyMovementResponse reportDailyMovement(
+            @RequestParam LocalDate startDate, 
+            @RequestParam LocalDate endDate,
+            @RequestParam(required = false) Integer productId,
+            @RequestParam(required = false) Integer groupId,
+            @RequestParam(required = false) Integer warehouseId
+        ) {
+        var response = service.reportDailyMovement(startDate, endDate, productId, groupId, warehouseId);
         return response;
     }
     

@@ -31,8 +31,8 @@ public interface InvoiceHeaderRepository extends JpaRepository<InvoiceHeader,Int
         "AND (:groupId IS NULL OR item.product.groupId.id = (:groupId)) " +
         "AND (:warehouseId IS NULL OR ih.warehouse.id = (:warehouseId)) " +
         "GROUP BY item.product " 
-        )
-    List<Tuple> getMaterialMovementHeaderBetweenTwoDates(LocalDateTime startDate, LocalDateTime endDate,Integer productId, Integer groupId, Integer warehouseId);
+    )
+    List<Tuple> getMaterialMovementHeader(LocalDateTime startDate, LocalDateTime endDate,Integer productId, Integer groupId, Integer warehouseId);
 
 
     @Query(value="SELECT  item.id invoice_item_id, ty.name invoice_name, item.qty quantity, item.price price, ih.warehouse.id warehouse_id, CASE WHEN ty.type IN (1,3,5) THEN 'INBOUND' ELSE 'OUTBOUND' END type " + 
@@ -42,6 +42,29 @@ public interface InvoiceHeaderRepository extends JpaRepository<InvoiceHeader,Int
         "WHERE ih.date BETWEEN :startDate AND :endDate " +
         "AND (:warehouseId IS NULL OR ih.warehouse.id = (:warehouseId)) " +
         "AND  item.product.id = :productId")
-    List<Tuple> getMaterialMovementItemsBetweenTwoDates(LocalDateTime startDate, LocalDateTime endDate,Integer productId, Integer warehouseId);
+    List<Tuple> getMaterialMovementItems(LocalDateTime startDate, LocalDateTime endDate,Integer productId, Integer warehouseId);
+
+
+     @Query(value="SELECT  item.id invoice_item_id, ty.name invoice_name, item.qty quantity, item.price individual_price, item.price * item.qty as total_price,  ih.warehouse.id warehouse_id, ih.date as date " + 
+        "FROM InvoiceHeader ih " +
+        "JOIN ih.invoiceItems item " +
+        "JOIN ih.invoiceType ty " +
+        "WHERE ih.date BETWEEN :startDate AND :endDate " +
+        "AND (:productId IS NULL OR item.product.id = (:productId)) " +
+        "AND (:groupId IS NULL OR item.product.groupId.id = (:groupId)) " +
+        "AND (:warehouseId IS NULL OR ih.warehouse.id = (:warehouseId))")
+    List<Tuple> getDailyMovementMainItems(LocalDateTime startDate, LocalDateTime endDate,Integer productId, Integer groupId, Integer warehouseId);
+
+    @Query(value="SELECT COALESCE(SUM(item.price * item.qty) ,0) as cash_total, COALESCE(SUM(0),0) as future_total, ty.name as invoice_name " + 
+        "FROM InvoiceHeader ih " +
+        "JOIN ih.invoiceItems item " +
+        "JOIN ih.invoiceType ty " +
+        "WHERE ih.date BETWEEN :startDate AND :endDate " +
+        "AND (:productId IS NULL OR item.product.id = (:productId)) " +
+        "AND (:groupId IS NULL OR item.product.groupId.id = (:groupId)) " +
+        "AND (:warehouseId IS NULL OR ih.warehouse.id = (:warehouseId)) " +
+        "GROUP BY ty " 
+        )
+    List<Tuple> getDailyMovementSideItems(LocalDateTime startDate, LocalDateTime endDate,Integer productId, Integer groupId, Integer warehouseId);
 
 }

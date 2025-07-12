@@ -1,4 +1,4 @@
-package com.graduationProject._thYear.Warehouse.dtos.responses;
+package com.graduationProject._thYear.Invoice.dtos.responses;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

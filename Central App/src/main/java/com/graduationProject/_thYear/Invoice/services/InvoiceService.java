@@ -4,6 +4,8 @@ import com.graduationProject._thYear.Account.models.Account;
 import com.graduationProject._thYear.Currency.models.Currency;
 import com.graduationProject._thYear.Invoice.dtos.requests.*;
 import com.graduationProject._thYear.Invoice.dtos.responses.*;
+import com.graduationProject._thYear.Invoice.dtos.responses.DailyMovementResponse.DailyMovemntMainItems;
+import com.graduationProject._thYear.Invoice.dtos.responses.DailyMovementResponse.DailyMovemntSideItems;
 import com.graduationProject._thYear.Invoice.models.*;
 import com.graduationProject._thYear.Invoice.repositories.*;
 import com.graduationProject._thYear.InvoiceType.models.InvoiceType;
@@ -13,7 +15,6 @@ import com.graduationProject._thYear.Unit.models.UnitItem;
 import com.graduationProject._thYear.Unit.repositories.UnitItemRepository;
 import com.graduationProject._thYear.Account.repositories.AccountRepository;
 import com.graduationProject._thYear.InvoiceType.repositories.InvoiceTypeRepository;
-import com.graduationProject._thYear.Warehouse.dtos.responses.MaterialMovementResponse;
 import com.graduationProject._thYear.Warehouse.models.Warehouse;
 import com.graduationProject._thYear.Warehouse.repositories.WarehouseRepository;
 import com.graduationProject._thYear.Currency.repositories.CurrencyRepository;
@@ -26,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -41,7 +43,6 @@ public class InvoiceService {
     // private final InvoiceItemRepository ItemRepo;
     private final InvoiceTypeRepository invoiceTypeRepo;
     private final CurrencyRepository currencyRepo;
-
     private final AccountRepository accountRepository;
 
     @Transactional
@@ -213,18 +214,16 @@ public class InvoiceService {
     
     public List<MaterialMovementResponse> reportMaterialMovement(LocalDate startDate, LocalDate endDate,Integer productId, Integer groupId, Integer warehouseId){
         List<MaterialMovementResponse> result = new LinkedList<>();
-        List<Tuple> headers = headerRepo.getMaterialMovementHeaderBetweenTwoDates(
+        List<Tuple> headers = headerRepo.getMaterialMovementHeader(
             startDate.atStartOfDay(),
             endDate.plusDays(1).atStartOfDay(),
             productId ,
             groupId,
             warehouseId
         );
-        System.out.println(headers.size());
         for (Tuple header: headers){
-            System.out.println(header);
             MaterialMovementResponse responseHeader = MaterialMovementResponse.fromTuple(header);
-            List<Tuple> items = headerRepo.getMaterialMovementItemsBetweenTwoDates(
+            List<Tuple> items = headerRepo.getMaterialMovementItems(
                 startDate.atStartOfDay(),
                 endDate.plusDays(1).atStartOfDay(), 
                 (Integer) header.get("product_id"),
@@ -235,10 +234,30 @@ public class InvoiceService {
             }
             result.add(responseHeader);
         }
-      
-       
         return result;
     }
+
+    public DailyMovementResponse reportDailyMovement(LocalDate startDate, LocalDate endDate,Integer productId, Integer groupId, Integer warehouseId){
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        LocalDateTime endDateTime = endDate.plusDays(1).atStartOfDay();
+
+        List<Tuple> mainItemsTuples = headerRepo.getDailyMovementMainItems(startDateTime, endDateTime, productId, groupId, warehouseId);
+        List<Tuple> sideItemsTuples = headerRepo.getDailyMovementSideItems(startDateTime, endDateTime, productId, groupId, warehouseId);
+
+        var response = DailyMovementResponse.builder()
+            .startDate(startDate)
+            .endDate(endDate)
+            .currency("ل.س")
+            .mainItems(mainItemsTuples.stream()
+                .map((tuple) -> DailyMovemntMainItems.fromTuple(tuple))
+                .collect(Collectors.toList()))
+            .sideItems(sideItemsTuples.stream()
+                .map((tuple) -> DailyMovemntSideItems.fromTuple(tuple))
+                .collect(Collectors.toList()))
+            .build();
+        return response;
+    }
+
     private BigDecimal calculateTotal(List<InvoiceItem> items) {
         return items.stream()
                 .map(i -> i.getPrice().multiply(i.getQty()))
