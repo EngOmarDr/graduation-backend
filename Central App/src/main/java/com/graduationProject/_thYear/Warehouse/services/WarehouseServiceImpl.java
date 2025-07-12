@@ -29,7 +29,6 @@ public class WarehouseServiceImpl implements WarehouseService{
     @Transactional
     public WarehouseResponse createWarehouse(CreateWarehouseRequest request) {
 
-        System.out.println("RECEIVED isActive = " + request.isActive());
         //Validate name and code and phone uniqueness
         if (warehouseRepository.existsByCode(request.getCode())) {
             throw new IllegalArgumentException("Warehouse item with code '" + request.getCode() + "' already exists");
@@ -120,7 +119,6 @@ public class WarehouseServiceImpl implements WarehouseService{
             warehouse.setNotes(request.getNotes());
         }
 
-        // For boolean `isActive`, we assume it's always sent; if not, use Boolean instead of boolean in DTO
         warehouse.setActive(request.isActive());
 
         if (request.getParentId() != null) {

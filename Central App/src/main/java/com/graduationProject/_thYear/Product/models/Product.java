@@ -56,10 +56,6 @@ public class Product {
     @JoinColumn(name = "unit_id", nullable = false)
     private Unit defaultUnit;
 
-    @NotNull
-    @Column(name = "quantity" )
-    private Float quantity;
-
     @Column(name = "minQty" )
     private Float minQty;
 
