@@ -29,8 +29,10 @@ public class DailyMovementResponse {
     @Data
     @SuperBuilder
     public static class DailyMovemntMainItems{
-        private Integer invoiceItemId;
+        private Integer invoiceHeaderId;
         private String invoiceName;
+        private Integer unitId;
+        private String unitName;
         private Integer warehouseId;
         private BigDecimal quantity;
         private BigDecimal individualPrice;
@@ -39,13 +41,15 @@ public class DailyMovementResponse {
 
         public static DailyMovemntMainItems fromTuple(Tuple tuple){
             return DailyMovemntMainItems.builder()
-                .invoiceItemId((Integer) tuple.get("invoice_item_id"))
+                .invoiceHeaderId((Integer) tuple.get("invoice_header_id"))
                 .invoiceName((String) tuple.get("invoice_name"))
                 .warehouseId((Integer) tuple.get("warehouse_id"))
                 .quantity((BigDecimal) tuple.get("quantity"))
                 .individualPrice((BigDecimal) tuple.get("individual_price"))
                 .totalPrice((BigDecimal) tuple.get("total_price"))
                 .date(((LocalDateTime) tuple.get("date")).toLocalDate())
+                .unitId((Integer) tuple.get("unit_id"))
+                .unitName((String) tuple.get("unit_name"))
                 .build();
         }
     }
@@ -56,14 +60,19 @@ public class DailyMovementResponse {
     public static class DailyMovemntSideItems{
         private BigDecimal cashTotal;
         private Long futureTotal;
-        private String invoiceName;
+        private Integer InvoiceTypeId;
+        private String InvoiceTypeName;
 
         public static DailyMovemntSideItems fromTuple(Tuple tuple){
+            List<String> typeNames = List.of("buy", "sell", "retrieve sell", "retrieve buy", "input", "output");
+            Integer typeId = (Integer) tuple.get("invoice_type_id");
             return DailyMovemntSideItems.builder()
                 .cashTotal((BigDecimal) tuple.get("cash_total"))
                 .futureTotal((Long) tuple.get("future_total"))
-                .invoiceName((String) tuple.get("invoice_name"))
+                .InvoiceTypeId(typeId)
+                .InvoiceTypeName(typeNames.get(typeId - 1))
                 .build();
+
         }
     }
 }

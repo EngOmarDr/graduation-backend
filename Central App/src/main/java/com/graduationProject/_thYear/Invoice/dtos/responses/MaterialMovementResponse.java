@@ -57,20 +57,22 @@ public class MaterialMovementResponse {
     @SuperBuilder
     public static class MaterialMovementItem {
         private Integer warehouseId;
-        private Integer invoiceItemId;
+        private Integer invoiceHeaderId;
         private String invoiceName;
         private BigDecimal price;
         private BigDecimal quantity;
-        private String type;
+        private String movementType;
+        private LocalDate date;
 
         public static MaterialMovementItem fromTuple(Tuple tuple){
             return MaterialMovementItem.builder()
                 .warehouseId((Integer) tuple.get("warehouse_id"))
-                .invoiceItemId((Integer) tuple.get("invoice_item_id"))
+                .invoiceHeaderId((Integer) tuple.get("invoice_header_id"))
                 .invoiceName((String) tuple.get("invoice_name"))
                 .price((BigDecimal) tuple.get("price"))
                 .quantity((BigDecimal) tuple.get("quantity"))
-                .type((String) tuple.get("type"))
+                .movementType((String) tuple.get("type"))
+                .date(((LocalDateTime) tuple.get("date")).toLocalDate())
                 .build();
         }
 
