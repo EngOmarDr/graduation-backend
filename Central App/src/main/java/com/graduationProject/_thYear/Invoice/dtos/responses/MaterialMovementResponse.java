@@ -39,12 +39,12 @@ public class MaterialMovementResponse {
             .productName((String) tuple.get("product_name"))
             .maxSell((BigDecimal) tuple.get("max_sell"))
             .minSell((BigDecimal) tuple.get("min_sell"))
-            .avgSell(BigDecimal.valueOf( (Double)tuple.get("avg_sell")))
-            .maxPurchase((BigDecimal) tuple.get("max_purchase"))
-            .minPurchase((BigDecimal) tuple.get("min_purchase"))
-            .avgPurchase(BigDecimal.valueOf( (Double) tuple.get("avg_purchase")))
+            .avgSell((BigDecimal) tuple.get("avg_sell"))
+            .maxPurchase((BigDecimal) tuple.get("max_buy"))
+            .minPurchase((BigDecimal) tuple.get("min_buy"))
+            .avgPurchase((BigDecimal) tuple.get("avg_buy"))
             .startDate(((LocalDateTime) tuple.get("start_date")).toLocalDate())
-            .endDate(((LocalDateTime) tuple.get("end_date")).toLocalDate())
+            .endDate(((LocalDateTime) tuple.get("end_date")).toLocalDate().minusDays(1))
             .build();
     }
 
