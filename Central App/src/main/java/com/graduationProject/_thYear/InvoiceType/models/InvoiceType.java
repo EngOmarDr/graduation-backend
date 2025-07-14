@@ -21,8 +21,8 @@ public class InvoiceType {
     @Column(name = "id", nullable = false, updatable = false)
     private Integer id;
 
-    @Column(name = "type")
-    private Integer type;
+    @Enumerated(EnumType.STRING)
+    private Type type; // buy - sale - retrieve_buy - retrieve_sale - input - output
 
 
     @Column(name = "name")
@@ -109,5 +109,14 @@ public class InvoiceType {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "defaultCurrencyId")
     private Currency defaultCurrencyId;
+
+
+    public boolean isStockIn() {
+        return this.type == Type.buy || this.type == Type.input || this.type == Type.retrieve_sale;
+    }
+
+    public boolean isStockOut() {
+        return this.type == Type.sale || this.type == Type.output || this.type == Type.retrieve_buy;
+    }
 
 }

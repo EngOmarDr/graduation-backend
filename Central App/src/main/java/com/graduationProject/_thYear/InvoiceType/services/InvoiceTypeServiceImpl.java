@@ -6,6 +6,7 @@ import com.graduationProject._thYear.InvoiceType.dtos.requests.CreateInvoiceType
 import com.graduationProject._thYear.InvoiceType.dtos.requests.UpdateInvoiceTypeRequest;
 import com.graduationProject._thYear.InvoiceType.dtos.responses.InvoiceTypeResponse;
 import com.graduationProject._thYear.InvoiceType.models.InvoiceType;
+import com.graduationProject._thYear.InvoiceType.models.Type;
 import com.graduationProject._thYear.InvoiceType.repositories.InvoiceTypeRepository;
 import com.graduationProject._thYear.Product.models.Price;
 import com.graduationProject._thYear.Product.repositories.PriceRepository;
@@ -72,7 +73,7 @@ public class InvoiceTypeServiceImpl implements InvoiceTypeService{
 
     private InvoiceType mapToEntity(CreateInvoiceTypeRequest dto) {
         return InvoiceType.builder()
-                .type(dto.getType())
+                .type(Type.valueOf(dto.getType()))
                 .name(dto.getName())
                 .defaultPriceId(findPrice(dto.getDefaultPriceId()))
                 .minDefaultPriceId(findPrice(dto.getMinDefaultPriceId()))
@@ -102,7 +103,7 @@ public class InvoiceTypeServiceImpl implements InvoiceTypeService{
                 .build();
     }
     private void updateEntity(InvoiceType entity, UpdateInvoiceTypeRequest dto) {
-        if (dto.getType() != null) entity.setType(dto.getType());
+        if (dto.getType() != null) entity.setType(Type.valueOf(dto.getType()));
         if (dto.getName() != null) entity.setName(dto.getName());
         if (dto.getDefaultPriceId() != null) entity.setDefaultPriceId(findPrice(dto.getDefaultPriceId()));
         if (dto.getMinDefaultPriceId() != null) entity.setMinDefaultPriceId(findPrice(dto.getMinDefaultPriceId()));
@@ -135,7 +136,7 @@ public class InvoiceTypeServiceImpl implements InvoiceTypeService{
     private InvoiceTypeResponse mapToResponse(InvoiceType entity) {
         return InvoiceTypeResponse.builder()
                 .id(entity.getId())
-                .type(entity.getType())
+                .type(String.valueOf(entity.getType()))
                 .name(entity.getName())
                 .defaultPriceId(entity.getDefaultPriceId() != null ? entity.getDefaultPriceId().getId() : null)
                 .minDefaultPriceId(entity.getMinDefaultPriceId() != null ? entity.getMinDefaultPriceId().getId() : null)

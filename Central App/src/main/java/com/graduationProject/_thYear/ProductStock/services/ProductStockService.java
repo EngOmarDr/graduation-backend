@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -51,6 +52,21 @@ public class ProductStockService {
                 .build();
 
         return toResponse(stockRepo.save(stock));
+    }
+
+    public void createStock(Integer productId, Integer warehouseId, Integer unitItemId, BigDecimal quantity) {
+        Product product = productRepo.findById(productId).orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+        Warehouse warehouse = warehouseRepo.findById(warehouseId).orElseThrow(() -> new ResourceNotFoundException("Warehouse not found"));
+        UnitItem unitItem = unitItemRepo.findById(unitItemId).orElseThrow(() -> new ResourceNotFoundException("UnitItem not found"));
+
+        ProductStock stock = ProductStock.builder()
+                .product(product)
+                .warehouse(warehouse)
+                .unitItem(unitItem)
+                .quantity(quantity)
+                .build();
+
+        stockRepo.save(stock);
     }
 
     public List<ProductStockResponse> getAll() {
@@ -139,6 +155,11 @@ public class ProductStockService {
                 .orElseThrow(() -> new RuntimeException("Stock record not found"));
         return toResponse(stock);
     }
+
+    public Optional<ProductStock> findStock(Integer productId, Integer warehouseId, Integer unitItemId) {
+        return stockRepo.findByProductIdAndWarehouseIdAndUnitItemId(productId, warehouseId, unitItemId);
+    }
+
 
     private ProductStockResponse toResponse(ProductStock stock) {
         return ProductStockResponse.builder()

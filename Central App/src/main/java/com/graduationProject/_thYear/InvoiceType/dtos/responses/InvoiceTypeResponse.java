@@ -7,7 +7,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class InvoiceTypeResponse {
     private Integer id;
-    private Integer type;
+    private String type;
     private String name;
     private Integer defaultPriceId;
     private Integer minDefaultPriceId;

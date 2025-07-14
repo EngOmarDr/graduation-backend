@@ -36,7 +36,7 @@ public class CreateInvoiceRequest {
     @NotNull(message = "payType is required")
     private Integer payType;
 
-    private Boolean isPosted;
+    private Boolean isPosted = false;
 
     private LocalDateTime postedDate;
     private String notes;
