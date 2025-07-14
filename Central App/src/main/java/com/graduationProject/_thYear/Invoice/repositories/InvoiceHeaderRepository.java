@@ -2,6 +2,8 @@ package com.graduationProject._thYear.Invoice.repositories;
 
 import com.graduationProject._thYear.Invoice.models.InvoiceHeader;
 
+import com.graduationProject._thYear.InvoiceType.models.Type;
+import com.graduationProject._thYear.Journal.models.JournalHeader;
 import jakarta.persistence.Tuple;
 
 import java.time.LocalDateTime;
@@ -112,5 +114,9 @@ public interface InvoiceHeaderRepository extends JpaRepository<InvoiceHeader,Int
        ")"
    )
    Tuple getProductStockSideItems(LocalDateTime startDate, LocalDateTime endDate,Integer productId, Integer groupId, Integer warehouseId);
+
+
+    List<InvoiceHeader> findByInvoiceType_Type(Type type);
+
 
 }

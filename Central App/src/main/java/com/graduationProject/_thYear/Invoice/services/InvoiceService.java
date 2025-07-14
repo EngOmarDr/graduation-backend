@@ -12,6 +12,7 @@ import com.graduationProject._thYear.Invoice.dtos.responses.ProductStockResponse
 import com.graduationProject._thYear.Invoice.models.*;
 import com.graduationProject._thYear.Invoice.repositories.*;
 import com.graduationProject._thYear.InvoiceType.models.InvoiceType;
+import com.graduationProject._thYear.InvoiceType.models.Type;
 import com.graduationProject._thYear.Product.models.Product;
 import com.graduationProject._thYear.Product.repositories.ProductRepository;
 import com.graduationProject._thYear.ProductStock.models.ProductStock;
@@ -253,7 +254,25 @@ public class InvoiceService {
         headerRepo.delete(invoice);
     }
 
-   public List<MaterialMovementResponse> reportMaterialMovement(LocalDate startDate, LocalDate endDate,Integer productId, Integer groupId, Integer warehouseId){
+
+    public List<InvoiceResponse> searchByInvoiceType(Integer typeCode) {
+        if (typeCode == null) {
+            return headerRepo.findAll().stream()
+                    .map(this::toResponse)
+                    .collect(Collectors.toList());
+        }
+
+        try {
+            Type type = Type.fromCode(typeCode);
+            return headerRepo.findByInvoiceType_Type(type).stream()
+                    .map(this::toResponse)
+                    .collect(Collectors.toList());
+        } catch (IllegalArgumentException e) {
+            throw new ResourceNotFoundException("Invoice type not found with code: " + typeCode);
+        }
+    }
+
+    public List<MaterialMovementResponse> reportMaterialMovement(LocalDate startDate, LocalDate endDate,Integer productId, Integer groupId, Integer warehouseId){
        List<MaterialMovementResponse> result = new LinkedList<>();
        List<Tuple> headers = headerRepo.getMaterialMovementHeader(
            startDate.atStartOfDay(),
