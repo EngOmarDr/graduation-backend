@@ -74,7 +74,6 @@ public class JournalHeader {
 //    @Column(name = "notes")
 //    private String notes;
 
-
     public void addJournalItem(JournalItem journalItem) {
         journalItems.add(journalItem);
         journalItem.setJournalHeader(this);

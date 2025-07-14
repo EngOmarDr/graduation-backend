@@ -14,6 +14,8 @@ import org.springframework.data.repository.query.Param;
 import com.graduationProject._thYear.Journal.models.JournalItem;
 
 import jakarta.persistence.Tuple;
+import com.graduationProject._thYear.Account.models.Account;
+
 
 public interface JournalItemRepository extends JpaRepository<JournalItem, Integer> {
 
@@ -24,6 +26,8 @@ public interface JournalItemRepository extends JpaRepository<JournalItem, Intege
                 @Param("accountId") Integer accountId,
                 @Param("startDate") LocalDateTime startDate,
                 @Param("endDate") LocalDateTime endDate);
+
+        List<JournalItem> findByAccount(Account account);
 
         @Query("SELECT COALESCE(SUM(ji.debit), 0) FROM JournalItem ji " +
                 "WHERE ji.account.id = :accountId AND (ji.date BETWEEN :startDate AND :endDate OR ji.journalHeader.date BETWEEN :startDate AND :endDate)")

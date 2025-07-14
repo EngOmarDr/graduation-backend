@@ -6,6 +6,7 @@ import com.graduationProject._thYear.Account.dtos.response.AccountResponse;
 import com.graduationProject._thYear.Account.dtos.response.AccountTreeResponse;
 import com.graduationProject._thYear.Account.models.Account;
 import com.graduationProject._thYear.Account.repositories.AccountRepository;
+import com.graduationProject._thYear.Journal.repositories.JournalItemRepository;
 import com.graduationProject._thYear.exceptionHandler.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
+    private final JournalItemRepository journalItemRepository;
 
     @Override
     public AccountResponse createAccount(CreateAccountRequest request) {
@@ -127,6 +129,9 @@ public class AccountServiceImpl implements AccountService {
             throw new RuntimeException("Final accounts could not be deleted");
         }        
 
+        if (journalItemRepository.findByAccount(res).size() > 0){
+            throw new RuntimeException("Accounts with recorded journals can't be deleted");
+        }
         accountRepository.delete(res);
     }
 
