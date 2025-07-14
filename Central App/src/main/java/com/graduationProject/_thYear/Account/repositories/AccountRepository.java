@@ -17,6 +17,12 @@ public interface AccountRepository extends JpaRepository<Account, Integer> {
 
     List<Account> findByParentId(Integer parentId); // For getting children of a specific category
 
+    @Query("""
+        SELECT a FROM Account a 
+        WHERE a.finalAccount = null
+        """)
+    List<Account> findFinalAccounts();
+
     @Query("SELECT a FROM Account a WHERE LOWER(a.name) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR LOWER(a.code) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
     List<Account> searchByNameOrCode(@Param("searchTerm") String searchTerm);
 }

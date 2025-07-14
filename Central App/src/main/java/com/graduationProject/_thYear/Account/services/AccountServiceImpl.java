@@ -123,7 +123,9 @@ public class AccountServiceImpl implements AccountService {
         var res = accountRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Account not found with id: " + id));
 
-        // Todo: add condition on jornal
+        if (res.getFinalAccount() == null){
+            throw new RuntimeException("Final accounts could not be deleted");
+        }        
 
         accountRepository.delete(res);
     }
