@@ -1,7 +1,6 @@
 package com.graduationProject._thYear.Warehouse.models;
 
 import com.graduationProject._thYear.Branch.models.Branch;
-import com.graduationProject._thYear.Group.models.Group;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

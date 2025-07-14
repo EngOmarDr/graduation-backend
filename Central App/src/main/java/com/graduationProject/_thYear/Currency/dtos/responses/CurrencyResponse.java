@@ -1,5 +1,7 @@
 package com.graduationProject._thYear.Currency.dtos.responses;
 
+import java.time.LocalDateTime;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
@@ -14,4 +16,5 @@ public class CurrencyResponse {
     private Float currencyValue;
     private String partName;
     private Integer partPrecision;
+    private LocalDateTime createdAt;
 }
