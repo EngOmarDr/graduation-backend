@@ -1,11 +1,14 @@
 package com.graduationProject._thYear.Currency.models;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Builder.Default;
 
 @Entity
 @Table(name = "currency")
@@ -37,5 +40,9 @@ public class Currency {
 
     @Column(name = "part_precision")
     private Integer partPrecision;
+
+    @Column(name = "created_at")
+    @Default
+    private LocalDateTime createdAt = LocalDateTime.now();
 
 }

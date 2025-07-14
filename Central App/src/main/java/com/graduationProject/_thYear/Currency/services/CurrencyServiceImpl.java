@@ -7,6 +7,8 @@ import com.graduationProject._thYear.exceptionHandler.ResourceNotFoundException;
 import com.graduationProject._thYear.Currency.repositories.CurrencyRepository;
 import com.graduationProject._thYear.Currency.models.Currency;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,7 +62,15 @@ public class CurrencyServiceImpl implements CurrencyService {
     public CurrencyResponse updateCurrency(Integer id, UpdateCurrencyRequest request) {
         Currency currency = currencyRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Currency not found with id: " + id));
+        
+        if (id == currencyRepository.findAll(Sort.by("createdAt") ).get(0).getId()){
+            throw new RuntimeException("can't update the default currency");
+        }
 
+        for (Currency c: currencyRepository.findAll(Sort.by("createdAt") )){
+            System.out.println(c.getCreatedAt());
+            System.out.println(c.getName());
+        }
         // Update code if provided and unique
         if (request.getCode() != null && !currency.getCode().equals(request.getCode())) {
             if (currencyRepository.existsByCode(request.getCode())) {
@@ -109,6 +119,7 @@ public class CurrencyServiceImpl implements CurrencyService {
                 .currencyValue(currency.getCurrencyValue())
                 .partName(currency.getPartName())
                 .partPrecision(currency.getPartPrecision())
+                .createdAt(currency.getCreatedAt())
                 .build();
     }
 }
