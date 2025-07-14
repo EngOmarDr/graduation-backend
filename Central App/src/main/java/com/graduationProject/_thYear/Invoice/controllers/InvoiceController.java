@@ -4,6 +4,7 @@ import com.graduationProject._thYear.Invoice.dtos.requests.*;
 import com.graduationProject._thYear.Invoice.dtos.responses.*;
 import com.graduationProject._thYear.Invoice.services.InvoiceService;
 
+import com.graduationProject._thYear.Journal.dtos.response.JournalResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -34,7 +35,12 @@ public class InvoiceController {
         return ResponseEntity.ok(service.getAll());
     }
 
-//
+
+    @GetMapping("/search-by-type")
+    public ResponseEntity<List<InvoiceResponse>> searchByType(@RequestParam(required = false) Integer typeCode) {
+        return ResponseEntity.ok(service.searchByInvoiceType(typeCode));
+    }
+
    @GetMapping("/material-movement-report")
    public List<MaterialMovementResponse> reportMaterialMovement(
            @RequestParam LocalDate startDate,

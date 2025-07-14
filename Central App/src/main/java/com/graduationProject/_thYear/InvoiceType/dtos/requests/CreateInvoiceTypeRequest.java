@@ -11,7 +11,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateInvoiceTypeRequest {
-    private String type;
+    private Integer type;
     private String name;
     private Integer defaultPriceId;
     private Integer minDefaultPriceId;

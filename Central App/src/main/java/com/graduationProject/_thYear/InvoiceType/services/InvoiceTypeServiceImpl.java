@@ -73,7 +73,7 @@ public class InvoiceTypeServiceImpl implements InvoiceTypeService{
 
     private InvoiceType mapToEntity(CreateInvoiceTypeRequest dto) {
         return InvoiceType.builder()
-                .type(Type.valueOf(dto.getType()))
+                .type(Type.fromCode(dto.getType()))
                 .name(dto.getName())
                 .defaultPriceId(findPrice(dto.getDefaultPriceId()))
                 .minDefaultPriceId(findPrice(dto.getMinDefaultPriceId()))
@@ -103,7 +103,7 @@ public class InvoiceTypeServiceImpl implements InvoiceTypeService{
                 .build();
     }
     private void updateEntity(InvoiceType entity, UpdateInvoiceTypeRequest dto) {
-        if (dto.getType() != null) entity.setType(Type.valueOf(dto.getType()));
+        if (dto.getType() != null) entity.setType(Type.fromCode(dto.getType()));
         if (dto.getName() != null) entity.setName(dto.getName());
         if (dto.getDefaultPriceId() != null) entity.setDefaultPriceId(findPrice(dto.getDefaultPriceId()));
         if (dto.getMinDefaultPriceId() != null) entity.setMinDefaultPriceId(findPrice(dto.getMinDefaultPriceId()));
