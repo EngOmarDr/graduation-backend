@@ -251,71 +251,71 @@ public class InvoiceService {
 
         headerRepo.delete(invoice);
     }
-//
-//    public List<MaterialMovementResponse> reportMaterialMovement(LocalDate startDate, LocalDate endDate,Integer productId, Integer groupId, Integer warehouseId){
-//        List<MaterialMovementResponse> result = new LinkedList<>();
-//        List<Tuple> headers = headerRepo.getMaterialMovementHeader(
-//            startDate.atStartOfDay(),
-//            endDate.plusDays(1).atStartOfDay(),
-//            productId ,
-//            groupId,
-//            warehouseId
-//        );
-//        for (Tuple header: headers){
-//            MaterialMovementResponse responseHeader = MaterialMovementResponse.fromTuple(header);
-//            List<Tuple> items = headerRepo.getMaterialMovementItems(
-//                startDate.atStartOfDay(),
-//                endDate.plusDays(1).atStartOfDay(),
-//                (Integer) header.get("product_id"),
-//                warehouseId
-//            );
-//            for (Tuple item : items){
-//                responseHeader.addItem(MaterialMovementResponse.MaterialMovementItem.fromTuple(item));
-//            }
-//            result.add(responseHeader);
-//        }
-//        return result;
-//    }
-//
-//    public DailyMovementResponse reportDailyMovement(LocalDate startDate, LocalDate endDate,Integer productId, Integer groupId, Integer warehouseId){
-//        LocalDateTime startDateTime = startDate.atStartOfDay();
-//        LocalDateTime endDateTime = endDate.plusDays(1).atStartOfDay();
-//
-//        List<Tuple> mainItemsTuples = headerRepo.getDailyMovementMainItems(startDateTime, endDateTime, productId, groupId, warehouseId);
-//        List<Tuple> sideItemsTuples = headerRepo.getDailyMovementSideItems(startDateTime, endDateTime, productId, groupId, warehouseId);
-//
-//        var response = DailyMovementResponse.builder()
-//            .startDate(startDate)
-//            .endDate(endDate)
-//            .currency("ل.س")
-//            .mainItems(mainItemsTuples.stream()
-//                .map((tuple) -> DailyMovemntMainItems.fromTuple(tuple))
-//                .collect(Collectors.toList()))
-//            .sideItems(sideItemsTuples.stream()
-//                .map((tuple) -> DailyMovemntSideItems.fromTuple(tuple))
-//                .collect(Collectors.toList()))
-//            .build();
-//        return response;
-//    }
-//
-//    public ProductStockResponse reportProductStock(LocalDate startDate, LocalDate endDate,Integer productId, Integer groupId, Integer warehouseId){
-//        LocalDateTime startDateTime = startDate.atStartOfDay();
-//        LocalDateTime endDateTime = endDate.plusDays(1).atStartOfDay();
-//
-//        List<Tuple> mainItemsTuples = headerRepo.getProductStockMainItems(startDateTime, endDateTime, productId, groupId, warehouseId);
-//        Tuple sideItemsTuples = headerRepo.getProductStockSideItems(startDateTime, endDateTime, productId, groupId, warehouseId);
-//
-//        var response = ProductStockResponse.builder()
-//            .startDate(startDate)
-//            .endDate(endDate)
-//            .currency("ل.س")
-//            .mainItems(mainItemsTuples.stream()
-//                .map((tuple) -> ProductStockMainItems.fromTuple(tuple))
-//                .collect(Collectors.toList()))
-//            .sideItems(ProductStockSideItems.fromTuple(sideItemsTuples))
-//            .build();
-//        return response;
-//    }
+
+   public List<MaterialMovementResponse> reportMaterialMovement(LocalDate startDate, LocalDate endDate,Integer productId, Integer groupId, Integer warehouseId){
+       List<MaterialMovementResponse> result = new LinkedList<>();
+       List<Tuple> headers = headerRepo.getMaterialMovementHeader(
+           startDate.atStartOfDay(),
+           endDate.plusDays(1).atStartOfDay(),
+           productId ,
+           groupId,
+           warehouseId
+       );
+       for (Tuple header: headers){
+           MaterialMovementResponse responseHeader = MaterialMovementResponse.fromTuple(header);
+           List<Tuple> items = headerRepo.getMaterialMovementItems(
+               startDate.atStartOfDay(),
+               endDate.plusDays(1).atStartOfDay(),
+               (Integer) header.get("product_id"),
+               warehouseId
+           );
+           for (Tuple item : items){
+               responseHeader.addItem(MaterialMovementResponse.MaterialMovementItem.fromTuple(item));
+           }
+           result.add(responseHeader);
+       }
+       return result;
+   }
+
+   public DailyMovementResponse reportDailyMovement(LocalDate startDate, LocalDate endDate,Integer productId, Integer groupId, Integer warehouseId){
+       LocalDateTime startDateTime = startDate.atStartOfDay();
+       LocalDateTime endDateTime = endDate.plusDays(1).atStartOfDay();
+
+       List<Tuple> mainItemsTuples = headerRepo.getDailyMovementMainItems(startDateTime, endDateTime, productId, groupId, warehouseId);
+       List<Tuple> sideItemsTuples = headerRepo.getDailyMovementSideItems(startDateTime, endDateTime, productId, groupId, warehouseId);
+
+       var response = DailyMovementResponse.builder()
+           .startDate(startDate)
+           .endDate(endDate)
+           .currency("ل.س")
+           .mainItems(mainItemsTuples.stream()
+               .map((tuple) -> DailyMovemntMainItems.fromTuple(tuple))
+               .collect(Collectors.toList()))
+           .sideItems(sideItemsTuples.stream()
+               .map((tuple) -> DailyMovemntSideItems.fromTuple(tuple))
+               .collect(Collectors.toList()))
+           .build();
+       return response;
+   }
+
+   public ProductStockResponse reportProductStock(LocalDate startDate, LocalDate endDate,Integer productId, Integer groupId, Integer warehouseId){
+       LocalDateTime startDateTime = startDate.atStartOfDay();
+       LocalDateTime endDateTime = endDate.plusDays(1).atStartOfDay();
+
+       List<Tuple> mainItemsTuples = headerRepo.getProductStockMainItems(startDateTime, endDateTime, productId, groupId, warehouseId);
+       Tuple sideItemsTuples = headerRepo.getProductStockSideItems(startDateTime, endDateTime, productId, groupId, warehouseId);
+
+       var response = ProductStockResponse.builder()
+           .startDate(startDate)
+           .endDate(endDate)
+           .currency("ل.س")
+           .mainItems(mainItemsTuples.stream()
+               .map((tuple) -> ProductStockMainItems.fromTuple(tuple))
+               .collect(Collectors.toList()))
+           .sideItems(ProductStockSideItems.fromTuple(sideItemsTuples))
+           .build();
+       return response;
+   }
 
 
     private void adjustStock(List<InvoiceItem> items, Integer warehouseId, InvoiceType type, boolean reverse) {
