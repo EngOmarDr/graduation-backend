@@ -61,7 +61,7 @@ public interface InvoiceHeaderRepository extends JpaRepository<InvoiceHeader,Int
        "AND (:warehouseId IS NULL OR ih.warehouse.id = (:warehouseId))")
    List<Tuple> getDailyMovementMainItems(LocalDateTime startDate, LocalDateTime endDate,Integer productId, Integer groupId, Integer warehouseId);
 
-   @Query(value="SELECT COALESCE(SUM(item.price * item.qty) ,0) as cash_total, COALESCE(SUM(0),0) as future_total, ty.type as invoice_type_id " +
+   @Query(value="SELECT COALESCE(SUM(item.price * item.qty) ,0) as cash_total, COALESCE(SUM(0),0) as future_total, ty.type as invoice_type " +
        "FROM InvoiceHeader ih " +
        "JOIN ih.invoiceItems item " +
        "JOIN ih.invoiceType ty " +

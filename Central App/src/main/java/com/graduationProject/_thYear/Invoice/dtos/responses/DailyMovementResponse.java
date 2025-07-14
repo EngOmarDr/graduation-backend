@@ -6,6 +6,8 @@ import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.graduationProject._thYear.InvoiceType.models.Type;
+
 import jakarta.persistence.Tuple;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -60,17 +62,13 @@ public class DailyMovementResponse {
     public static class DailyMovemntSideItems{
         private BigDecimal cashTotal;
         private Long futureTotal;
-        private Integer InvoiceTypeId;
-        private String InvoiceTypeName;
+        private Type InvoiceType;
 
         public static DailyMovemntSideItems fromTuple(Tuple tuple){
-            List<String> typeNames = List.of("buy", "sell", "retrieve sell", "retrieve buy", "input", "output");
-            Integer typeId = (Integer) tuple.get("invoice_type_id");
             return DailyMovemntSideItems.builder()
                 .cashTotal((BigDecimal) tuple.get("cash_total"))
                 .futureTotal((Long) tuple.get("future_total"))
-                .InvoiceTypeId(typeId)
-                .InvoiceTypeName(typeNames.get(typeId - 1))
+                .InvoiceType((Type) tuple.get("invoice_type"))
                 .build();
 
         }

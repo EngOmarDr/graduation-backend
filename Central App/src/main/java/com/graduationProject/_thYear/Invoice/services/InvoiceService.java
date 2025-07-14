@@ -6,6 +6,7 @@ import com.graduationProject._thYear.Invoice.dtos.requests.*;
 import com.graduationProject._thYear.Invoice.dtos.responses.*;
 import com.graduationProject._thYear.Invoice.dtos.responses.DailyMovementResponse.DailyMovemntMainItems;
 import com.graduationProject._thYear.Invoice.dtos.responses.DailyMovementResponse.DailyMovemntSideItems;
+import com.graduationProject._thYear.Invoice.dtos.responses.MaterialMovementResponse.MaterialMovementItem;
 import com.graduationProject._thYear.Invoice.dtos.responses.ProductStockResponse.ProductStockMainItems;
 import com.graduationProject._thYear.Invoice.dtos.responses.ProductStockResponse.ProductStockSideItems;
 import com.graduationProject._thYear.Invoice.models.*;
@@ -270,7 +271,7 @@ public class InvoiceService {
                warehouseId
            );
            for (Tuple item : items){
-               responseHeader.addItem(MaterialMovementResponse.MaterialMovementItem.fromTuple(item));
+               responseHeader.addItem(MaterialMovementItem.fromTuple(item));
            }
            result.add(responseHeader);
        }
