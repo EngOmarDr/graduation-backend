@@ -40,6 +40,11 @@ public class InvoiceController {
     public ResponseEntity<List<InvoiceResponse>> searchByType(@RequestParam(required = false) Integer typeCode) {
         return ResponseEntity.ok(service.searchByInvoiceType(typeCode));
     }
+    
+    @GetMapping("/search-by-invoice-type-id")
+    public ResponseEntity<List<InvoiceResponse>> searchByInvoiceTypeId(@RequestParam(required = false) Integer id) {
+        return ResponseEntity.ok(service.searchByInvoiceTypeId(id));
+    }
 
    @GetMapping("/material-movement-report")
    public List<MaterialMovementResponse> reportMaterialMovement(
