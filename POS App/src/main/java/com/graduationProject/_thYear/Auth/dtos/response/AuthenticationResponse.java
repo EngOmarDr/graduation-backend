@@ -1,0 +1,26 @@
+package com.graduationProject._thYear.Auth.dtos.response;
+
+import com.graduationProject._thYear.Auth.models.Role;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class AuthenticationResponse {
+
+//    @JsonProperty("access_token")
+//    private String accessToken;
+//    @JsonProperty("refresh_token")
+//    private String refreshToken;
+    private String firstName;
+    private String lastName;
+    private String username;
+    private Integer warehouseId;
+    private Role role;
+    private  String token;
+
+}
