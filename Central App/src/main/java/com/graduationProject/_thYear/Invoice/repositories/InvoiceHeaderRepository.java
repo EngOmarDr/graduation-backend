@@ -117,6 +117,7 @@ public interface InvoiceHeaderRepository extends JpaRepository<InvoiceHeader,Int
 
 
     List<InvoiceHeader> findByInvoiceType_Type(Type type);
-
+    
+    List<InvoiceHeader> findByInvoiceType_Id(Integer id);
 
 }

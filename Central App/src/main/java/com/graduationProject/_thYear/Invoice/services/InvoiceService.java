@@ -108,12 +108,12 @@ public class InvoiceService {
                     Account account1 = accountRepository.findById(discountReq.getAccount())
                             .orElseThrow(() -> new RuntimeException("account not found"));
                     return  InvoiceDiscount.builder()
-                        .invoiceHeader(invoice)
-                        .account(account1)
-                        .discount(discountReq.getDiscount())
-                        .extra(discountReq.getExtra())
-                        .notes(discountReq.getNotes())
-                        .build();
+                            .invoiceHeader(invoice)
+                            .account(account1)
+                            .discount(discountReq.getDiscount())
+                            .extra(discountReq.getExtra())
+                            .notes(discountReq.getNotes())
+                            .build();
                 })
                 .collect(Collectors.toList());
 
@@ -216,15 +216,15 @@ public class InvoiceService {
             invoice.getInvoiceDiscounts().clear();
             invoice.getInvoiceDiscounts().addAll(req.getInvoiceDiscounts().stream().map(d ->
             { Account account1 = accountRepository.findById(d.getAccount())
-                    .orElseThrow(() -> new RuntimeException("account not found"));
+                        .orElseThrow(() -> new RuntimeException("account not found"));
                 return
                     InvoiceDiscount.builder()
-                    .invoiceHeader(invoice)
-                    .account(account1)
-                    .discount(d.getDiscount())
-                    .extra(d.getExtra())
-                    .notes(d.getNotes())
-                    .build();
+                        .invoiceHeader(invoice)
+                        .account(account1)
+                        .discount(d.getDiscount())
+                        .extra(d.getExtra())
+                        .notes(d.getNotes())
+                        .build();
             }).toList());
         }
 
@@ -254,7 +254,6 @@ public class InvoiceService {
         headerRepo.delete(invoice);
     }
 
-
     public List<InvoiceResponse> searchByInvoiceType(Integer typeCode) {
         if (typeCode == null) {
             return headerRepo.findAll().stream()
@@ -272,71 +271,87 @@ public class InvoiceService {
         }
     }
 
-    public List<MaterialMovementResponse> reportMaterialMovement(LocalDate startDate, LocalDate endDate,Integer productId, Integer groupId, Integer warehouseId){
-       List<MaterialMovementResponse> result = new LinkedList<>();
-       List<Tuple> headers = headerRepo.getMaterialMovementHeader(
-           startDate.atStartOfDay(),
-           endDate.plusDays(1).atStartOfDay(),
+    public List<InvoiceResponse> searchByInvoiceTypeId(Integer id) {
+        if (id == null) {
+            return headerRepo.findAll().stream()
+                    .map(this::toResponse)
+                    .collect(Collectors.toList());
+        }
+
+        try {
+            return headerRepo.findByInvoiceType_Id(id).stream()
+                    .map(this::toResponse)
+                    .collect(Collectors.toList());
+        } catch (IllegalArgumentException e) {
+            throw new ResourceNotFoundException("Invoice type not found with code: " + id);
+        }
+    }
+
+    public List<MaterialMovementResponse> reportMaterialMovement(LocalDate startDate, LocalDate endDate,
+            Integer productId, Integer groupId, Integer warehouseId) {
+        List<MaterialMovementResponse> result = new LinkedList<>();
+        List<Tuple> headers = headerRepo.getMaterialMovementHeader(
+                startDate.atStartOfDay(),
+                endDate.plusDays(1).atStartOfDay(),
            productId ,
-           groupId,
+                groupId,
            warehouseId
        );
        for (Tuple header: headers){
-           MaterialMovementResponse responseHeader = MaterialMovementResponse.fromTuple(header);
-           List<Tuple> items = headerRepo.getMaterialMovementItems(
-               startDate.atStartOfDay(),
-               endDate.plusDays(1).atStartOfDay(),
-               (Integer) header.get("product_id"),
+            MaterialMovementResponse responseHeader = MaterialMovementResponse.fromTuple(header);
+            List<Tuple> items = headerRepo.getMaterialMovementItems(
+                    startDate.atStartOfDay(),
+                    endDate.plusDays(1).atStartOfDay(),
+                    (Integer) header.get("product_id"),
                warehouseId
            );
            for (Tuple item : items){
-               responseHeader.addItem(MaterialMovementItem.fromTuple(item));
-           }
-           result.add(responseHeader);
-       }
-       return result;
-   }
+                responseHeader.addItem(MaterialMovementItem.fromTuple(item));
+            }
+            result.add(responseHeader);
+        }
+        return result;
+    }
 
    public DailyMovementResponse reportDailyMovement(LocalDate startDate, LocalDate endDate,Integer productId, Integer groupId, Integer warehouseId){
-       LocalDateTime startDateTime = startDate.atStartOfDay();
-       LocalDateTime endDateTime = endDate.plusDays(1).atStartOfDay();
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        LocalDateTime endDateTime = endDate.plusDays(1).atStartOfDay();
 
        List<Tuple> mainItemsTuples = headerRepo.getDailyMovementMainItems(startDateTime, endDateTime, productId, groupId, warehouseId);
        List<Tuple> sideItemsTuples = headerRepo.getDailyMovementSideItems(startDateTime, endDateTime, productId, groupId, warehouseId);
 
-       var response = DailyMovementResponse.builder()
-           .startDate(startDate)
-           .endDate(endDate)
-           .currency("ل.س")
-           .mainItems(mainItemsTuples.stream()
-               .map((tuple) -> DailyMovemntMainItems.fromTuple(tuple))
-               .collect(Collectors.toList()))
-           .sideItems(sideItemsTuples.stream()
-               .map((tuple) -> DailyMovemntSideItems.fromTuple(tuple))
-               .collect(Collectors.toList()))
-           .build();
-       return response;
-   }
+        var response = DailyMovementResponse.builder()
+                .startDate(startDate)
+                .endDate(endDate)
+                .currency("ل.س")
+                .mainItems(mainItemsTuples.stream()
+                        .map((tuple) -> DailyMovemntMainItems.fromTuple(tuple))
+                        .collect(Collectors.toList()))
+                .sideItems(sideItemsTuples.stream()
+                        .map((tuple) -> DailyMovemntSideItems.fromTuple(tuple))
+                        .collect(Collectors.toList()))
+                .build();
+        return response;
+    }
 
    public ProductStockResponse reportProductStock(LocalDate startDate, LocalDate endDate,Integer productId, Integer groupId, Integer warehouseId){
-       LocalDateTime startDateTime = startDate.atStartOfDay();
-       LocalDateTime endDateTime = endDate.plusDays(1).atStartOfDay();
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        LocalDateTime endDateTime = endDate.plusDays(1).atStartOfDay();
 
        List<Tuple> mainItemsTuples = headerRepo.getProductStockMainItems(startDateTime, endDateTime, productId, groupId, warehouseId);
        Tuple sideItemsTuples = headerRepo.getProductStockSideItems(startDateTime, endDateTime, productId, groupId, warehouseId);
 
-       var response = ProductStockResponse.builder()
-           .startDate(startDate)
-           .endDate(endDate)
-           .currency("ل.س")
-           .mainItems(mainItemsTuples.stream()
-               .map((tuple) -> ProductStockMainItems.fromTuple(tuple))
-               .collect(Collectors.toList()))
-           .sideItems(ProductStockSideItems.fromTuple(sideItemsTuples))
-           .build();
-       return response;
-   }
-
+        var response = ProductStockResponse.builder()
+                .startDate(startDate)
+                .endDate(endDate)
+                .currency("ل.س")
+                .mainItems(mainItemsTuples.stream()
+                        .map((tuple) -> ProductStockMainItems.fromTuple(tuple))
+                        .collect(Collectors.toList()))
+                .sideItems(ProductStockSideItems.fromTuple(sideItemsTuples))
+                .build();
+        return response;
+    }
 
     private void adjustStock(List<InvoiceItem> items, Integer warehouseId, InvoiceType type, boolean reverse) {
         for (InvoiceItem item : items) {
@@ -443,6 +458,5 @@ public class InvoiceService {
                 .notes(d.getNotes())
                 .build();
     }
-
 
 }
