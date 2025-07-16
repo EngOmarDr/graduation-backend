@@ -29,6 +29,8 @@ import com.graduationProject._thYear.exceptionHandler.ResourceNotFoundException;
 import jakarta.persistence.Tuple;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -317,13 +319,14 @@ public class InvoiceService {
         LocalDateTime startDateTime = startDate.atStartOfDay();
         LocalDateTime endDateTime = endDate.plusDays(1).atStartOfDay();
 
-       List<Tuple> mainItemsTuples = headerRepo.getDailyMovementMainItems(startDateTime, endDateTime, productId, groupId, warehouseId);
-       List<Tuple> sideItemsTuples = headerRepo.getDailyMovementSideItems(startDateTime, endDateTime, productId, groupId, warehouseId);
-
+        List<Tuple> mainItemsTuples = headerRepo.getDailyMovementMainItems(startDateTime, endDateTime, productId, groupId, warehouseId);
+        List<Tuple> sideItemsTuples = headerRepo.getDailyMovementSideItems(startDateTime, endDateTime, productId, groupId, warehouseId);
+        Currency defaultCurrency = currencyRepo.findAll(Sort.by("createdAt")).get(0);
         var response = DailyMovementResponse.builder()
                 .startDate(startDate)
                 .endDate(endDate)
-                .currency("ل.س")
+                .currencyName(defaultCurrency.getName())
+                .currencyCode(defaultCurrency.getCode())
                 .mainItems(mainItemsTuples.stream()
                         .map((tuple) -> DailyMovemntMainItems.fromTuple(tuple))
                         .collect(Collectors.toList()))
@@ -338,13 +341,15 @@ public class InvoiceService {
         LocalDateTime startDateTime = startDate.atStartOfDay();
         LocalDateTime endDateTime = endDate.plusDays(1).atStartOfDay();
 
-       List<Tuple> mainItemsTuples = headerRepo.getProductStockMainItems(startDateTime, endDateTime, productId, groupId, warehouseId);
-       Tuple sideItemsTuples = headerRepo.getProductStockSideItems(startDateTime, endDateTime, productId, groupId, warehouseId);
+        List<Tuple> mainItemsTuples = headerRepo.getProductStockMainItems(startDateTime, endDateTime, productId, groupId, warehouseId);
+        Tuple sideItemsTuples = headerRepo.getProductStockSideItems(startDateTime, endDateTime, productId, groupId, warehouseId);
+        Currency defaultCurrency = currencyRepo.findAll(Sort.by("createdAt")).get(0);
 
         var response = ProductStockResponse.builder()
                 .startDate(startDate)
                 .endDate(endDate)
-                .currency("ل.س")
+                .currencyName(defaultCurrency.getName())
+                .currencyCode(defaultCurrency.getCode())
                 .mainItems(mainItemsTuples.stream()
                         .map((tuple) -> ProductStockMainItems.fromTuple(tuple))
                         .collect(Collectors.toList()))

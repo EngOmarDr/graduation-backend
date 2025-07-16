@@ -3,7 +3,6 @@ package com.graduationProject._thYear.Invoice.repositories;
 import com.graduationProject._thYear.Invoice.models.InvoiceHeader;
 
 import com.graduationProject._thYear.InvoiceType.models.Type;
-import com.graduationProject._thYear.Journal.models.JournalHeader;
 import jakarta.persistence.Tuple;
 
 import java.time.LocalDateTime;
@@ -52,7 +51,8 @@ public interface InvoiceHeaderRepository extends JpaRepository<InvoiceHeader,Int
        "item.price individual_price, " +
        "item.price * item.qty as total_price, " +
        "ih.warehouse.id warehouse_id, ih.date as date," +
-       "item.unitItem.id as unit_id, item.unitItem.name unit_name " +
+       "item.unitItem.id as unit_id, item.unitItem.name unit_name, " +
+       "item.product.id as product_id, item.product.name product_name " +
        "FROM InvoiceHeader ih " +
        "JOIN ih.invoiceItems item " +
        "JOIN ih.invoiceType ty " +

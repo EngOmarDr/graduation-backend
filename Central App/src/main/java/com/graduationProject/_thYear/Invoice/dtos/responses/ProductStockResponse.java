@@ -17,7 +17,8 @@ import lombok.experimental.SuperBuilder;
 public class ProductStockResponse {
      private LocalDate startDate;
     private LocalDate endDate;
-    private String currency;
+    private String currencyName;
+    private String currencyCode;
 
 
     @Default

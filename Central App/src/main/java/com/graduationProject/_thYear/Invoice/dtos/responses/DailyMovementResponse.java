@@ -20,7 +20,8 @@ import lombok.experimental.SuperBuilder;
 public class DailyMovementResponse {
     private LocalDate startDate;
     private LocalDate endDate;
-    private String currency;
+    private String currencyName;
+    private String currencyCode;
 
     @Default
     private List<DailyMovemntMainItems> mainItems= new LinkedList<>();
@@ -33,6 +34,8 @@ public class DailyMovementResponse {
     public static class DailyMovemntMainItems{
         private Integer invoiceHeaderId;
         private String invoiceName;
+        private Integer productId;
+        private String productName;
         private Integer unitId;
         private String unitName;
         private Integer warehouseId;
@@ -50,6 +53,8 @@ public class DailyMovementResponse {
                 .individualPrice((BigDecimal) tuple.get("individual_price"))
                 .totalPrice((BigDecimal) tuple.get("total_price"))
                 .date(((LocalDateTime) tuple.get("date")).toLocalDate())
+                .productId((Integer) tuple.get("product_id"))
+                .productName((String) tuple.get("product_name"))
                 .unitId((Integer) tuple.get("unit_id"))
                 .unitName((String) tuple.get("unit_name"))
                 .build();
