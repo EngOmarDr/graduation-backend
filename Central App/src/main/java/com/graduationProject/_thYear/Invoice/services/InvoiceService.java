@@ -131,6 +131,21 @@ public class InvoiceService {
             adjustStock(items, warehouse.getId(), type, false);
         }
 
+
+        if (invoiceType.getIsNoEntry() != null && invoiceType.getIsNoEntry()) {
+            return toResponse(saved);
+        }
+
+        if (invoiceType.getIsAutoEntry() != null && invoiceType.getIsAutoEntry()) {
+            if (Boolean.TRUE.equals(invoiceType.getIsAutoEntryPost())) {
+                // TODO: Generate Journal Entry + Post automatically
+            } else {
+                // TODO: Generate Journal Entry only (without posting)
+            }
+        } else {
+            // TODO: No automatic journal entry generation
+        }
+
         return toResponse(saved);
     }
 
