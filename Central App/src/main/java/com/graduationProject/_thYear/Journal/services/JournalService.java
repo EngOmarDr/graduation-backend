@@ -25,16 +25,23 @@ public interface JournalService {
 
     void deleteJournal(Integer id);
 
-    LedgerReport generateLedgerReport(Integer accountId,
+    LedgerReport generateLedgerReport(
+        Integer accountId,
+        Integer branchId,
         LocalDate startDate,
-        LocalDate endDate);
+        LocalDate endDate
+    );
 
      List<GeneralJournalReportResponse> generateGeneralJournalReport(
+        Integer branchId,
         LocalDate startDate,
-        LocalDate endDate);
+        LocalDate endDate
+    );
 
     TrialBalanceReportResponse generateTrialBalanceReport(
-        LocalDate date);
+        Integer branchId,
+        LocalDate date
+    );
 
     List<JournalResponse> searchJournalsByParentType(Byte parentType);
 }

@@ -21,57 +21,83 @@ public interface JournalItemRepository extends JpaRepository<JournalItem, Intege
 
         @Query("SELECT ji FROM JournalItem ji WHERE ji.account.id = :accountId " +
                 "AND (ji.date BETWEEN :startDate AND :endDate OR ji.journalHeader.date BETWEEN :startDate AND :endDate) " +
+                "AND (:branchId IS NULL OR ji.journalHeader.warehouse.branch.id = :branchId) "  +
                 "ORDER BY COALESCE(ji.date, ji.journalHeader.date), ji.id")
         List<JournalItem> findEntriesByAccountAndDateRange(
                 @Param("accountId") Integer accountId,
+                @Param("branchId") Integer branchId,
                 @Param("startDate") LocalDateTime startDate,
                 @Param("endDate") LocalDateTime endDate);
 
         List<JournalItem> findByAccount(Account account);
 
         @Query("SELECT COALESCE(SUM(ji.debit), 0) FROM JournalItem ji " +
-                "WHERE ji.account.id = :accountId AND (ji.date BETWEEN :startDate AND :endDate OR ji.journalHeader.date BETWEEN :startDate AND :endDate)")
+                "WHERE ji.account.id = :accountId AND (ji.date BETWEEN :startDate AND :endDate OR ji.journalHeader.date BETWEEN :startDate AND :endDate) " +
+                "AND (:branchId IS NULL OR ji.journalHeader.warehouse.branch.id = :branchId) " 
+        )
         BigDecimal calculateDebitBetweenDates(
                 @Param("accountId") Integer accountId,
+                @Param("branchId") Integer branchId,
                 @Param("startDate") LocalDateTime startDate,
                 @Param("endDate") LocalDateTime endDate);
 
         @Query("SELECT COALESCE(SUM(ji.credit), 0) FROM JournalItem ji " +
-                "WHERE ji.account.id = :accountId AND (ji.date BETWEEN :startDate AND :endDate OR ji.journalHeader.date BETWEEN :startDate AND :endDate)")
+                "WHERE ji.account.id = :accountId AND (ji.date BETWEEN :startDate AND :endDate OR ji.journalHeader.date BETWEEN :startDate AND :endDate) " +
+                "AND (:branchId IS NULL OR ji.journalHeader.warehouse.branch.id = :branchId) " 
+                
+        )
         BigDecimal calculateCreditBetweenDates(
                 @Param("accountId") Integer accountId,
+                @Param("branchId") Integer branchId,
                 @Param("startDate") LocalDateTime startDate,
                 @Param("endDate") LocalDateTime endDate);
 
         @Query("SELECT COALESCE(SUM(ji.debit), 0) FROM JournalItem ji " +
-                "WHERE ji.account.id = :accountId AND (ji.date < :date OR ji.journalHeader.date < :date)")
+                "WHERE ji.account.id = :accountId AND (ji.date < :date OR ji.journalHeader.date < :date) "+
+                "AND (:branchId IS NULL OR ji.journalHeader.warehouse.branch.id = :branchId) " 
+        )
         BigDecimal calculateDebitBeforeDate(
+                @Param("branchId") Integer branchId,
                 @Param("accountId") Integer accountId,
                 @Param("date") LocalDateTime date);
 
         @Query("SELECT COALESCE(SUM(ji.credit), 0) FROM JournalItem ji " +
-                "WHERE ji.account.id = :accountId AND (ji.date < :date OR ji.journalHeader.date < :date)")
+                "WHERE ji.account.id = :accountId AND (ji.date < :date OR ji.journalHeader.date < :date) " +
+                "AND (:branchId IS NULL OR ji.journalHeader.warehouse.branch.id = :branchId) " 
+        )
         BigDecimal calculateCreditBeforeDate(
+                @Param("branchId") Integer branchId,
                 @Param("accountId") Integer accountId,
                 @Param("date") LocalDateTime date);
 
         @Query("SELECT DISTINCT FUNCTION('DATE',ji.date) AS date, COALESCE(SUM(ji.debit),0) AS total_debit, COALESCE(SUM(ji.credit),0) AS total_credit FROM JournalItem ji "+
                 "WHERE ji.date BETWEEN :startDate AND :endDate " +
+                "AND (:branchId IS NULL OR ji.journalHeader.warehouse.branch.id = :branchId) " +
                 "GROUP BY FUNCTION('DATE',ji.date)")
         List<Tuple> getTotalDebitAndCreditByAccountWithinTimeRange(
+                @Param("branchId") Integer branchId,
                 @Param("startDate") LocalDateTime startDate,
-                @Param("endDate") LocalDateTime endDate);
+                @Param("endDate") LocalDateTime endDate
+
+        );
         
         @Query("SELECT ji FROM JournalItem ji "+
-                "WHERE FUNCTION('DATE',ji.date) = :date")
-        List<JournalItem> getJournalItemsByDate(
-             @Param("date") Date date);
+                "WHERE FUNCTION('DATE',ji.date) = :date " +
+                "AND (:branchId IS NULL OR ji.journalHeader.warehouse.branch.id = :branchId) " 
+        )
+        List<JournalItem> getJournalItemsByDate(        
+                @Param("branchId") Integer branchId,
+                @Param("date") Date date
+        );
 
          @Query("SELECT CASE WHEN COALESCE(SUM(ji.debit),0) > COALESCE(SUM(ji.credit),0) THEN COALESCE(SUM(ji.debit),0) - COALESCE(SUM(ji.credit),0) ELSE 0 END  AS total_debit, " +
                 "CASE WHEN COALESCE(SUM(ji.credit),0) > COALESCE(SUM(ji.debit),0) THEN COALESCE(SUM(ji.credit),0) - COALESCE(SUM(ji.debit),0) ELSE 0 END AS total_credit " + 
                 "FROM JournalItem ji "+
-                "WHERE ji.date BETWEEN :startDate AND :endDate ")
+                "WHERE ji.date BETWEEN :startDate AND :endDate " +
+                "AND (:branchId IS NULL OR ji.journalHeader.warehouse.branch.id = :branchId) " 
+        )
         Tuple getTotalDebitAndCreditWithinTimeRange(
+                @Param("branchId") Integer branchId,
                 @Param("startDate") LocalDateTime startDate,
                 @Param("endDate") LocalDateTime endDate);
         
@@ -82,9 +108,11 @@ public interface JournalItemRepository extends JpaRepository<JournalItem, Intege
                 "JOIN ji.account a " +
 
                 "WHERE ji.date BETWEEN :startDate AND :endDate " +
+                "AND (:branchId IS NULL OR ji.journalHeader.warehouse.branch.id = :branchId) " +
                 "GROUP BY ji.account"
                 )
         List<Tuple> getTotalDebitAndCreditByAccount(
+                @Param("branchId") Integer branchId,
                 @Param("startDate") LocalDateTime startDate,
                 @Param("endDate") LocalDateTime endDate);
         

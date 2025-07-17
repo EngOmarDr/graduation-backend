@@ -73,24 +73,27 @@ public class JournalController {
     @GetMapping("/ledger-report")
     public ResponseEntity<LedgerReport> generateLedgerReport(
             @RequestParam Integer accountId,
+            @RequestParam(required = false) Integer branchId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
-        LedgerReport response = journalService.generateLedgerReport(accountId, startDate, endDate);
+        LedgerReport response = journalService.generateLedgerReport(accountId, branchId, startDate, endDate);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/general-journal-report")
     public ResponseEntity<List<GeneralJournalReportResponse>> generateGeneralJournalReport(
+            @RequestParam(required = false) Integer branchId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
-        List<GeneralJournalReportResponse> response = journalService.generateGeneralJournalReport( startDate, endDate);
+        List<GeneralJournalReportResponse> response = journalService.generateGeneralJournalReport(branchId, startDate, endDate);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/trial-balance-report")
     public ResponseEntity<TrialBalanceReportResponse> generateTrialBalanceReport(
+            @RequestParam(required = false) Integer branchId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        TrialBalanceReportResponse response = journalService.generateTrialBalanceReport( date);
+        TrialBalanceReportResponse response = journalService.generateTrialBalanceReport(branchId, date);
         return ResponseEntity.ok(response);
     }
 }

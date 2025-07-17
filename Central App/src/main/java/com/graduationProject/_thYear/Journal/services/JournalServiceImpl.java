@@ -1,17 +1,14 @@
 package com.graduationProject._thYear.Journal.services;
 
 import com.graduationProject._thYear.Account.models.Account;
-import com.graduationProject._thYear.Branch.models.Branch;
 import com.graduationProject._thYear.Currency.models.Currency;
 import com.graduationProject._thYear.Journal.dtos.request.*;
 import com.graduationProject._thYear.Journal.dtos.response.*;
-import com.graduationProject._thYear.Journal.dtos.response.TrialBalanceReportResponse.BalanceEntry;
 import com.graduationProject._thYear.Journal.models.JournalHeader;
 import com.graduationProject._thYear.Journal.models.JournalItem;
 import com.graduationProject._thYear.Journal.repositories.JournalHeaderRepository;
 import com.graduationProject._thYear.Journal.repositories.JournalItemRepository;
 import com.graduationProject._thYear.Account.repositories.AccountRepository;
-import com.graduationProject._thYear.Branch.repositories.BranchRepository;
 import com.graduationProject._thYear.Currency.repositories.CurrencyRepository;
 import com.graduationProject._thYear.Warehouse.models.Warehouse;
 import com.graduationProject._thYear.Warehouse.repositories.WarehouseRepository;
@@ -325,7 +322,7 @@ public class JournalServiceImpl implements JournalService {
         }
 
         @Override
-        public LedgerReport generateLedgerReport(Integer accountId, LocalDate startDate, LocalDate endDate) {
+        public LedgerReport generateLedgerReport(Integer accountId, Integer branchId, LocalDate startDate, LocalDate endDate) {
         
                 if (startDate.isAfter(endDate)) {
                         throw new IllegalArgumentException("Start date must be before end date");
@@ -337,19 +334,19 @@ public class JournalServiceImpl implements JournalService {
                         .orElseThrow(() -> new EntityNotFoundException("Account not found with id: " + accountId));
 
                 // Calculate opening balance (sum of all entries before start date)
-                BigDecimal openingDebit = journalItemRepository.calculateDebitBeforeDate(accountId, startDateTime);
-                BigDecimal openingCredit = journalItemRepository.calculateCreditBeforeDate(accountId, startDateTime);
+                BigDecimal openingDebit = journalItemRepository.calculateDebitBeforeDate(branchId, accountId, startDateTime);
+                BigDecimal openingCredit = journalItemRepository.calculateCreditBeforeDate(branchId, accountId, startDateTime);
                 BigDecimal openingBalance = openingDebit.subtract(openingCredit);
 
                 // Get entries for the period
                 List<JournalItem> entries = journalItemRepository.findEntriesByAccountAndDateRange(
-                        accountId, startDateTime, endDateTime);
+                        accountId, branchId, startDateTime, endDateTime);
 
                 // Calculate period totals
                 BigDecimal totalDebit = journalItemRepository.calculateDebitBetweenDates(
-                        accountId, startDateTime, endDateTime);
+                        accountId, branchId,  startDateTime, endDateTime);
                 BigDecimal totalCredit = journalItemRepository.calculateCreditBetweenDates(
-                        accountId, startDateTime, endDateTime);
+                        accountId, branchId, startDateTime, endDateTime);
 
                 // Calculate closing balance
                 BigDecimal closingBalance = openingBalance.add(totalDebit).subtract(totalCredit);
@@ -371,12 +368,12 @@ public class JournalServiceImpl implements JournalService {
         }
 
         @Override
-        public TrialBalanceReportResponse generateTrialBalanceReport(LocalDate date) {
+        public TrialBalanceReportResponse generateTrialBalanceReport(Integer branchId, LocalDate date) {
 
                 LocalDateTime startDateTime = date.withDayOfYear(1).atStartOfDay();
                 LocalDateTime endDateTime = date.atStartOfDay().plusYears(2);
-                Tuple totals = journalItemRepository.getTotalDebitAndCreditWithinTimeRange(startDateTime, endDateTime);
-                List<Tuple> entries = journalItemRepository.getTotalDebitAndCreditByAccount(startDateTime, endDateTime);
+                Tuple totals = journalItemRepository.getTotalDebitAndCreditWithinTimeRange(branchId, startDateTime, endDateTime);
+                List<Tuple> entries = journalItemRepository.getTotalDebitAndCreditByAccount(branchId, startDateTime, endDateTime);
                 List<TrialBalanceReportResponse.BalanceEntry> items =  entries.stream().map(this::mapToBalanceEntry).collect(Collectors.toList());
                 return TrialBalanceReportResponse.builder()
                         .startDate(startDateTime.toLocalDate())
@@ -386,7 +383,7 @@ public class JournalServiceImpl implements JournalService {
                         .entries(items)
                         .build();
         }
-        public List<GeneralJournalReportResponse> generateGeneralJournalReport(LocalDate startDate, LocalDate endDate) {
+        public List<GeneralJournalReportResponse> generateGeneralJournalReport(Integer branchId, LocalDate startDate, LocalDate endDate) {
 
                 if (startDate.isAfter(endDate)) {
                         throw new IllegalArgumentException("Start date must be before end date");
@@ -396,10 +393,10 @@ public class JournalServiceImpl implements JournalService {
                 LocalDateTime startDateTime = startDate.atStartOfDay();
                 LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
 
-                List<Tuple> result = journalItemRepository.getTotalDebitAndCreditByAccountWithinTimeRange(startDateTime, endDateTime);
+                List<Tuple> result = journalItemRepository.getTotalDebitAndCreditByAccountWithinTimeRange(branchId, startDateTime, endDateTime);
                 List<GeneralJournalReportResponse> report = new LinkedList<>();
                 for (Tuple tuple : result){
-                        List<JournalItem> items = journalItemRepository.getJournalItemsByDate((Date)tuple.get("date"));
+                        List<JournalItem> items = journalItemRepository.getJournalItemsByDate(branchId, (Date)tuple.get("date"));
                         GeneralJournalReportResponse record = GeneralJournalReportResponse.builder()
                                 .date((Date)tuple.get("date"))
                                 .totalCredit((BigDecimal) tuple.get("total_credit"))
