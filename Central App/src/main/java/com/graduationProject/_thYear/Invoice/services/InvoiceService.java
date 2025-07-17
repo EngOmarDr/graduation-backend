@@ -170,12 +170,24 @@ public class InvoiceService {
     public InvoiceResponse update(Integer id, UpdateInvoiceRequest req) {
         InvoiceHeader invoice = headerRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Invoice not found"));
-
         boolean wasPosted = invoice.getIsPosted();
 
         if (Boolean.TRUE.equals(wasPosted)) {
             throw new RuntimeException("Invoice is posted. Cannot update.");
         }
+
+        Optional<JournalHeader> existingJournalOpt = journalHeaderRepository.findByKindAndParentId(JournalKind.INVOICE, invoice.getId());
+
+        if (existingJournalOpt.isPresent()) {
+            JournalHeader journal = existingJournalOpt.get();
+
+            if (Boolean.TRUE.equals(journal.getIsPosted())) {
+                throw new IllegalStateException("Cannot update invoice because its journal is already posted");
+            }
+
+            journalHeaderRepository.delete(journal);
+        }
+
 
         List<InvoiceItem> oldItems = new ArrayList<>(invoice.getInvoiceItems());
         InvoiceType oldType = invoice.getInvoiceType();
@@ -264,6 +276,19 @@ public class InvoiceService {
 
         if (updated.getIsPosted()) adjustStock(updated.getInvoiceItems(), updated.getWarehouse().getId(), updated.getInvoiceType(), false);
 
+        if (invoice.getInvoiceType().getIsNoEntry() != null && invoice.getInvoiceType().getIsNoEntry()) {
+            return toResponse(updated);
+        }
+
+        if (invoice.getInvoiceType().getIsAutoEntry() != null && invoice.getInvoiceType().getIsAutoEntry()) {
+            JournalHeader newJournal = generateJournalFromInvoice(invoice);
+
+            if (Boolean.TRUE.equals(invoice.getInvoiceType().getIsAutoEntryPost())) {
+                newJournal.setIsPosted(true);
+            }
+
+            journalHeaderRepository.save(newJournal);
+        }
 
         return toResponse(updated);
     }
@@ -274,6 +299,19 @@ public class InvoiceService {
         if (invoice.getIsPosted()) {
             adjustStock(invoice.getInvoiceItems(), invoice.getWarehouse().getId(), invoice.getInvoiceType(), true);
         }
+
+        Optional<JournalHeader> existingJournalOpt = journalHeaderRepository.findByKindAndParentId(JournalKind.INVOICE, invoice.getId());
+
+        if (existingJournalOpt.isPresent()) {
+            JournalHeader journal = existingJournalOpt.get();
+
+            if (Boolean.TRUE.equals(journal.getIsPosted())) {
+                throw new IllegalStateException("Cannot delete invoice because its journal is already posted");
+            }
+
+            journalHeaderRepository.delete(journal);
+        }
+
 
         headerRepo.delete(invoice);
     }
@@ -577,6 +615,13 @@ public class InvoiceService {
         BigDecimal totalCredit = header.getJournalItems().stream()
                 .map(JournalItem::getCredit)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+
+        if (totalDebit.compareTo(totalCredit) != 0) {
+            throw new IllegalStateException("Journal entry is unbalanced! Debit: " + totalDebit + " ≠ Credit: " + totalCredit);
+        }
+
+
         header.setDebit(totalDebit);
         header.setCredit(totalCredit);
 
