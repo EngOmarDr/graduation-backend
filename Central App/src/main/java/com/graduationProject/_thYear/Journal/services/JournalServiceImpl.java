@@ -217,9 +217,9 @@ public class JournalServiceImpl implements JournalService {
                         journalHeader.setParentType(request.getParentType());
                 }
 
-                if (request.getParentId() != null) {
-                        journalHeader.setParentId(request.getParentId());
-                }
+//                if (request.getParentId() != null) {
+//                        journalHeader.setParentId(request.getParentId());
+//                }
 
                 if (request.getKind() != null) {
                         journalHeader.setKind(JournalKind.fromCode(request.getKind()));
