@@ -21,6 +21,8 @@ public class JournalResponse {
     private Integer currencyId;
     private BigDecimal currencyValue;
     private Boolean isPosted;
-    private Byte parentType;
+    private Integer parentType;
+    private Integer parentId;
+    private String kind;
     private List<JournalItemResponse> journalItems;
 }

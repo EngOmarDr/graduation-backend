@@ -1,5 +1,7 @@
 package com.graduationProject._thYear.InvoiceType.services;
 
+import com.graduationProject._thYear.Account.models.Account;
+import com.graduationProject._thYear.Account.repositories.AccountRepository;
 import com.graduationProject._thYear.Currency.models.Currency;
 import com.graduationProject._thYear.Currency.repositories.CurrencyRepository;
 import com.graduationProject._thYear.InvoiceType.dtos.requests.CreateInvoiceTypeRequest;
@@ -27,6 +29,7 @@ public class InvoiceTypeServiceImpl implements InvoiceTypeService{
     private final PriceRepository priceRepository;
     private final WarehouseRepository warehouseRepository;
     private final CurrencyRepository currencyRepository;
+    private final AccountRepository accountRepository;
 
 
     @Override
@@ -89,12 +92,12 @@ public class InvoiceTypeServiceImpl implements InvoiceTypeService{
                 .isNoPost(dto.getIsNoPost())
                 .isAutoPost(dto.getIsAutoPost())
                 .defaultWarehouseId(findWarehouse(dto.getDefaultWarehouseId()))
-                .defaultBillAccId(dto.getDefaultBillAccId())
-                .defaultCashAccId(dto.getDefaultCashAccId())
-                .defaultDiscAccId(dto.getDefaultDiscAccId())
-                .defaultExtraAccId(dto.getDefaultExtraAccId())
-                .defaultCostAccId(dto.getDefaultCostAccId())
-                .defaultStockAccId(dto.getDefaultStockAccId())
+                .defaultBillAccId(findAccount(dto.getDefaultBillAccId()))
+                .defaultCashAccId(findAccount(dto.getDefaultCashAccId()))
+                .defaultDiscAccId(findAccount(dto.getDefaultDiscAccId()))
+                .defaultExtraAccId(findAccount(dto.getDefaultExtraAccId()))
+                .defaultCostAccId(findAccount(dto.getDefaultCostAccId()))
+                .defaultStockAccId(findAccount(dto.getDefaultStockAccId()))
                 .isShortEntry(dto.getIsShortEntry())
                 .isCashBill(dto.getIsCashBill())
                 .printAfterInsert(dto.getPrintAfterInsert())
@@ -119,12 +122,12 @@ public class InvoiceTypeServiceImpl implements InvoiceTypeService{
         if (dto.getIsNoPost() != null) entity.setIsNoPost(dto.getIsNoPost());
         if (dto.getIsAutoPost() != null) entity.setIsAutoPost(dto.getIsAutoPost());
         if (dto.getDefaultWarehouseId() != null) entity.setDefaultWarehouseId(findWarehouse(dto.getDefaultWarehouseId()));
-        if (dto.getDefaultBillAccId() != null) entity.setDefaultBillAccId(dto.getDefaultBillAccId());
-        if (dto.getDefaultCashAccId() != null) entity.setDefaultCashAccId(dto.getDefaultCashAccId());
-        if (dto.getDefaultDiscAccId() != null) entity.setDefaultDiscAccId(dto.getDefaultDiscAccId());
-        if (dto.getDefaultExtraAccId() != null) entity.setDefaultExtraAccId(dto.getDefaultExtraAccId());
-        if (dto.getDefaultCostAccId() != null) entity.setDefaultCostAccId(dto.getDefaultCostAccId());
-        if (dto.getDefaultStockAccId() != null) entity.setDefaultStockAccId(dto.getDefaultStockAccId());
+        if (dto.getDefaultBillAccId() != null) entity.setDefaultBillAccId(findAccount(dto.getDefaultBillAccId()));
+        if (dto.getDefaultCashAccId() != null) entity.setDefaultCashAccId(findAccount(dto.getDefaultCashAccId()));
+        if (dto.getDefaultDiscAccId() != null) entity.setDefaultDiscAccId(findAccount(dto.getDefaultDiscAccId()));
+        if (dto.getDefaultExtraAccId() != null) entity.setDefaultExtraAccId(findAccount(dto.getDefaultExtraAccId()));
+        if (dto.getDefaultCostAccId() != null) entity.setDefaultCostAccId(findAccount(dto.getDefaultCostAccId()));
+        if (dto.getDefaultStockAccId() != null) entity.setDefaultStockAccId(findAccount(dto.getDefaultStockAccId()));
         if (dto.getIsShortEntry() != null) entity.setIsShortEntry(dto.getIsShortEntry());
         if (dto.getIsCashBill() != null) entity.setIsCashBill(dto.getIsCashBill());
         if (dto.getPrintAfterInsert() != null) entity.setPrintAfterInsert(dto.getPrintAfterInsert());
@@ -152,12 +155,12 @@ public class InvoiceTypeServiceImpl implements InvoiceTypeService{
                 .isNoPost(entity.getIsNoPost())
                 .isAutoPost(entity.getIsAutoPost())
                 .defaultWarehouseId(entity.getDefaultWarehouseId() != null ? entity.getDefaultWarehouseId().getId() : null)
-                .defaultBillAccId(entity.getDefaultBillAccId())
-                .defaultCashAccId(entity.getDefaultCashAccId())
-                .defaultDiscAccId(entity.getDefaultDiscAccId())
-                .defaultExtraAccId(entity.getDefaultExtraAccId())
-                .defaultCostAccId(entity.getDefaultCostAccId())
-                .defaultStockAccId(entity.getDefaultStockAccId())
+                .defaultBillAccId(entity.getDefaultBillAccId() != null ? entity.getDefaultBillAccId().getId() : null)
+                .defaultCashAccId(entity.getDefaultCashAccId() != null ? entity.getDefaultCashAccId().getId() : null )
+                .defaultDiscAccId(entity.getDefaultDiscAccId() != null ? entity.getDefaultDiscAccId().getId() : null)
+                .defaultExtraAccId(entity.getDefaultExtraAccId() != null ? entity.getDefaultExtraAccId().getId() : null)
+                .defaultCostAccId(entity.getDefaultCostAccId() != null ? entity.getDefaultCostAccId().getId() : null)
+                .defaultStockAccId(entity.getDefaultStockAccId() != null ? entity.getDefaultStockAccId().getId() : null)
                 .isShortEntry(entity.getIsShortEntry())
                 .isCashBill(entity.getIsCashBill())
                 .printAfterInsert(entity.getPrintAfterInsert())
@@ -179,6 +182,10 @@ public class InvoiceTypeServiceImpl implements InvoiceTypeService{
     private Currency findCurrency(Integer id) {
         return currencyRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Currency not found: " + id));
+    }
+    private Account findAccount(Integer id) {
+        return accountRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Account not found: " + id));
     }
 
 }

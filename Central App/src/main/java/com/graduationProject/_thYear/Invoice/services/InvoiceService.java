@@ -13,6 +13,11 @@ import com.graduationProject._thYear.Invoice.models.*;
 import com.graduationProject._thYear.Invoice.repositories.*;
 import com.graduationProject._thYear.InvoiceType.models.InvoiceType;
 import com.graduationProject._thYear.InvoiceType.models.Type;
+import com.graduationProject._thYear.Journal.models.JournalHeader;
+import com.graduationProject._thYear.Journal.models.JournalItem;
+import com.graduationProject._thYear.Journal.models.JournalKind;
+import com.graduationProject._thYear.Journal.repositories.JournalHeaderRepository;
+import com.graduationProject._thYear.Journal.repositories.JournalItemRepository;
 import com.graduationProject._thYear.Product.models.Product;
 import com.graduationProject._thYear.Product.repositories.ProductRepository;
 import com.graduationProject._thYear.ProductStock.models.ProductStock;
@@ -53,6 +58,8 @@ public class InvoiceService {
     private final CurrencyRepository currencyRepo;
     private final AccountRepository accountRepository;
     private final ProductStockService stockService;
+    private final JournalHeaderRepository journalHeaderRepository;
+    private final JournalItemRepository journalItemRepository;
 
     @Transactional
     public InvoiceResponse create(CreateInvoiceRequest req) {
@@ -137,13 +144,13 @@ public class InvoiceService {
         }
 
         if (invoiceType.getIsAutoEntry() != null && invoiceType.getIsAutoEntry()) {
+            JournalHeader journal = generateJournalFromInvoice(saved);
+            journalHeaderRepository.save(journal);
+
             if (Boolean.TRUE.equals(invoiceType.getIsAutoEntryPost())) {
-                // TODO: Generate Journal Entry + Post automatically
-            } else {
-                // TODO: Generate Journal Entry only (without posting)
+                journal.setIsPosted(true);
+                journalHeaderRepository.save(journal);
             }
-        } else {
-            // TODO: No automatic journal entry generation
         }
 
         return toResponse(saved);
@@ -478,5 +485,104 @@ public class InvoiceService {
                 .notes(d.getNotes())
                 .build();
     }
+
+
+    private JournalHeader generateJournalFromInvoice(InvoiceHeader invoice) {
+        InvoiceType invoiceType = invoice.getInvoiceType();
+
+        BigDecimal total = invoice.getTotal();
+        BigDecimal totalDisc = invoice.getTotalDisc();
+        BigDecimal totalExtra = invoice.getTotalExtra();
+
+        Account cashAccount = invoice.getAccount();
+        Account billAccount = invoiceType.getDefaultBillAccId();
+
+        Optional<InvoiceDiscount> anyDiscount = invoice.getInvoiceDiscounts().stream()
+                .filter(d -> d.getDiscount().compareTo(BigDecimal.ZERO) > 0).findFirst();
+        Optional<InvoiceDiscount> anyExtra = invoice.getInvoiceDiscounts().stream()
+                .filter(d -> d.getExtra().compareTo(BigDecimal.ZERO) > 0).findFirst();
+
+        Account discountAccount = anyDiscount.map(InvoiceDiscount::getAccount).orElse(null);
+        Account extraAccount = anyExtra.map(InvoiceDiscount::getAccount).orElse(null);
+
+        boolean isStockIn = invoiceType.isStockIn();
+        boolean isStockOut = invoiceType.isStockOut();
+
+        //  cash account (essential)
+        BigDecimal cashValue = total.add(totalExtra).subtract(totalDisc);
+        JournalItem cashItem = JournalItem.builder()
+                .account(cashAccount)
+                .debit(isStockOut ? cashValue : BigDecimal.ZERO)
+                .credit(isStockIn ? cashValue : BigDecimal.ZERO)
+                .currency(invoice.getCurrency())
+                .currencyValue(invoice.getCurrencyValue())
+                .date(invoice.getDate())
+                .build();
+
+        //  discount account (optional)
+        JournalItem discountItem = null;
+        if (totalDisc.compareTo(BigDecimal.ZERO) > 0 && discountAccount != null) {
+            discountItem = JournalItem.builder()
+                    .account(discountAccount)
+                    .debit(isStockOut ? totalDisc : BigDecimal.ZERO)
+                    .credit(isStockIn ? totalDisc : BigDecimal.ZERO)
+                    .currency(invoice.getCurrency())
+                    .currencyValue(invoice.getCurrencyValue())
+                    .date(invoice.getDate())
+                    .build();
+        }
+
+        //  extra account (optional)
+        JournalItem extraItem = null;
+        if (totalExtra.compareTo(BigDecimal.ZERO) > 0 && extraAccount != null) {
+            extraItem = JournalItem.builder()
+                    .account(extraAccount)
+                    .debit(isStockIn ? totalExtra : BigDecimal.ZERO)
+                    .credit(isStockOut ? totalExtra : BigDecimal.ZERO)
+                    .currency(invoice.getCurrency())
+                    .currencyValue(invoice.getCurrencyValue())
+                    .date(invoice.getDate())
+                    .build();
+        }
+
+        //  bill account (essential)
+        JournalItem billItem = JournalItem.builder()
+                .account(billAccount)
+                .debit(isStockIn ? total : BigDecimal.ZERO)
+                .credit(isStockOut ? total : BigDecimal.ZERO)
+                .currency(invoice.getCurrency())
+                .currencyValue(invoice.getCurrencyValue())
+                .date(invoice.getDate())
+                .build();
+
+        JournalHeader header = JournalHeader.builder()
+                .warehouse(invoice.getWarehouse())
+                .currency(invoice.getCurrency())
+                .currencyValue(invoice.getCurrencyValue())
+                .date(invoice.getDate())
+                .kind(JournalKind.INVOICE)
+                .parentId(invoice.getId())
+                .parentType(invoiceType.getId())
+                .isPosted(Boolean.TRUE.equals(invoice.getIsPosted()))
+                .build();
+
+        header.addJournalItem(cashItem);
+        if (discountItem != null) header.addJournalItem(discountItem);
+        if (extraItem != null) header.addJournalItem(extraItem);
+        header.addJournalItem(billItem);
+
+        BigDecimal totalDebit = header.getJournalItems().stream()
+                .map(JournalItem::getDebit)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal totalCredit = header.getJournalItems().stream()
+                .map(JournalItem::getCredit)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        header.setDebit(totalDebit);
+        header.setCredit(totalCredit);
+
+        return header;
+    }
+
+
 
 }

@@ -1,5 +1,6 @@
 package com.graduationProject._thYear.InvoiceType.models;
 
+import com.graduationProject._thYear.Account.models.Account;
 import com.graduationProject._thYear.Currency.models.Currency;
 import com.graduationProject._thYear.Product.models.Price;
 import com.graduationProject._thYear.Warehouse.models.Warehouse;
@@ -76,23 +77,29 @@ public class InvoiceType {
     @JoinColumn(name = "defaultWarehouseId")
     private Warehouse defaultWarehouseId;
 
-    @Column(name = "defaultBillAccId")
-    private Integer defaultBillAccId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "defaultBillAccId")
+    private Account defaultBillAccId;
 
-    @Column(name = "defaultCashAccId")
-    private Integer defaultCashAccId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "defaultCashAccId")
+    private Account defaultCashAccId;
 
-    @Column(name = "defaultDiscAccId")
-    private Integer defaultDiscAccId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "defaultDiscAccId")
+    private Account defaultDiscAccId;
 
-    @Column(name = "defaultExtraAccId")
-    private Integer defaultExtraAccId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "defaultExtraAccId")
+    private Account defaultExtraAccId;
 
-    @Column(name = "defaultCostAccId")
-    private Integer defaultCostAccId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "defaultCostAccId")
+    private Account defaultCostAccId;
 
-    @Column(name = "defaultStockAccId")
-    private Integer defaultStockAccId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "defaultStockAccId")
+    private Account defaultStockAccId;
 
     @Column(name = "isShortEntry")
     private Boolean isShortEntry;
