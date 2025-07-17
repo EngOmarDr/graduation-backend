@@ -13,6 +13,11 @@ import com.graduationProject._thYear.Invoice.models.*;
 import com.graduationProject._thYear.Invoice.repositories.*;
 import com.graduationProject._thYear.InvoiceType.models.InvoiceType;
 import com.graduationProject._thYear.InvoiceType.models.Type;
+import com.graduationProject._thYear.Journal.models.JournalHeader;
+import com.graduationProject._thYear.Journal.models.JournalItem;
+import com.graduationProject._thYear.Journal.models.JournalKind;
+import com.graduationProject._thYear.Journal.repositories.JournalHeaderRepository;
+import com.graduationProject._thYear.Journal.repositories.JournalItemRepository;
 import com.graduationProject._thYear.Product.models.Product;
 import com.graduationProject._thYear.Product.repositories.ProductRepository;
 import com.graduationProject._thYear.ProductStock.models.ProductStock;
@@ -53,6 +58,8 @@ public class InvoiceService {
     private final CurrencyRepository currencyRepo;
     private final AccountRepository accountRepository;
     private final ProductStockService stockService;
+    private final JournalHeaderRepository journalHeaderRepository;
+    private final JournalItemRepository journalItemRepository;
 
     @Transactional
     public InvoiceResponse create(CreateInvoiceRequest req) {
@@ -131,6 +138,21 @@ public class InvoiceService {
             adjustStock(items, warehouse.getId(), type, false);
         }
 
+
+        if (invoiceType.getIsNoEntry() != null && invoiceType.getIsNoEntry()) {
+            return toResponse(saved);
+        }
+
+        if (invoiceType.getIsAutoEntry() != null && invoiceType.getIsAutoEntry()) {
+            JournalHeader journal = generateJournalFromInvoice(saved);
+            journalHeaderRepository.save(journal);
+
+            if (Boolean.TRUE.equals(invoiceType.getIsAutoEntryPost())) {
+                journal.setIsPosted(true);
+                journalHeaderRepository.save(journal);
+            }
+        }
+
         return toResponse(saved);
     }
 
@@ -148,12 +170,24 @@ public class InvoiceService {
     public InvoiceResponse update(Integer id, UpdateInvoiceRequest req) {
         InvoiceHeader invoice = headerRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Invoice not found"));
-
         boolean wasPosted = invoice.getIsPosted();
 
         if (Boolean.TRUE.equals(wasPosted)) {
             throw new RuntimeException("Invoice is posted. Cannot update.");
         }
+
+        Optional<JournalHeader> existingJournalOpt = journalHeaderRepository.findByKindAndParentId(JournalKind.INVOICE, invoice.getId());
+
+        if (existingJournalOpt.isPresent()) {
+            JournalHeader journal = existingJournalOpt.get();
+
+            if (Boolean.TRUE.equals(journal.getIsPosted())) {
+                throw new IllegalStateException("Cannot update invoice because its journal is already posted");
+            }
+
+            journalHeaderRepository.delete(journal);
+        }
+
 
         List<InvoiceItem> oldItems = new ArrayList<>(invoice.getInvoiceItems());
         InvoiceType oldType = invoice.getInvoiceType();
@@ -242,6 +276,19 @@ public class InvoiceService {
 
         if (updated.getIsPosted()) adjustStock(updated.getInvoiceItems(), updated.getWarehouse().getId(), updated.getInvoiceType(), false);
 
+        if (invoice.getInvoiceType().getIsNoEntry() != null && invoice.getInvoiceType().getIsNoEntry()) {
+            return toResponse(updated);
+        }
+
+        if (invoice.getInvoiceType().getIsAutoEntry() != null && invoice.getInvoiceType().getIsAutoEntry()) {
+            JournalHeader newJournal = generateJournalFromInvoice(invoice);
+
+            if (Boolean.TRUE.equals(invoice.getInvoiceType().getIsAutoEntryPost())) {
+                newJournal.setIsPosted(true);
+            }
+
+            journalHeaderRepository.save(newJournal);
+        }
 
         return toResponse(updated);
     }
@@ -252,6 +299,19 @@ public class InvoiceService {
         if (invoice.getIsPosted()) {
             adjustStock(invoice.getInvoiceItems(), invoice.getWarehouse().getId(), invoice.getInvoiceType(), true);
         }
+
+        Optional<JournalHeader> existingJournalOpt = journalHeaderRepository.findByKindAndParentId(JournalKind.INVOICE, invoice.getId());
+
+        if (existingJournalOpt.isPresent()) {
+            JournalHeader journal = existingJournalOpt.get();
+
+            if (Boolean.TRUE.equals(journal.getIsPosted())) {
+                throw new IllegalStateException("Cannot delete invoice because its journal is already posted");
+            }
+
+            journalHeaderRepository.delete(journal);
+        }
+
 
         headerRepo.delete(invoice);
     }
@@ -463,5 +523,111 @@ public class InvoiceService {
                 .notes(d.getNotes())
                 .build();
     }
+
+
+    private JournalHeader generateJournalFromInvoice(InvoiceHeader invoice) {
+        InvoiceType invoiceType = invoice.getInvoiceType();
+
+        BigDecimal total = invoice.getTotal();
+        BigDecimal totalDisc = invoice.getTotalDisc();
+        BigDecimal totalExtra = invoice.getTotalExtra();
+
+        Account cashAccount = invoice.getAccount();
+        Account billAccount = invoiceType.getDefaultBillAccId();
+
+        Optional<InvoiceDiscount> anyDiscount = invoice.getInvoiceDiscounts().stream()
+                .filter(d -> d.getDiscount().compareTo(BigDecimal.ZERO) > 0).findFirst();
+        Optional<InvoiceDiscount> anyExtra = invoice.getInvoiceDiscounts().stream()
+                .filter(d -> d.getExtra().compareTo(BigDecimal.ZERO) > 0).findFirst();
+
+        Account discountAccount = anyDiscount.map(InvoiceDiscount::getAccount).orElse(null);
+        Account extraAccount = anyExtra.map(InvoiceDiscount::getAccount).orElse(null);
+
+        boolean isStockIn = invoiceType.isStockIn();
+        boolean isStockOut = invoiceType.isStockOut();
+
+        //  cash account (essential)
+        BigDecimal cashValue = total.add(totalExtra).subtract(totalDisc);
+        JournalItem cashItem = JournalItem.builder()
+                .account(cashAccount)
+                .debit(isStockOut ? cashValue : BigDecimal.ZERO)
+                .credit(isStockIn ? cashValue : BigDecimal.ZERO)
+                .currency(invoice.getCurrency())
+                .currencyValue(invoice.getCurrencyValue())
+                .date(invoice.getDate())
+                .build();
+
+        //  discount account (optional)
+        JournalItem discountItem = null;
+        if (totalDisc.compareTo(BigDecimal.ZERO) > 0 && discountAccount != null) {
+            discountItem = JournalItem.builder()
+                    .account(discountAccount)
+                    .debit(isStockOut ? totalDisc : BigDecimal.ZERO)
+                    .credit(isStockIn ? totalDisc : BigDecimal.ZERO)
+                    .currency(invoice.getCurrency())
+                    .currencyValue(invoice.getCurrencyValue())
+                    .date(invoice.getDate())
+                    .build();
+        }
+
+        //  extra account (optional)
+        JournalItem extraItem = null;
+        if (totalExtra.compareTo(BigDecimal.ZERO) > 0 && extraAccount != null) {
+            extraItem = JournalItem.builder()
+                    .account(extraAccount)
+                    .debit(isStockIn ? totalExtra : BigDecimal.ZERO)
+                    .credit(isStockOut ? totalExtra : BigDecimal.ZERO)
+                    .currency(invoice.getCurrency())
+                    .currencyValue(invoice.getCurrencyValue())
+                    .date(invoice.getDate())
+                    .build();
+        }
+
+        //  bill account (essential)
+        JournalItem billItem = JournalItem.builder()
+                .account(billAccount)
+                .debit(isStockIn ? total : BigDecimal.ZERO)
+                .credit(isStockOut ? total : BigDecimal.ZERO)
+                .currency(invoice.getCurrency())
+                .currencyValue(invoice.getCurrencyValue())
+                .date(invoice.getDate())
+                .build();
+
+        JournalHeader header = JournalHeader.builder()
+                .warehouse(invoice.getWarehouse())
+                .currency(invoice.getCurrency())
+                .currencyValue(invoice.getCurrencyValue())
+                .date(invoice.getDate())
+                .kind(JournalKind.INVOICE)
+                .parentId(invoice.getId())
+                .parentType(invoiceType.getId())
+                .isPosted(Boolean.TRUE.equals(invoice.getIsPosted()))
+                .build();
+
+        header.addJournalItem(cashItem);
+        if (discountItem != null) header.addJournalItem(discountItem);
+        if (extraItem != null) header.addJournalItem(extraItem);
+        header.addJournalItem(billItem);
+
+        BigDecimal totalDebit = header.getJournalItems().stream()
+                .map(JournalItem::getDebit)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal totalCredit = header.getJournalItems().stream()
+                .map(JournalItem::getCredit)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+
+        if (totalDebit.compareTo(totalCredit) != 0) {
+            throw new IllegalStateException("Journal entry is unbalanced! Debit: " + totalDebit + " ≠ Credit: " + totalCredit);
+        }
+
+
+        header.setDebit(totalDebit);
+        header.setCredit(totalCredit);
+
+        return header;
+    }
+
+
 
 }

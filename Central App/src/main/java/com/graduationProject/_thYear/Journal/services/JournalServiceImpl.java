@@ -427,7 +427,8 @@ public class JournalServiceImpl implements JournalService {
                         .currencyValue(journalHeader.getCurrencyValue())
                         .isPosted(journalHeader.getIsPosted())
                         .parentType(journalHeader.getParentType())
-                 //       .parentId(journalHeader.getParentId())  // Uncomment if using parentId
+                        .parentId(journalHeader.getParentId())
+                        .kind(journalHeader.getKind().name())// Uncomment if using parentId
                         .journalItems(journalHeader.getJournalItems().stream()
                                 .map(this::mapToJournalItemResponse)
                                 .collect(Collectors.toList()))
@@ -438,6 +439,7 @@ public class JournalServiceImpl implements JournalService {
                 return JournalItemResponse.builder()
                         .id(journalItem.getId())
                         .accountId(journalItem.getAccount().getId())
+                        .accountName(journalItem.getAccount().getName())
                         .debit(journalItem.getDebit())
                         .credit(journalItem.getCredit())
                         .currencyId(journalItem.getCurrency().getId())

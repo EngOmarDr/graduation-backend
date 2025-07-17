@@ -59,8 +59,15 @@ public class JournalHeader {
     private BigDecimal currencyValue;
 
     @Column(name = "parentType")
-    private Byte parentType;
+    private Integer parentType;
 
+    @Convert(converter = JournalKindConverter.class)
+    @Column(name = "kind")
+    private JournalKind kind;
+
+
+    @Column(name = "parentId")
+    private Integer parentId;
 //    @Column(name = "parentId")
 //    private Integer parentId;
 

@@ -22,7 +22,7 @@ public class UpdateJournalRequest {
 
     private BigDecimal currencyValue;
 
-    private Byte parentType;
+    private Integer parentType;
     private Integer parentId;
 
     @Builder.Default
