@@ -4,6 +4,7 @@ package com.graduationProject._thYear.Warehouse.controllers;
 import com.graduationProject._thYear.Warehouse.dtos.requests.CreateWarehouseRequest;
 import com.graduationProject._thYear.Warehouse.dtos.requests.UpdateWarehouseRequest;
 import com.graduationProject._thYear.Warehouse.dtos.responses.WarehouseResponse;
+import com.graduationProject._thYear.Warehouse.dtos.responses.WarehouseStockResponse;
 import com.graduationProject._thYear.Warehouse.dtos.responses.WarehouseTreeResponse;
 import com.graduationProject._thYear.Warehouse.services.WarehouseService;
 import jakarta.validation.Valid;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.LinkedList;
 import java.util.List;
 @RestController
 @RequestMapping("/api/warehouses")
@@ -64,5 +66,15 @@ public class WarehouseController {
     public ResponseEntity<List<WarehouseResponse>> searchWarehouse(@RequestParam String q) {
         var responses = warehouseService.searchWarehouse(q);
         return ResponseEntity.ok(responses);
+    }
+
+    @GetMapping("/{id}/stock")
+    public WarehouseStockResponse getStock(
+        @PathVariable Integer id,
+        @RequestParam(required = false) Integer productId,
+        @RequestParam(required = false) Integer groupId
+    ) {
+        var response = warehouseService.getStock(id, productId, groupId);
+        return response;
     }
 }

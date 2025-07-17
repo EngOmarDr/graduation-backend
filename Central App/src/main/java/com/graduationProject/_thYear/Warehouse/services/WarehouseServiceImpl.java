@@ -5,12 +5,15 @@ import com.graduationProject._thYear.Branch.repositories.BranchRepository;
 import com.graduationProject._thYear.Warehouse.dtos.requests.CreateWarehouseRequest;
 import com.graduationProject._thYear.Warehouse.dtos.requests.UpdateWarehouseRequest;
 import com.graduationProject._thYear.Warehouse.dtos.responses.WarehouseResponse;
+import com.graduationProject._thYear.Warehouse.dtos.responses.WarehouseStockResponse;
 import com.graduationProject._thYear.Warehouse.dtos.responses.WarehouseTreeResponse;
+import com.graduationProject._thYear.Warehouse.dtos.responses.WarehouseStockResponse.WarehouseStockItem;
 import com.graduationProject._thYear.Warehouse.models.Warehouse;
 import com.graduationProject._thYear.Warehouse.models.WarehouseType;
 import com.graduationProject._thYear.Warehouse.repositories.WarehouseRepository;
 import com.graduationProject._thYear.exceptionHandler.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.Tuple;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -174,6 +177,24 @@ public class WarehouseServiceImpl implements WarehouseService{
         return warehouseRepository.searchByNameOrCode(searchTerm).stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
+    }
+
+    
+    public WarehouseStockResponse getStock(Integer warehouseId, Integer productId, Integer groupId){
+        Warehouse warehouse = warehouseRepository.findById(warehouseId)
+            .orElseThrow(() -> new ResourceNotFoundException("Warehouse with id "+ warehouseId +" not found."));
+
+        List<WarehouseStockItem> items = warehouseRepository.getStock(warehouseId, productId, groupId).stream()
+            .map((Tuple item) -> WarehouseStockItem.fromTuple(item))
+            .collect(Collectors.toList());
+
+        WarehouseStockResponse response =  WarehouseStockResponse.builder()
+            .warehouseId(warehouse.getId())
+            .warehouseName(warehouse.getName())
+            .items(items)
+            .build();
+            
+        return response;
     }
 
     private WarehouseResponse mapToDTO(Warehouse warehouse) {

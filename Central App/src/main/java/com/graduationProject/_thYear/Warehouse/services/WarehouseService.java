@@ -3,6 +3,7 @@ package com.graduationProject._thYear.Warehouse.services;
 import com.graduationProject._thYear.Warehouse.dtos.requests.CreateWarehouseRequest;
 import com.graduationProject._thYear.Warehouse.dtos.requests.UpdateWarehouseRequest;
 import com.graduationProject._thYear.Warehouse.dtos.responses.WarehouseResponse;
+import com.graduationProject._thYear.Warehouse.dtos.responses.WarehouseStockResponse;
 import com.graduationProject._thYear.Warehouse.dtos.responses.WarehouseTreeResponse;
 
 import java.util.List;
@@ -18,5 +19,7 @@ public interface WarehouseService {
     List<WarehouseResponse> getChildWarehouses(Integer parentId);
 
     List<WarehouseResponse> searchWarehouse(String searchTerm);
+
+    WarehouseStockResponse getStock(Integer warehouseId, Integer productId, Integer groupId);
 
 }

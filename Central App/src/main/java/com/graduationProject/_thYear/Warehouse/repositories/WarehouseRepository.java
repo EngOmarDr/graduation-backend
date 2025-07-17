@@ -1,7 +1,9 @@
 package com.graduationProject._thYear.Warehouse.repositories;
 
-import com.graduationProject._thYear.Group.models.Group;
 import com.graduationProject._thYear.Warehouse.models.Warehouse;
+
+import jakarta.persistence.Tuple;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -23,4 +25,18 @@ public interface  WarehouseRepository extends JpaRepository<Warehouse, Integer> 
 
     @Query("SELECT w FROM Warehouse w WHERE LOWER(w.name) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR LOWER(w.code) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
     List<Warehouse> searchByNameOrCode(@Param("searchTerm") String searchTerm);
+
+    @Query(
+        "SELECT it.product.id as product_id, it.product.name as product_name, " + 
+        "SUM(CASE WHEN ty.type IN ('buy','retrieve_sell','ouput') THEN it.qty ELSE 0 END) - SUM(CASE WHEN ty.type IN ('sell','retrieve_buy','ouput') THEN it.qty ELSE 0 END) as quantity " +
+        "FROM Warehouse wh " +
+        "JOIN InvoiceHeader ih ON wh.id = ih.warehouse.id " +
+        "JOIN ih.invoiceItems it  " + 
+        "JOIN ih.invoiceType ty " +
+        "WHERE wh.id = :warehouseId " +
+        "AND (:productId IS NULL OR it.product.id = (:productId)) " +
+        "AND (:groupId IS NULL OR it.product.groupId.id = (:groupId)) " +
+        "GROUP BY it.product"
+    )
+    List<Tuple> getStock(Integer warehouseId, Integer productId, Integer groupId);
 }

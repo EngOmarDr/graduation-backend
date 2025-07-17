@@ -14,12 +14,12 @@ import org.springframework.data.jpa.repository.Query;
 public interface InvoiceHeaderRepository extends JpaRepository<InvoiceHeader,Integer> {
     boolean existsByIdAndIsPosted(Integer id, Boolean isPosted);
 
-   @Query(value="SELECT MAX(CASE WHEN ty.type IN ('buy','retrieve_sale','input') THEN item.price * item.qty ELSE 0 END) as max_buy, " +
-       "MIN(CASE WHEN ty.type IN ('buy','retrieve_sale','input') THEN item.price * item.qty ELSE 0 END) as min_buy, " +
-       "SUM(CASE WHEN ty.type IN ('buy','retrieve_sale','input') THEN item.price * item.qty ELSE 0 END) / SUM(CASE WHEN ty.type IN ('buy','retrieve_sale','input') THEN  item.qty ELSE 0 END)  as avg_buy, " +
-       "MAX(CASE WHEN ty.type IN ('sell','retrieve_buy','output') THEN item.price * item.qty ELSE 0 END) as max_sell, " +
-       "MIN(CASE WHEN ty.type IN ('sell','retrieve_buy','output') THEN item.price * item.qty ELSE 0 END) as min_sell, " +
-       "SUM(CASE WHEN ty.type IN ('sell','retrieve_buy','output') THEN item.price * item.qty ELSE 0 END) / SUM(CASE WHEN ty.type IN ('sell','retrieve_buy','output') THEN  item.qty ELSE 0 END) as avg_sell, " +
+   @Query(value="SELECT MAX(CASE WHEN ty.type IN ('buy') THEN item.price * item.qty ELSE 0 END) as max_buy, " +
+       "MIN(CASE WHEN ty.type IN ('buy') THEN item.price * item.qty ELSE 0 END) as min_buy, " +
+       "SUM(CASE WHEN ty.type IN ('buy') THEN item.price * item.qty ELSE 0 END) / SUM(CASE WHEN ty.type IN ('buy') THEN  item.qty ELSE 0 END)  as avg_buy, " +
+       "MAX(CASE WHEN ty.type IN ('sale') THEN item.price * item.qty ELSE 0 END) as max_sell, " +
+       "MIN(CASE WHEN ty.type IN ('sale') THEN item.price * item.qty ELSE 0 END) as min_sell, " +
+       "SUM(CASE WHEN ty.type IN ('sale') THEN item.price * item.qty ELSE 0 END) / SUM(CASE WHEN ty.type IN ('sale') THEN  item.qty ELSE 0 END) as avg_sell, " +
        "item.product.id as product_id, " +
        "item.product.name as product_name, " +
        ":startDate as start_date, " +
@@ -79,8 +79,8 @@ public interface InvoiceHeaderRepository extends JpaRepository<InvoiceHeader,Int
 
 
     @Query(value="SELECT  item.product.id as product_id, item.product.name as product_name, ih.warehouse.id as warehouse_id, item.unitItem.id as unit_id, item.unitItem.name unit_name, " +
-       "SUM(CASE WHEN ty.type IN ('sell','retrieve_buy','ouput') THEN item.qty ELSE 0 END) - SUM(CASE WHEN ty.type IN ('buy','retrieve_sale','ouput') THEN item.qty ELSE 0 END)  as total_quantity, " +
-       "SUM(CASE WHEN ty.type IN ('sell','retrieve_buy','ouput') THEN item.qty * item.price ELSE 0 END) - SUM(CASE WHEN ty.type IN ('buy','retrieve_sale','ouput') THEN item.qty * item.price ELSE 0 END) as total_price " +
+       "SUM(CASE WHEN ty.type IN ('buy','retrieve_sale','input') THEN item.qty ELSE 0 END) - SUM(CASE WHEN ty.type IN ('sale','retrieve_buy','ouput') THEN item.qty ELSE 0 END)  as total_quantity, " +
+       "SUM(CASE WHEN ty.type IN ('buy','retrieve_sale','input') THEN item.qty * item.price ELSE 0 END) - SUM(CASE WHEN ty.type IN ('sale','retrieve_buy','ouput') THEN item.qty * item.price ELSE 0 END) as total_price " +
        "FROM InvoiceHeader ih " +
        "JOIN ih.invoiceItems item " +
        "JOIN ih.invoiceType ty " +
@@ -100,8 +100,8 @@ public interface InvoiceHeaderRepository extends JpaRepository<InvoiceHeader,Int
        "COALESCE(SUM(total_price),0)  as total_price, " +
        "COALESCE(SUM(total_quantity),0)  as total_quantity " +
        "FROM (" + "SELECT  item.product.id as product_id, item.product.name as product_name, ih.warehouse.id as warehouse_id, item.unitItem.id as unit_id, item.unitItem.name unit_name, " +
-       "SUM(CASE WHEN ty.type IN ('sell','retrieve_buy','ouput') THEN item.qty ELSE 0 END) - SUM(CASE WHEN ty.type IN ('buy','retrieve_sale','ouput') THEN item.qty ELSE 0 END)  as total_quantity, " +
-       "SUM(CASE WHEN ty.type IN ('sell','retrieve_buy','ouput') THEN item.qty * item.price ELSE 0 END) - SUM(CASE WHEN ty.type IN ('buy','retrieve_sale','ouput') THEN item.qty * item.price ELSE 0 END) as total_price " +
+       "SUM(CASE WHEN ty.type IN ('buy','retrieve_sale','input') THEN item.qty ELSE 0 END) - SUM(CASE WHEN ty.type IN ('sale','retrieve_buy','ouput') THEN item.qty ELSE 0 END)  as total_quantity, " +
+       "SUM(CASE WHEN ty.type IN ('buy','retrieve_sale','input') THEN item.qty * item.price ELSE 0 END) - SUM(CASE WHEN ty.type IN ('sale','retrieve_buy','ouput') THEN item.qty * item.price ELSE 0 END) as total_price " +
        "FROM InvoiceHeader ih " +
        "JOIN ih.invoiceItems item " +
        "JOIN ih.invoiceType ty " +
