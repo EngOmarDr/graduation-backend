@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.graduationProject._thYear.Journal.models.JournalKind;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
@@ -22,7 +23,7 @@ public class UpdateJournalRequest {
     private Integer currencyId;
     @PositiveOrZero(message = "currencyValue must be zero or positive")
     private BigDecimal currencyValue;
-
+    private Integer kind;
     private Integer parentType;
     private Integer parentId;
 

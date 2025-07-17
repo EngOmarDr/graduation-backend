@@ -8,6 +8,7 @@ import com.graduationProject._thYear.Journal.dtos.response.*;
 import com.graduationProject._thYear.Journal.dtos.response.TrialBalanceReportResponse.BalanceEntry;
 import com.graduationProject._thYear.Journal.models.JournalHeader;
 import com.graduationProject._thYear.Journal.models.JournalItem;
+import com.graduationProject._thYear.Journal.models.JournalKind;
 import com.graduationProject._thYear.Journal.repositories.JournalHeaderRepository;
 import com.graduationProject._thYear.Journal.repositories.JournalItemRepository;
 import com.graduationProject._thYear.Account.repositories.AccountRepository;
@@ -115,6 +116,8 @@ public class JournalServiceImpl implements JournalService {
                         .currency(currency)
                         .currencyValue(request.getCurrencyValue())
                         .parentType(request.getParentType())
+                        .kind(JournalKind.fromCode(request.getKind()))
+                //        .parentId(request.getParentId())
                         .isPosted(request.getIsPosted())
                         .build();
 
@@ -214,9 +217,13 @@ public class JournalServiceImpl implements JournalService {
                         journalHeader.setParentType(request.getParentType());
                 }
 
-//                if (request.getParentId() != null) {
-//                        journalHeader.setParentId(request.getParentId());
-//                }
+                if (request.getParentId() != null) {
+                        journalHeader.setParentId(request.getParentId());
+                }
+
+                if (request.getKind() != null) {
+                        journalHeader.setKind(JournalKind.fromCode(request.getKind()));
+                }
 
                 if (request.getIsPosted() != null) {
                         journalHeader.setIsPosted(request.getIsPosted());
