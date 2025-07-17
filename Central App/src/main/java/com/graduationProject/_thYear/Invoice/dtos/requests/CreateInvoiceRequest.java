@@ -30,6 +30,7 @@ public class CreateInvoiceRequest {
     private Integer accountId;
     @NotNull(message = "currencyId is required")
     private Integer currencyId;
+
     @NotNull(message = "currencyValue is required")
     @Positive
     private BigDecimal currencyValue;

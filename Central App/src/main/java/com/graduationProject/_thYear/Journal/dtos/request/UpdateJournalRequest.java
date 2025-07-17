@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -19,7 +20,7 @@ public class UpdateJournalRequest {
     private LocalDateTime date;
 
     private Integer currencyId;
-
+    @PositiveOrZero(message = "currencyValue must be zero or positive")
     private BigDecimal currencyValue;
 
     private Integer parentType;

@@ -4,6 +4,7 @@ import com.graduationProject._thYear.Product.models.Product;
 import com.graduationProject._thYear.Unit.models.UnitItem;
 import com.graduationProject._thYear.Warehouse.models.Warehouse;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -42,5 +43,6 @@ public class ProductStock {
 
     @NotNull
     @Column(name = "quantity", nullable = false)
+    @DecimalMin(value = "0.0", inclusive = true, message = "Must be positive")
     private BigDecimal quantity;
 }

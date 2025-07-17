@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -24,6 +25,7 @@ public class CreateJournalRequest {
     private Integer currencyId;
 
     @NotNull(message = "Currency value is required")
+    @DecimalMin(value = "0.0", inclusive = true, message = "Price must be positive")
     private BigDecimal currencyValue;
 
     private Integer parentType;

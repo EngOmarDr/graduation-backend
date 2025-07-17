@@ -1,5 +1,6 @@
 package com.graduationProject._thYear.Product.dtos.request;
 
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,5 +20,6 @@ public class UpdateProductPriceRequest {
 
     private Integer unitItemId;
 
+    @DecimalMin(value = "0.0", inclusive = true, message = "price Must be positive")
     private Float price;
 }

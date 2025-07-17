@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.graduationProject._thYear.Unit.models.Unit;
 import com.graduationProject._thYear.Unit.models.UnitItem;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -43,6 +44,7 @@ public class ProductPrice {
 
     @NotNull
     @Column(name = "price" ,nullable = false)
+    @DecimalMin(value = "0.0", inclusive = true, message = "Must be positive")
     private Float price;
 
 }

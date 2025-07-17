@@ -18,9 +18,9 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 public class UpdateJournalItemRequest {
     private Integer accountId;
-
+    @PositiveOrZero(message = "Debit must be zero or positive")
     private BigDecimal debit;
-
+    @PositiveOrZero(message = "Credit must be zero or positive")
     private BigDecimal credit;
 
     private Integer currencyId;
