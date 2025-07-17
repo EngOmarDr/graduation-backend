@@ -14,12 +14,12 @@ import org.springframework.data.jpa.repository.Query;
 public interface InvoiceHeaderRepository extends JpaRepository<InvoiceHeader,Integer> {
     boolean existsByIdAndIsPosted(Integer id, Boolean isPosted);
 
-   @Query(value="SELECT MAX(CASE WHEN ty.type IN ('buy') THEN item.price * item.qty ELSE 0 END) as max_buy, " +
-       "MIN(CASE WHEN ty.type IN ('buy') THEN item.price * item.qty ELSE 0 END) as min_buy, " +
-       "SUM(CASE WHEN ty.type IN ('buy') THEN item.price * item.qty ELSE 0 END) / SUM(CASE WHEN ty.type IN ('buy') THEN  item.qty ELSE 0 END)  as avg_buy, " +
-       "MAX(CASE WHEN ty.type IN ('sale') THEN item.price * item.qty ELSE 0 END) as max_sell, " +
-       "MIN(CASE WHEN ty.type IN ('sale') THEN item.price * item.qty ELSE 0 END) as min_sell, " +
-       "SUM(CASE WHEN ty.type IN ('sale') THEN item.price * item.qty ELSE 0 END) / SUM(CASE WHEN ty.type IN ('sale') THEN  item.qty ELSE 0 END) as avg_sell, " +
+   @Query(value="SELECT MAX(CASE WHEN ty.type IN ('buy') THEN item.price END) as max_buy, " +
+       "MIN(CASE WHEN ty.type IN ('buy') THEN item.price END) as min_buy, " +
+       "SUM(CASE WHEN ty.type IN ('buy') THEN item.price * item.qty END) / SUM(CASE WHEN ty.type IN ('buy') THEN  item.qty END)  as avg_buy, " +
+       "MAX(CASE WHEN ty.type IN ('sale') THEN item.price END) as max_sell, " +
+       "MIN(CASE WHEN ty.type IN ('sale') THEN item.price END) as min_sell, " +
+       "SUM(CASE WHEN ty.type IN ('sale') THEN item.price * item.qty END) / SUM(CASE WHEN ty.type IN ('sale') THEN  item.qty END) as avg_sell, " +
        "item.product.id as product_id, " +
        "item.product.name as product_name, " +
        ":startDate as start_date, " +
