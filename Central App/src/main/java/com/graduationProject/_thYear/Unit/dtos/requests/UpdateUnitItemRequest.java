@@ -1,5 +1,6 @@
 package com.graduationProject._thYear.Unit.dtos.requests;
 
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,6 +18,7 @@ public class UpdateUnitItemRequest {
 
     private String name;
 
+    @DecimalMin(value = "0.00", inclusive = true, message = "fact must be positive")
     private Float fact;
 
     private Boolean isDef;

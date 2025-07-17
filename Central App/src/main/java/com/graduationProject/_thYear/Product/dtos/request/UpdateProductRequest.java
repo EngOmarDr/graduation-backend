@@ -1,5 +1,6 @@
 package com.graduationProject._thYear.Product.dtos.request;
 
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,10 +29,13 @@ public class UpdateProductRequest {
 
     private Integer defaultUnitId;
 
+    @DecimalMin(value = "0.0", inclusive = true, message = "minQty Must be positive")
     private Float minQty;
 
+    @DecimalMin(value = "0.0", inclusive = true, message = "maxQty Must be positive")
     private Float maxQty;
 
+    @DecimalMin(value = "0.0", inclusive = true, message = "orderQty Must be positive")
     private Float orderQty;
 
 
