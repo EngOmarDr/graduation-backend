@@ -28,7 +28,8 @@ public interface  WarehouseRepository extends JpaRepository<Warehouse, Integer> 
 
     @Query(
         "SELECT it.product.id as product_id, it.product.name as product_name, " + 
-        "SUM(CASE WHEN ty.type IN ('buy','retrieve_sale','input') THEN it.qty ELSE 0 END) - SUM(CASE WHEN ty.type IN ('sale','retrieve_buy','ouput') THEN it.qty ELSE 0 END) as quantity " +
+        "SUM(CASE WHEN ty.type IN ('buy','retrieve_sale','input') THEN it.qty * it.unitFact ELSE 0 END) - SUM(CASE WHEN ty.type IN ('sale','retrieve_buy','ouput') THEN it.qty * it.unitFact ELSE 0 END) as quantity, " +
+        "it.product.defaultUnit.id as unit_id, it.product.defaultUnit.name as unit_name " +
         "FROM Warehouse wh " +
         "JOIN InvoiceHeader ih ON wh.id = ih.warehouse.id " +
         "JOIN ih.invoiceItems it  " + 
