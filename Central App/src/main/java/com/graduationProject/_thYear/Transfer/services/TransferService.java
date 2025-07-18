@@ -70,6 +70,8 @@ public class TransferService {
 
             UnitItem unitItem = resolveUnitItem(product, itemReq.getUnitItemId());
 
+            BigDecimal unitFact = itemReq.getUnitFact() != null ? itemReq.getUnitFact() : BigDecimal.valueOf(unitItem.getFact());
+
             Optional<ProductStock> sourceStock = stockService.findStock(product.getId(), fromWarehouse.getId(), unitItem.getId());
             if (sourceStock.isEmpty()) {
                 stockService.createStock(product.getId(), fromWarehouse.getId(), unitItem.getId(), BigDecimal.ZERO);
@@ -89,7 +91,7 @@ public class TransferService {
                     .productId(product)
                     .qty(itemReq.getQty())
                     .unitItemId(unitItem)
-                    .unitFact(itemReq.getUnitFact())
+                    .unitFact(unitFact)
                     .build();
         }).collect(Collectors.toList());
 
@@ -143,7 +145,7 @@ public class TransferService {
 
         // If items are provided → fully replace with stock rollback and reapply
         if (req.getItems() != null && !req.getItems().isEmpty()) {
-            // 1. Rollback old stock
+            //  Rollback old stock
             for (TransferItem item : transfer.getItems()) {
                 stockService.increaseStock(item.getProductId().getId(), transfer.getFromWarehouseId().getId(), item.getUnitItemId().getId(), item.getQty());
                 stockService.decreaseStock(item.getProductId().getId(), transfer.getToWarehouseId().getId(), item.getUnitItemId().getId(), item.getQty());
@@ -151,11 +153,13 @@ public class TransferService {
 
             transfer.getItems().clear();
 
-            // 2. Add new stock
+            //  Add new stock
             List<TransferItem> newItems = req.getItems().stream().map(itemReq -> {
                 Product product = productRepo.findById(itemReq.getProductId())
                         .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
                 UnitItem unitItem = resolveUnitItem(product, itemReq.getUnitItemId());
+
+                BigDecimal unitFact = itemReq.getUnitFact() != null ? itemReq.getUnitFact() : BigDecimal.valueOf(unitItem.getFact());
 
                 stockService.decreaseStock(product.getId(), transfer.getFromWarehouseId().getId(), unitItem.getId(), itemReq.getQty());
                 stockService.increaseStock(product.getId(), transfer.getToWarehouseId().getId(), unitItem.getId(), itemReq.getQty());
@@ -165,7 +169,7 @@ public class TransferService {
                         .productId(product)
                         .qty(itemReq.getQty())
                         .unitItemId(unitItem)
-                        .unitFact(itemReq.getUnitFact())
+                        .unitFact(unitFact)
                         .build();
             }).toList();
 
