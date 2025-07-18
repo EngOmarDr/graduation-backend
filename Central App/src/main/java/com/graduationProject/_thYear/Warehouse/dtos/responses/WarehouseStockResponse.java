@@ -28,6 +28,8 @@ public class WarehouseStockResponse {
     public static class  WarehouseStockItem {
         private Integer productId;
         private String productName;
+        private Integer unitId;
+        private String unitName;
         private BigDecimal quantity;
 
 
@@ -35,6 +37,8 @@ public class WarehouseStockResponse {
             return WarehouseStockItem.builder()
                 .productId((Integer)tuple.get("product_id"))
                 .productName((String)tuple.get("product_name"))
+                .unitId((Integer)tuple.get("unit_id"))
+                .unitName((String)tuple.get("unit_name"))
                 .quantity((BigDecimal)tuple.get("quantity"))
                 .build();
         }
