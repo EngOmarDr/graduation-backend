@@ -51,9 +51,9 @@ public interface InvoiceHeaderRepository extends JpaRepository<InvoiceHeader,Int
    List<Tuple> getMaterialMovementItems(LocalDateTime startDate, LocalDateTime endDate,Integer productId, Integer warehouseId);
 
 
-    @Query(value="SELECT  ih.id invoice_header_id, ty.name invoice_name, item.qty quantity, " +
-       "item.price individual_price, " +
-       "item.price * item.qty as total_price, " +
+    @Query(value="SELECT  ih.id invoice_header_id, ty.name invoice_name, item.qty * item.unitFact quantity, " +
+       "item.price * ih.currencyValue individual_price, " +
+       "item.price * ih.currencyValue * item.qty * item.unitFact as total_price, " +
        "ih.warehouse.id warehouse_id, ih.date as date," +
        "item.unitItem.id as unit_id, item.unitItem.name unit_name, " +
        "item.product.id as product_id, item.product.name product_name " +
