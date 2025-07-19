@@ -43,7 +43,9 @@ public interface InvoiceHeaderRepository extends JpaRepository<InvoiceHeader,Int
        "JOIN ih.invoiceType ty " +
        "WHERE ih.date BETWEEN :startDate AND :endDate " +
        "AND (:warehouseId IS NULL OR ih.warehouse.id = (:warehouseId)) " +
-       "AND  item.product.id = :productId")
+       "AND  item.product.id = :productId " +
+       "AND ih.isPosted = true AND ih.isSuspended = false " 
+    )
    List<Tuple> getMaterialMovementItems(LocalDateTime startDate, LocalDateTime endDate,Integer productId, Integer warehouseId);
 
 

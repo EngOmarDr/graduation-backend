@@ -353,19 +353,19 @@ public class InvoiceService {
             Integer productId, Integer groupId, Integer warehouseId) {
         List<MaterialMovementResponse> result = new LinkedList<>();
         List<Tuple> headers = headerRepo.getMaterialMovementHeader(
-                startDate.atStartOfDay(),
-                endDate.plusDays(1).atStartOfDay(),
-           productId ,
-                groupId,
-           warehouseId
+            startDate.atStartOfDay(),
+            endDate.plusDays(1).atStartOfDay(),
+            productId,
+            groupId,
+            warehouseId
        );
        for (Tuple header: headers){
             MaterialMovementResponse responseHeader = MaterialMovementResponse.fromTuple(header);
             List<Tuple> items = headerRepo.getMaterialMovementItems(
-                    startDate.atStartOfDay(),
-                    endDate.plusDays(1).atStartOfDay(),
-                    (Integer) header.get("product_id"),
-               warehouseId
+                startDate.atStartOfDay(),
+                endDate.plusDays(1).atStartOfDay(),
+                (Integer) header.get("product_id"),
+                warehouseId
            );
            for (Tuple item : items){
                 responseHeader.addItem(MaterialMovementItem.fromTuple(item));
