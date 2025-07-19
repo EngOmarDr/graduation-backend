@@ -14,14 +14,16 @@ import org.springframework.data.jpa.repository.Query;
 public interface InvoiceHeaderRepository extends JpaRepository<InvoiceHeader,Integer> {
     boolean existsByIdAndIsPosted(Integer id, Boolean isPosted);
 
-   @Query(value="SELECT MAX(CASE WHEN ty.type IN ('buy') THEN item.price END) as max_buy, " +
-       "MIN(CASE WHEN ty.type IN ('buy') THEN item.price END) as min_buy, " +
-       "SUM(CASE WHEN ty.type IN ('buy') THEN item.price * item.qty END) / SUM(CASE WHEN ty.type IN ('buy') THEN  item.qty END)  as avg_buy, " +
-       "MAX(CASE WHEN ty.type IN ('sale') THEN item.price END) as max_sell, " +
-       "MIN(CASE WHEN ty.type IN ('sale') THEN item.price END) as min_sell, " +
-       "SUM(CASE WHEN ty.type IN ('sale') THEN item.price * item.qty END) / SUM(CASE WHEN ty.type IN ('sale') THEN  item.qty END) as avg_sell, " +
+   @Query(value="SELECT MAX(CASE WHEN ty.type IN ('buy') THEN item.price * ih.currencyValue END) as max_buy, " +
+       "MIN(CASE WHEN ty.type IN ('buy') THEN item.price * ih.currencyValue  END) as min_buy, " +
+       "SUM(CASE WHEN ty.type IN ('buy') THEN item.price * ih.currencyValue * item.qty * item.unitFact END) / SUM(CASE WHEN ty.type IN ('buy') THEN  item.qty * item.unitFact END)  as avg_buy, " +
+       "MAX(CASE WHEN ty.type IN ('sale') THEN item.price * ih.currencyValue END) as max_sell, " +
+       "MIN(CASE WHEN ty.type IN ('sale') THEN item.price * ih.currencyValue END) as min_sell, " +
+       "SUM(CASE WHEN ty.type IN ('sale') THEN item.price * ih.currencyValue * item.qty * item.unitFact END) / SUM(CASE WHEN ty.type IN ('sale') THEN  item.qty * item.unitFact END) as avg_sell, " +
        "item.product.id as product_id, " +
        "item.product.name as product_name, " +
+       "item.product.defaultUnit.id as unit_id, " +
+       "item.product.defaultUnit.name as unit_name, " +
        ":startDate as start_date, " +
        ":endDate as end_date " +
        "FROM InvoiceHeader ih " +
@@ -37,7 +39,7 @@ public interface InvoiceHeaderRepository extends JpaRepository<InvoiceHeader,Int
    List<Tuple> getMaterialMovementHeader(LocalDateTime startDate, LocalDateTime endDate,Integer productId, Integer groupId, Integer warehouseId);
 
 
-   @Query(value="SELECT  ih.id invoice_header_id, ty.name invoice_name, item.qty quantity, item.price price, ih.warehouse.id warehouse_id, CASE WHEN ty.type IN ('buy','retrieve_sale','input') THEN 'INBOUND' ELSE 'OUTBOUND' END type, ih.date as date " +
+   @Query(value="SELECT  ih.id invoice_header_id, ty.name invoice_name, item.qty * item.unitFact as quantity, item.price * ih.currencyValue as price, ih.warehouse.id warehouse_id, CASE WHEN ty.type IN ('buy','retrieve_sale','input') THEN 'INBOUND' ELSE 'OUTBOUND' END type, ih.date as date " +
        "FROM InvoiceHeader ih " +
        "JOIN ih.invoiceItems item " +
        "JOIN ih.invoiceType ty " +

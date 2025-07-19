@@ -20,6 +20,8 @@ import lombok.experimental.SuperBuilder;
 public class MaterialMovementResponse {
     private Integer productId;
     private String productName;
+    private Integer unitId;
+    private String unitName;
     private BigDecimal maxSell;
     private BigDecimal minSell;
     private BigDecimal avgSell;
@@ -37,6 +39,8 @@ public class MaterialMovementResponse {
         return MaterialMovementResponse.builder()
             .productId((Integer) tuple.get("product_id"))
             .productName((String) tuple.get("product_name"))
+            .unitId((Integer) tuple.get("unit_id"))
+            .unitName((String) tuple.get("unit_name"))
             .maxSell((BigDecimal) tuple.get("max_sell"))
             .minSell((BigDecimal) tuple.get("min_sell"))
             .avgSell((BigDecimal) tuple.get("avg_sell"))
