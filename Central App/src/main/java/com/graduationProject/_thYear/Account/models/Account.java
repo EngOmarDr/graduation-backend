@@ -45,6 +45,14 @@ public class Account {
         child.setParent(this);
     }
 
+    public List<Integer> getAllChildren(List<Integer> result){
+        result.add(this.getId());
+        for(Account account : this.getChildren()){
+            account.getAllChildren(result);
+        }
+        return result;
+    }
+
     public void removeChild(Account child) {
         children.remove(child);
         child.setParent(null);

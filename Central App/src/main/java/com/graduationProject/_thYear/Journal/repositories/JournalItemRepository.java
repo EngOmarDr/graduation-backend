@@ -19,12 +19,12 @@ import com.graduationProject._thYear.Account.models.Account;
 
 public interface JournalItemRepository extends JpaRepository<JournalItem, Integer> {
 
-        @Query("SELECT ji FROM JournalItem ji WHERE ji.account.id = :accountId " +
+        @Query("SELECT ji FROM JournalItem ji WHERE ji.account.id IN (:accountIds) " +
                 "AND (ji.date BETWEEN :startDate AND :endDate OR ji.journalHeader.date BETWEEN :startDate AND :endDate) " +
                 "AND (:branchId IS NULL OR ji.journalHeader.warehouse.branch.id = :branchId) "  +
                 "ORDER BY COALESCE(ji.date, ji.journalHeader.date), ji.id")
         List<JournalItem> findEntriesByAccountAndDateRange(
-                @Param("accountId") Integer accountId,
+                @Param("accountIds") List<Integer> accountIds,
                 @Param("branchId") Integer branchId,
                 @Param("startDate") LocalDateTime startDate,
                 @Param("endDate") LocalDateTime endDate);
@@ -32,42 +32,42 @@ public interface JournalItemRepository extends JpaRepository<JournalItem, Intege
         List<JournalItem> findByAccount(Account account);
 
         @Query("SELECT COALESCE(SUM(ji.debit), 0) FROM JournalItem ji " +
-                "WHERE ji.account.id = :accountId AND (ji.date BETWEEN :startDate AND :endDate OR ji.journalHeader.date BETWEEN :startDate AND :endDate) " +
+                "WHERE ji.account.id IN (:accountIds) AND (ji.date BETWEEN :startDate AND :endDate OR ji.journalHeader.date BETWEEN :startDate AND :endDate) " +
                 "AND (:branchId IS NULL OR ji.journalHeader.warehouse.branch.id = :branchId) " 
         )
         BigDecimal calculateDebitBetweenDates(
-                @Param("accountId") Integer accountId,
+                @Param("accountIds") List<Integer> accountIds,
                 @Param("branchId") Integer branchId,
                 @Param("startDate") LocalDateTime startDate,
                 @Param("endDate") LocalDateTime endDate);
 
         @Query("SELECT COALESCE(SUM(ji.credit), 0) FROM JournalItem ji " +
-                "WHERE ji.account.id = :accountId AND (ji.date BETWEEN :startDate AND :endDate OR ji.journalHeader.date BETWEEN :startDate AND :endDate) " +
+                "WHERE ji.account.id IN (:accountIds) AND (ji.date BETWEEN :startDate AND :endDate OR ji.journalHeader.date BETWEEN :startDate AND :endDate) " +
                 "AND (:branchId IS NULL OR ji.journalHeader.warehouse.branch.id = :branchId) " 
                 
         )
         BigDecimal calculateCreditBetweenDates(
-                @Param("accountId") Integer accountId,
+                @Param("accountIds") List<Integer> accountIds,
                 @Param("branchId") Integer branchId,
                 @Param("startDate") LocalDateTime startDate,
                 @Param("endDate") LocalDateTime endDate);
 
         @Query("SELECT COALESCE(SUM(ji.debit), 0) FROM JournalItem ji " +
-                "WHERE ji.account.id = :accountId AND (ji.date < :date OR ji.journalHeader.date < :date) "+
+                "WHERE ji.account.id IN (:accountIds) AND (ji.date < :date OR ji.journalHeader.date < :date) "+
                 "AND (:branchId IS NULL OR ji.journalHeader.warehouse.branch.id = :branchId) " 
         )
         BigDecimal calculateDebitBeforeDate(
                 @Param("branchId") Integer branchId,
-                @Param("accountId") Integer accountId,
+                @Param("accountIds") List<Integer> accountIds,
                 @Param("date") LocalDateTime date);
 
         @Query("SELECT COALESCE(SUM(ji.credit), 0) FROM JournalItem ji " +
-                "WHERE ji.account.id = :accountId AND (ji.date < :date OR ji.journalHeader.date < :date) " +
+                "WHERE ji.account.id IN (:accountIds) AND (ji.date < :date OR ji.journalHeader.date < :date) " +
                 "AND (:branchId IS NULL OR ji.journalHeader.warehouse.branch.id = :branchId) " 
         )
         BigDecimal calculateCreditBeforeDate(
                 @Param("branchId") Integer branchId,
-                @Param("accountId") Integer accountId,
+                @Param("accountIds") List<Integer> accountIds,
                 @Param("date") LocalDateTime date);
 
         @Query("SELECT DISTINCT FUNCTION('DATE',ji.date) AS date, COALESCE(SUM(ji.debit),0) AS total_debit, COALESCE(SUM(ji.credit),0) AS total_credit FROM JournalItem ji "+

@@ -340,20 +340,22 @@ public class JournalServiceImpl implements JournalService {
                 Account account = accountRepository.findById(accountId)
                         .orElseThrow(() -> new EntityNotFoundException("Account not found with id: " + accountId));
 
+                List<Integer> children = account.getAllChildren(new LinkedList<>());
+
                 // Calculate opening balance (sum of all entries before start date)
-                BigDecimal openingDebit = journalItemRepository.calculateDebitBeforeDate(branchId, accountId, startDateTime);
-                BigDecimal openingCredit = journalItemRepository.calculateCreditBeforeDate(branchId, accountId, startDateTime);
+                BigDecimal openingDebit = journalItemRepository.calculateDebitBeforeDate(branchId, children, startDateTime);
+                BigDecimal openingCredit = journalItemRepository.calculateCreditBeforeDate(branchId, children, startDateTime);
                 BigDecimal openingBalance = openingDebit.subtract(openingCredit);
 
                 // Get entries for the period
                 List<JournalItem> entries = journalItemRepository.findEntriesByAccountAndDateRange(
-                        accountId, branchId, startDateTime, endDateTime);
+                        children, branchId, startDateTime, endDateTime);
 
                 // Calculate period totals
                 BigDecimal totalDebit = journalItemRepository.calculateDebitBetweenDates(
-                        accountId, branchId,  startDateTime, endDateTime);
+                        children, branchId,  startDateTime, endDateTime);
                 BigDecimal totalCredit = journalItemRepository.calculateCreditBetweenDates(
-                        accountId, branchId, startDateTime, endDateTime);
+                        children, branchId, startDateTime, endDateTime);
 
                 // Calculate closing balance
                 BigDecimal closingBalance = openingBalance.add(totalDebit).subtract(totalCredit);
@@ -459,7 +461,10 @@ public class JournalServiceImpl implements JournalService {
                         .date(journalItem.getDate())
                         .debit(journalItem.getDebit())
                         .credit(journalItem.getCredit())
-                       // .notes(journalItem.getNotes())
+                        .notes(journalItem.getNotes())
+                        .accountId(journalItem.getAccount().getId())
+                        .accountName(journalItem.getAccount().getName())
+                        .accountCode(journalItem.getAccount().getCode())
                         .build();
         }
 

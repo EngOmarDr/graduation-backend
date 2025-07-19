@@ -41,5 +41,8 @@ public class LedgerReport {
         private BigDecimal debit;
         private BigDecimal credit;
         private String notes;
+        private Integer accountId;
+        private String accountName;
+        private String accountCode;
     }
 }
