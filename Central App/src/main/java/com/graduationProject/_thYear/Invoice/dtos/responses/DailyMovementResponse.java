@@ -65,13 +65,13 @@ public class DailyMovementResponse {
     @SuperBuilder
     public static class DailyMovemntSideItems{
         private BigDecimal cashTotal;
-        private Long futureTotal;
+        private BigDecimal futureTotal;
         private String InvoiceName;
 
         public static DailyMovemntSideItems fromTuple(Tuple tuple){
             return DailyMovemntSideItems.builder()
                 .cashTotal((BigDecimal) tuple.get("cash_total"))
-                .futureTotal((Long) tuple.get("future_total"))
+                .futureTotal((BigDecimal) tuple.get("future_total"))
                 .InvoiceName((String) tuple.get("invoice_name"))
                 .build();
 
