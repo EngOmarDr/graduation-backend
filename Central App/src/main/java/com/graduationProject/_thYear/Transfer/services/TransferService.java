@@ -2,6 +2,12 @@ package com.graduationProject._thYear.Transfer.services;
 
 import com.graduationProject._thYear.Account.models.Account;
 import com.graduationProject._thYear.Account.repositories.AccountRepository;
+import com.graduationProject._thYear.Currency.repositories.CurrencyRepository;
+import com.graduationProject._thYear.Invoice.models.InvoiceHeader;
+import com.graduationProject._thYear.Invoice.models.InvoiceItem;
+import com.graduationProject._thYear.Invoice.repositories.InvoiceHeaderRepository;
+import com.graduationProject._thYear.Invoice.services.InvoiceService;
+import com.graduationProject._thYear.InvoiceType.repositories.InvoiceTypeRepository;
 import com.graduationProject._thYear.Product.models.Product;
 import com.graduationProject._thYear.Product.repositories.ProductRepository;
 import com.graduationProject._thYear.ProductStock.models.ProductStock;
@@ -26,6 +32,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -35,7 +42,9 @@ import java.util.stream.Collectors;
 public class TransferService {
 
     private final TransferRepository transferRepository;
-    private final TransferItemRepository transferItemRepository;
+    private final InvoiceHeaderRepository invoiceHeaderRepository;
+    private final InvoiceTypeRepository invoiceTypeRepository;
+    private final CurrencyRepository currencyRepository;
     private final WarehouseRepository warehouseRepo;
     private final AccountRepository accountRepo;
     private final ProductRepository productRepo;
@@ -70,6 +79,8 @@ public class TransferService {
 
             UnitItem unitItem = resolveUnitItem(product, itemReq.getUnitItemId());
 
+            BigDecimal unitFact = itemReq.getUnitFact() != null ? itemReq.getUnitFact() : BigDecimal.valueOf(unitItem.getFact());
+
             Optional<ProductStock> sourceStock = stockService.findStock(product.getId(), fromWarehouse.getId(), unitItem.getId());
             if (sourceStock.isEmpty()) {
                 stockService.createStock(product.getId(), fromWarehouse.getId(), unitItem.getId(), BigDecimal.ZERO);
@@ -89,12 +100,15 @@ public class TransferService {
                     .productId(product)
                     .qty(itemReq.getQty())
                     .unitItemId(unitItem)
-                    .unitFact(itemReq.getUnitFact())
+                    .unitFact(unitFact)
                     .build();
         }).collect(Collectors.toList());
 
         transfer.setItems(items);
         Transfer saved = transferRepository.save(transfer);
+
+        createTransferInvoices(transfer);
+
         return toResponse(saved);
     }
 
@@ -143,7 +157,7 @@ public class TransferService {
 
         // If items are provided → fully replace with stock rollback and reapply
         if (req.getItems() != null && !req.getItems().isEmpty()) {
-            // 1. Rollback old stock
+            //  Rollback old stock
             for (TransferItem item : transfer.getItems()) {
                 stockService.increaseStock(item.getProductId().getId(), transfer.getFromWarehouseId().getId(), item.getUnitItemId().getId(), item.getQty());
                 stockService.decreaseStock(item.getProductId().getId(), transfer.getToWarehouseId().getId(), item.getUnitItemId().getId(), item.getQty());
@@ -151,11 +165,13 @@ public class TransferService {
 
             transfer.getItems().clear();
 
-            // 2. Add new stock
+            //  Add new stock
             List<TransferItem> newItems = req.getItems().stream().map(itemReq -> {
                 Product product = productRepo.findById(itemReq.getProductId())
                         .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
                 UnitItem unitItem = resolveUnitItem(product, itemReq.getUnitItemId());
+
+                BigDecimal unitFact = itemReq.getUnitFact() != null ? itemReq.getUnitFact() : BigDecimal.valueOf(unitItem.getFact());
 
                 stockService.decreaseStock(product.getId(), transfer.getFromWarehouseId().getId(), unitItem.getId(), itemReq.getQty());
                 stockService.increaseStock(product.getId(), transfer.getToWarehouseId().getId(), unitItem.getId(), itemReq.getQty());
@@ -165,7 +181,7 @@ public class TransferService {
                         .productId(product)
                         .qty(itemReq.getQty())
                         .unitItemId(unitItem)
-                        .unitFact(itemReq.getUnitFact())
+                        .unitFact(unitFact)
                         .build();
             }).toList();
 
@@ -227,6 +243,65 @@ public class TransferService {
                     .orElseThrow(() -> new ResourceNotFoundException("Default UnitItem not found"));
         }
     }
+
+    @Transactional
+    public void createTransferInvoices(Transfer transfer) {
+        createSingleInvoiceFromTransfer(
+                transfer.getFromWarehouseId().getId(),
+                2, // output invoice
+                transfer
+        );
+
+        createSingleInvoiceFromTransfer(
+                transfer.getToWarehouseId().getId(),
+                1, // input invoice
+                transfer
+        );
+    }
+
+
+    private void createSingleInvoiceFromTransfer(Integer warehouseId, Integer invoiceTypeId, Transfer transfer) {
+        InvoiceHeader invoice = new InvoiceHeader();
+        invoice.setWarehouse(warehouseRepo.getReferenceById(warehouseId));
+        invoice.setInvoiceType(invoiceTypeRepository.getReferenceById(invoiceTypeId));
+        invoice.setDate(transfer.getDate());
+        invoice.setAccount(accountRepo.getReferenceById(transfer.getCashAccountId().getId()));
+        invoice.setCurrency(currencyRepository.getReferenceById(1));
+        invoice.setCurrencyValue(BigDecimal.valueOf(1));
+        invoice.setIsPosted(true);
+        invoice.setPayType(0);
+        invoice.setIsSuspended(false);
+        invoice.setInvoiceDiscounts(new ArrayList<>());
+
+        List<InvoiceItem> items = new ArrayList<>();
+
+        for (TransferItem transferItem : transfer.getItems()) {
+
+            Product product = transferItem.getProductId();
+
+            UnitItem unitItem = resolveUnitItem(product, transferItem.getUnitItemId().getId());
+
+            BigDecimal unitFact = transferItem.getUnitFact() != null
+                    ? transferItem.getUnitFact()
+                    : BigDecimal.valueOf(unitItem.getFact());
+
+            InvoiceItem item = InvoiceItem.builder()
+                    .invoiceHeader(invoice)
+                    .product(product)
+                    .qty(transferItem.getQty())
+                    .price(BigDecimal.ZERO)
+                    .unitItem(unitItem)
+                    .unitFact(unitFact)
+                    .bonusQty(BigDecimal.ZERO)
+                    .build();
+
+            items.add(item);
+        }
+
+        invoice.setInvoiceItems(items);
+        invoiceHeaderRepository.save(invoice);
+    }
+
 
     private TransferResponse toResponse(Transfer t) {
         return TransferResponse.builder()
