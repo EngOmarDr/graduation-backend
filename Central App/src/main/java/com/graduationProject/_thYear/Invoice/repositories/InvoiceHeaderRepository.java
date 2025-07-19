@@ -67,7 +67,7 @@ public interface InvoiceHeaderRepository extends JpaRepository<InvoiceHeader,Int
        "AND (:warehouseId IS NULL OR ih.warehouse.id = (:warehouseId))")
    List<Tuple> getDailyMovementMainItems(LocalDateTime startDate, LocalDateTime endDate,Integer productId, Integer groupId, Integer warehouseId);
 
-   @Query(value="SELECT COALESCE(SUM(item.price * item.qty) ,0) as cash_total, COALESCE(SUM(0),0) as future_total, ty.type as invoice_type " +
+   @Query(value="SELECT COALESCE(SUM(item.price * ih.currencyValue * item.qty * item.unitFact) ,0) as cash_total, COALESCE(SUM(0),0) as future_total, ty.type as invoice_type " +
        "FROM InvoiceHeader ih " +
        "JOIN ih.invoiceItems item " +
        "JOIN ih.invoiceType ty " +
@@ -83,8 +83,8 @@ public interface InvoiceHeaderRepository extends JpaRepository<InvoiceHeader,Int
 
 
     @Query(value="SELECT  item.product.id as product_id, item.product.name as product_name, ih.warehouse.id as warehouse_id, item.unitItem.id as unit_id, item.unitItem.name unit_name, " +
-       "SUM(CASE WHEN ty.type IN ('buy','retrieve_sale','input') THEN item.qty ELSE 0 END) - SUM(CASE WHEN ty.type IN ('sale','retrieve_buy','ouput') THEN item.qty ELSE 0 END)  as total_quantity, " +
-       "SUM(CASE WHEN ty.type IN ('buy','retrieve_sale','input') THEN item.qty * item.price ELSE 0 END) - SUM(CASE WHEN ty.type IN ('sale','retrieve_buy','ouput') THEN item.qty * item.price ELSE 0 END) as total_price " +
+       "SUM(CASE WHEN ty.type IN ('buy','retrieve_sale','input') THEN item.qty * item.unitFact ELSE 0 END) - SUM(CASE WHEN ty.type IN ('sale','retrieve_buy','ouput') THEN item.qty * item.unitFact ELSE 0 END)  as total_quantity, " +
+       "SUM(CASE WHEN ty.type IN ('buy','retrieve_sale','input') THEN item.qty * item.unitFact * item.price * ih.currencyValue ELSE 0 END) - SUM(CASE WHEN ty.type IN ('sale','retrieve_buy','ouput') THEN item.qty * item.unitFact * item.price * ih.currencyValue ELSE 0 END) as total_price " +
        "FROM InvoiceHeader ih " +
        "JOIN ih.invoiceItems item " +
        "JOIN ih.invoiceType ty " +
