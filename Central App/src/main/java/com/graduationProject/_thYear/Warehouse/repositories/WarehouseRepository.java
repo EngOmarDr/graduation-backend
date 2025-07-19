@@ -37,6 +37,7 @@ public interface  WarehouseRepository extends JpaRepository<Warehouse, Integer> 
         "WHERE wh.id = :warehouseId " +
         "AND (:productId IS NULL OR it.product.id = (:productId)) " +
         "AND (:groupId IS NULL OR it.product.groupId.id = (:groupId)) " +
+        "AND ih.isPosted = true AND ih.isSuspended = false " +
         "GROUP BY it.product"
     )
     List<Tuple> getStock(Integer warehouseId, Integer productId, Integer groupId);
