@@ -5,6 +5,7 @@ import com.graduationProject._thYear.Account.repositories.AccountRepository;
 import com.graduationProject._thYear.Currency.repositories.CurrencyRepository;
 import com.graduationProject._thYear.Invoice.models.InvoiceHeader;
 import com.graduationProject._thYear.Invoice.models.InvoiceItem;
+import com.graduationProject._thYear.Invoice.models.InvoiceKind;
 import com.graduationProject._thYear.Invoice.repositories.InvoiceHeaderRepository;
 import com.graduationProject._thYear.Invoice.services.InvoiceService;
 import com.graduationProject._thYear.InvoiceType.repositories.InvoiceTypeRepository;
@@ -188,7 +189,10 @@ public class TransferService {
             transfer.getItems().addAll(newItems);
         }
 
-        return toResponse(transferRepository.save(transfer));
+        Transfer transfer1 = transferRepository.save(transfer);
+        recreateTransferInvoices(transfer1);
+
+        return toResponse(transfer1);
     }
 
 
@@ -218,6 +222,15 @@ public class TransferService {
         Transfer transfer = transferRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Transfer not found"));
 
+
+        List<InvoiceHeader> invoices = invoiceHeaderRepository
+                .findByParentTypeAndParentId(InvoiceKind.TRANSFER, transfer.getId());
+
+        for (InvoiceHeader invoice : invoices) {
+            invoiceHeaderRepository.delete(invoice);
+        }
+
+
         //  Reverse stock before deletion
         for (TransferItem item : transfer.getItems()) {
             Integer productId = item.getProductId().getId();
@@ -245,6 +258,16 @@ public class TransferService {
     }
 
     @Transactional
+    public void recreateTransferInvoices(Transfer transfer) {
+        List<InvoiceHeader> oldInvoices = invoiceHeaderRepository
+                .findByParentTypeAndParentId(InvoiceKind.TRANSFER, transfer.getId());
+
+        oldInvoices.forEach(invoiceHeaderRepository::delete);
+
+        createTransferInvoices(transfer);
+    }
+
+    @Transactional
     public void createTransferInvoices(Transfer transfer) {
         createSingleInvoiceFromTransfer(
                 transfer.getFromWarehouseId().getId(),
@@ -269,7 +292,10 @@ public class TransferService {
         invoice.setCurrency(currencyRepository.getReferenceById(1));
         invoice.setCurrencyValue(BigDecimal.valueOf(1));
         invoice.setIsPosted(true);
+        invoice.setPostedDate(Boolean.TRUE.equals(invoice.getIsPosted()) && invoice.getPostedDate() == null ? LocalDateTime.now() : invoice.getPostedDate());
         invoice.setPayType(0);
+        invoice.setParentType(InvoiceKind.TRANSFER);
+        invoice.setParentId(transfer.getId());
         invoice.setIsSuspended(false);
         invoice.setInvoiceDiscounts(new ArrayList<>());
 

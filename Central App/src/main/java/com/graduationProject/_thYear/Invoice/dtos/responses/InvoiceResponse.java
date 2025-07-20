@@ -24,6 +24,8 @@ public class InvoiceResponse {
     private BigDecimal totalExtra;
     private Integer payType;
     private Boolean isPosted;
+    private String parentType;
+    private Integer parentId;
     private LocalDateTime postedDate;
     private String notes;
 
