@@ -1,6 +1,7 @@
 package com.graduationProject._thYear.InvoiceType.dtos.requests;
 
 
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -11,7 +12,9 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateInvoiceTypeRequest {
+    @NotNull(message = "type is required")
     private Integer type;
+    @NotNull(message = "name is required")
     private String name;
     private Integer defaultPriceId;
     private Integer minDefaultPriceId;
@@ -27,7 +30,9 @@ public class CreateInvoiceTypeRequest {
     private Boolean isNoPost;
     private Boolean isAutoPost;
     private Integer defaultWarehouseId;
+    @NotNull(message = "defaultBillAccId is required")
     private Integer defaultBillAccId;
+    @NotNull(message = "defaultCashAccId is required")
     private Integer defaultCashAccId;
     private Integer defaultDiscAccId;
     private Integer defaultExtraAccId;
