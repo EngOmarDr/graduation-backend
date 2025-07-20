@@ -21,54 +21,54 @@ public class InvoiceTypeSeeder {
     private final WarehouseRepository warehouseRepo;
     private final CurrencyRepository currencyRepo;
     private final AccountRepository accountRepo;
-
-    @PostConstruct
-    public void seed() {
-        if (invoiceTypeRepo.count() > 10) return;
-
-        // Dummy references (assume you have ID = 1 for all)
-        Warehouse defaultWarehouse = warehouseRepo.findById(1).orElseThrow();
-        Currency defaultCurrency = currencyRepo.findById(1).orElseThrow();
-        Account defaultAccount = accountRepo.findById(1).orElseThrow();
-
-        for (Type type : Type.values()) {
-            InvoiceType invoiceType = InvoiceType.builder()
-                    .type(type)
-                    .name(type.name() + " invoice")
-                    .defaultWarehouseId(defaultWarehouse)
-                    .defaultCurrencyId(defaultCurrency)
-
-                    .defaultBillAccId(defaultAccount)
-                    .defaultCashAccId(defaultAccount)
-                    .defaultDiscAccId(defaultAccount)
-                    .defaultExtraAccId(defaultAccount)
-                    .defaultCostAccId(defaultAccount)
-                    .defaultStockAccId(defaultAccount)
-
-                    .isAffectCostPrice(true)
-                    .isAffectLastPrice(false)
-                    .isAffectCustPrice(false)
-                    .isAffectProfit(false)
-
-                    .isDiscAffectCost(false)
-                    .isExtraAffectCost(false)
-
-                    .isNoEntry(false)
-                    .isAutoEntry(true)
-                    .isAutoEntryPost(true)
-                    .isNoPost(false)
-                    .isAutoPost(true)
-
-                    .isShortEntry(false)
-                    .isCashBill(true)
-                    .printAfterInsert(false)
-                    .isBarcode(false)
-
-                    .build();
-
-            invoiceTypeRepo.save(invoiceType);
-        }
-
-        System.out.println("Seeded default invoice types.");
-    }
+//
+//    @PostConstruct
+//    public void seed() {
+//        if (invoiceTypeRepo.count() > 0) return;
+//
+//        // Dummy references (assume you have ID = 1 for all)
+//        Warehouse defaultWarehouse = warehouseRepo.findById(1).orElseThrow();
+//        Currency defaultCurrency = currencyRepo.findById(1).orElseThrow();
+//        Account defaultAccount = accountRepo.findById(1).orElseThrow();
+//
+//        for (Type type : Type.values()) {
+//            InvoiceType invoiceType = InvoiceType.builder()
+//                    .type(type)
+//                    .name(type.name() + " invoice")
+//                    .defaultWarehouseId(defaultWarehouse)
+//                    .defaultCurrencyId(defaultCurrency)
+//
+//                    .defaultBillAccId(defaultAccount)
+//                    .defaultCashAccId(defaultAccount)
+//                    .defaultDiscAccId(defaultAccount)
+//                    .defaultExtraAccId(defaultAccount)
+//                    .defaultCostAccId(defaultAccount)
+//                    .defaultStockAccId(defaultAccount)
+//
+//                    .isAffectCostPrice(true)
+//                    .isAffectLastPrice(false)
+//                    .isAffectCustPrice(false)
+//                    .isAffectProfit(false)
+//
+//                    .isDiscAffectCost(false)
+//                    .isExtraAffectCost(false)
+//
+//                    .isNoEntry(false)
+//                    .isAutoEntry(true)
+//                    .isAutoEntryPost(true)
+//                    .isNoPost(false)
+//                    .isAutoPost(true)
+//
+//                    .isShortEntry(false)
+//                    .isCashBill(true)
+//                    .printAfterInsert(false)
+//                    .isBarcode(false)
+//
+//                    .build();
+//
+//            invoiceTypeRepo.save(invoiceType);
+//        }
+//
+//        System.out.println("Seeded default invoice types.");
+//    }
 }
