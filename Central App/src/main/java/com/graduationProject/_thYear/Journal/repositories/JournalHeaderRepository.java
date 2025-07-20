@@ -24,4 +24,5 @@ public interface JournalHeaderRepository extends JpaRepository<JournalHeader, In
 
   Optional<JournalHeader> findByKindAndParentId(JournalKind kind, Integer parentId);
 
+
 }

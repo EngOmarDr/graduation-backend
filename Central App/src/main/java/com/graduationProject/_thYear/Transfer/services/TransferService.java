@@ -9,6 +9,10 @@ import com.graduationProject._thYear.Invoice.models.InvoiceKind;
 import com.graduationProject._thYear.Invoice.repositories.InvoiceHeaderRepository;
 import com.graduationProject._thYear.Invoice.services.InvoiceService;
 import com.graduationProject._thYear.InvoiceType.repositories.InvoiceTypeRepository;
+import com.graduationProject._thYear.Journal.models.JournalHeader;
+import com.graduationProject._thYear.Journal.models.JournalItem;
+import com.graduationProject._thYear.Journal.models.JournalKind;
+import com.graduationProject._thYear.Journal.repositories.JournalHeaderRepository;
 import com.graduationProject._thYear.Product.models.Product;
 import com.graduationProject._thYear.Product.repositories.ProductRepository;
 import com.graduationProject._thYear.ProductStock.models.ProductStock;
@@ -51,6 +55,8 @@ public class TransferService {
     private final ProductRepository productRepo;
     private final UnitItemRepository unitItemRepo;
     private final ProductStockService stockService;
+
+    private final JournalHeaderRepository journalHeaderRepository;
 
     @Transactional
     public TransferResponse create(CreateTransferRequest request) {
@@ -109,6 +115,8 @@ public class TransferService {
         Transfer saved = transferRepository.save(transfer);
 
         createTransferInvoices(transfer);
+
+        createJournalForTransfer(transfer);
 
         return toResponse(saved);
     }
@@ -191,6 +199,8 @@ public class TransferService {
 
         Transfer transfer1 = transferRepository.save(transfer);
         recreateTransferInvoices(transfer1);
+        deleteJournalForTransfer(transfer.getId());
+        createJournalForTransfer(transfer);
 
         return toResponse(transfer1);
     }
@@ -240,6 +250,8 @@ public class TransferService {
             stockService.increaseStock(productId, transfer.getFromWarehouseId().getId(), unitItemId, qty);
             stockService.decreaseStock(productId, transfer.getToWarehouseId().getId(), unitItemId, qty);
         }
+
+        deleteJournalForTransfer(transfer.getId());
 
         transferRepository.delete(transfer);
     }
@@ -328,6 +340,78 @@ public class TransferService {
         invoiceHeaderRepository.save(invoice);
     }
 
+
+
+    @Transactional
+    public void createJournalForTransfer(Transfer transfer) {
+        if (transfer.getExpenseValue() == null || transfer.getExpenseValue().compareTo(BigDecimal.ZERO) <= 0) {
+            return; // No need for journal
+        }
+
+        JournalHeader header = JournalHeader.builder()
+                .warehouse(transfer.getToWarehouseId())
+                .date(transfer.getDate())
+                .currency(currencyRepository.getReferenceById(1)) // Default currency
+                .currencyValue(BigDecimal.ONE)
+                .isPosted(true)
+               // .postedDate(LocalDateTime.now())
+                .kind(JournalKind.TRANSFER)
+                .parentId(transfer.getId())
+                .parentType(0)
+                .build();
+
+        Account cashAccount = transfer.getCashAccountId();
+        Account expenseAccount = transfer.getExpenseAccountId();
+
+        JournalItem cash = JournalItem.builder()
+                .journalHeader(header)
+                .account(cashAccount)
+                .debit(BigDecimal.ZERO)
+                .credit(transfer.getExpenseValue())
+                .currency(header.getCurrency())
+                .currencyValue(header.getCurrencyValue())
+                .date(header.getDate())
+                .build();
+
+        JournalItem expense = JournalItem.builder()
+                .journalHeader(header)
+                .account(expenseAccount)
+                .debit(transfer.getExpenseValue())
+                .credit(BigDecimal.ZERO)
+                .currency(header.getCurrency())
+                .currencyValue(header.getCurrencyValue())
+                .date(header.getDate())
+                .build();
+
+
+
+        header.setJournalItems(List.of(cash, expense));
+
+
+        BigDecimal totalDebit = header.getJournalItems().stream()
+                .map(JournalItem::getDebit)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal totalCredit = header.getJournalItems().stream()
+                .map(JournalItem::getCredit)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+
+        if (totalDebit.compareTo(totalCredit) != 0) {
+            throw new IllegalStateException("Journal entry is unbalanced! Debit: " + totalDebit + " ≠ Credit: " + totalCredit);
+        }
+
+
+        header.setDebit(totalDebit);
+        header.setCredit(totalCredit);
+
+        journalHeaderRepository.save(header);
+    }
+
+    @Transactional
+    public void deleteJournalForTransfer(Integer transferId) {
+        Optional<JournalHeader> journalOpt = journalHeaderRepository.findByKindAndParentId(JournalKind.TRANSFER, transferId);
+        journalOpt.ifPresent(journalHeaderRepository::delete);
+    }
 
     private TransferResponse toResponse(Transfer t) {
         return TransferResponse.builder()
