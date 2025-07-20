@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -78,33 +79,34 @@ public class InvoiceTypeServiceImpl implements InvoiceTypeService{
         return InvoiceType.builder()
                 .type(Type.fromCode(dto.getType()))
                 .name(dto.getName())
-                .defaultPriceId(findPrice(dto.getDefaultPriceId()))
-                .minDefaultPriceId(findPrice(dto.getMinDefaultPriceId()))
-                .isAffectCostPrice(dto.getIsAffectCostPrice())
-                .isAffectLastPrice(dto.getIsAffectLastPrice())
-                .isAffectCustPrice(dto.getIsAffectCustPrice())
-                .isAffectProfit(dto.getIsAffectProfit())
-                .isDiscAffectCost(dto.getIsDiscAffectCost())
-                .isExtraAffectCost(dto.getIsExtraAffectCost())
-                .isNoEntry(dto.getIsNoEntry())
-                .isAutoEntry(dto.getIsAutoEntry())
-                .isAutoEntryPost(dto.getIsAutoEntryPost())
-                .isNoPost(dto.getIsNoPost())
-                .isAutoPost(dto.getIsAutoPost())
-                .defaultWarehouseId(findWarehouse(dto.getDefaultWarehouseId()))
-                .defaultBillAccId(findAccount(dto.getDefaultBillAccId()))
-                .defaultCashAccId(findAccount(dto.getDefaultCashAccId()))
-                .defaultDiscAccId(findAccount(dto.getDefaultDiscAccId()))
-                .defaultExtraAccId(findAccount(dto.getDefaultExtraAccId()))
-                .defaultCostAccId(findAccount(dto.getDefaultCostAccId()))
-                .defaultStockAccId(findAccount(dto.getDefaultStockAccId()))
-                .isShortEntry(dto.getIsShortEntry())
-                .isCashBill(dto.getIsCashBill())
-                .printAfterInsert(dto.getPrintAfterInsert())
-                .isBarcode(dto.getIsBarcode())
-                .defaultCurrencyId(findCurrency(dto.getDefaultCurrencyId()))
+                .defaultPriceId(dto.getDefaultPriceId() != null ? findPrice(dto.getDefaultPriceId()) : null)
+                .minDefaultPriceId(dto.getMinDefaultPriceId() != null ? findPrice(dto.getMinDefaultPriceId()) : null)
+                .isAffectCostPrice(Optional.ofNullable(dto.getIsAffectCostPrice()).orElse(false))
+                .isAffectLastPrice(Optional.ofNullable(dto.getIsAffectLastPrice()).orElse(false))
+                .isAffectCustPrice(Optional.ofNullable(dto.getIsAffectCustPrice()).orElse(false))
+                .isAffectProfit(Optional.ofNullable(dto.getIsAffectProfit()).orElse(false))
+                .isDiscAffectCost(Optional.ofNullable(dto.getIsDiscAffectCost()).orElse(false))
+                .isExtraAffectCost(Optional.ofNullable(dto.getIsExtraAffectCost()).orElse(false))
+                .isNoEntry(Optional.ofNullable(dto.getIsNoEntry()).orElse(false))
+                .isAutoEntry(Optional.ofNullable(dto.getIsAutoEntry()).orElse(false))
+                .isAutoEntryPost(Optional.ofNullable(dto.getIsAutoEntryPost()).orElse(false))
+                .isNoPost(Optional.ofNullable(dto.getIsNoPost()).orElse(false))
+                .isAutoPost(Optional.ofNullable(dto.getIsAutoPost()).orElse(false))
+                .defaultWarehouseId(dto.getDefaultWarehouseId() != null ? findWarehouse(dto.getDefaultWarehouseId()) : null)
+                .defaultBillAccId(dto.getDefaultBillAccId() != null ? findAccount(dto.getDefaultBillAccId()) : null)
+                .defaultCashAccId(dto.getDefaultCashAccId() != null ? findAccount(dto.getDefaultCashAccId()) : null)
+                .defaultDiscAccId(dto.getDefaultDiscAccId() != null ? findAccount(dto.getDefaultDiscAccId()) : null)
+                .defaultExtraAccId(dto.getDefaultExtraAccId() != null ? findAccount(dto.getDefaultExtraAccId()) : null)
+                .defaultCostAccId(dto.getDefaultCostAccId() != null ? findAccount(dto.getDefaultCostAccId()) : null)
+                .defaultStockAccId(dto.getDefaultStockAccId() != null ? findAccount(dto.getDefaultStockAccId()) : null)
+                .isShortEntry(Optional.ofNullable(dto.getIsShortEntry()).orElse(false))
+                .isCashBill(Optional.ofNullable(dto.getIsCashBill()).orElse(false))
+                .printAfterInsert(Optional.ofNullable(dto.getPrintAfterInsert()).orElse(false))
+                .isBarcode(Optional.ofNullable(dto.getIsBarcode()).orElse(false))
+                .defaultCurrencyId(dto.getDefaultCurrencyId() != null ? findCurrency(dto.getDefaultCurrencyId()) : null)
                 .build();
     }
+
     private void updateEntity(InvoiceType entity, UpdateInvoiceTypeRequest dto) {
         if (dto.getType() != null) entity.setType(Type.fromCode(dto.getType()));
         if (dto.getName() != null) entity.setName(dto.getName());
