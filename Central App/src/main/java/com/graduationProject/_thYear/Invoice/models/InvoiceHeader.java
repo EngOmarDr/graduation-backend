@@ -66,6 +66,13 @@ public class InvoiceHeader {
     @Column(name = "notes")
     private String notes;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "parentType")
+    private InvoiceKind parentType;
+
+    @Column(name = "parentId")
+    private Integer parentId;
+
     @NotNull
     @Builder.Default
     @Column(name = "total",nullable = false)

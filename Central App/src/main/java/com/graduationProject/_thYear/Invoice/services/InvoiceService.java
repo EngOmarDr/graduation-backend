@@ -85,6 +85,8 @@ public class InvoiceService {
                 .isPosted(Boolean.TRUE.equals(req.getIsPosted()))
                 .payType(req.getPayType())
                 .notes(req.getNotes())
+                .parentType(InvoiceKind.NORMAL)
+                .parentId(null)
                 .postedDate(Boolean.TRUE.equals(req.getIsPosted()) && req.getPostedDate() == null ? LocalDateTime.now() : req.getPostedDate())
                 .build();
 
@@ -222,6 +224,9 @@ public class InvoiceService {
                 invoice.setPostedDate(LocalDateTime.now());
             }
         }
+
+        invoice.setParentType(InvoiceKind.NORMAL);
+        invoice.setParentId(null);
 
         if (req.getPostedDate() != null) {
             invoice.setPostedDate(req.getPostedDate());
@@ -488,6 +493,8 @@ public class InvoiceService {
                 .isPosted(h.getIsPosted())
                 .payType(h.getPayType())
                 .notes(h.getNotes())
+                .parentType(String.valueOf(h.getParentType()))
+                .parentId(h.getParentId())
                 .postedDate(h.getPostedDate())
                 .total(h.getTotal())
                 .totalDisc(h.getTotalDisc())

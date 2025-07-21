@@ -8,7 +8,8 @@ import lombok.RequiredArgsConstructor;
 public enum JournalKind {
     NORMAL(0),
     JOURNAL_TYPE(1),
-    INVOICE(2);
+    INVOICE(2),
+    TRANSFER(3);
 
     private final int code;
 

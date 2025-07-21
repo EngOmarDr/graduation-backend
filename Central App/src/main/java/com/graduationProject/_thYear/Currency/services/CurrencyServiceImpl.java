@@ -47,6 +47,7 @@ public class CurrencyServiceImpl implements CurrencyService {
     @Override
     public CurrencyResponse getCurrencyById(Integer id) {
         Currency currency = currencyRepository.findById(id)
+                .filter(c -> !c.getName().startsWith("syria Bound"))
                 .orElseThrow(() -> new ResourceNotFoundException("Currency not found with id: " + id));
         return convertToResponse(currency);
     }
@@ -54,6 +55,7 @@ public class CurrencyServiceImpl implements CurrencyService {
     @Override
     public List<CurrencyResponse> getAllCurrencies() {
         return currencyRepository.findAll().stream()
+                .filter(c -> !c.getName().startsWith("syria Bound"))
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
     }
@@ -107,6 +109,7 @@ public class CurrencyServiceImpl implements CurrencyService {
     @Override
     public void deleteCurrency(Integer id) {
         Currency currency = currencyRepository.findById(id)
+                .filter(c -> !c.getName().startsWith("syria Bound"))
                 .orElseThrow(() -> new ResourceNotFoundException("Currency not found with id: " + id));
         currencyRepository.delete(currency);
     }

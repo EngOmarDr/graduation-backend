@@ -2,6 +2,7 @@ package com.graduationProject._thYear.Invoice.repositories;
 
 import com.graduationProject._thYear.Invoice.models.InvoiceHeader;
 
+import com.graduationProject._thYear.Invoice.models.InvoiceKind;
 import com.graduationProject._thYear.InvoiceType.models.Type;
 import jakarta.persistence.Tuple;
 
@@ -124,5 +125,7 @@ public interface InvoiceHeaderRepository extends JpaRepository<InvoiceHeader,Int
     List<InvoiceHeader> findByInvoiceType_Type(Type type);
     
     List<InvoiceHeader> findByInvoiceType_Id(Integer id);
+
+    List<InvoiceHeader> findByParentTypeAndParentId(InvoiceKind parentType, Integer parentId);
 
 }
