@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.graduationProject._thYear.Journal.models.JournalKind;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -17,7 +16,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 public class CreateJournalRequest {
     @NotNull(message = "Warehouse id is required")
-    private Integer warehouseId;
+    private Integer branchId;
 
     @NotNull(message = "Date is required")
     private LocalDateTime date;

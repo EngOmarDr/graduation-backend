@@ -14,7 +14,7 @@ import lombok.experimental.SuperBuilder;
 public class JournalResponse {
 
     private Integer id;
-    private Integer warehouseId;
+    private Integer branchId;
     private LocalDateTime date;
     private BigDecimal totalDebit;
     private BigDecimal totalCredit;
