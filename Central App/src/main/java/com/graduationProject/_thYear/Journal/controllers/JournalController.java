@@ -92,8 +92,10 @@ public class JournalController {
     @GetMapping("/trial-balance-report")
     public ResponseEntity<TrialBalanceReportResponse> generateTrialBalanceReport(
             @RequestParam(required = false) Integer branchId,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        TrialBalanceReportResponse response = journalService.generateTrialBalanceReport(branchId, date);
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
+            ) {
+        TrialBalanceReportResponse response = journalService.generateTrialBalanceReport(branchId, startDate, endDate);
         return ResponseEntity.ok(response);
     }
 }

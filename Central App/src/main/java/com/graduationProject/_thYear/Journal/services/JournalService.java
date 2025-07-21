@@ -40,7 +40,8 @@ public interface JournalService {
 
     TrialBalanceReportResponse generateTrialBalanceReport(
         Integer branchId,
-        LocalDate date
+        LocalDate startDate, 
+        LocalDate endDate
     );
 
     List<JournalResponse> searchJournalsByParentType(Byte parentType);

@@ -377,13 +377,15 @@ public class JournalServiceImpl implements JournalService {
         }
 
         @Override
-        public TrialBalanceReportResponse generateTrialBalanceReport(Integer branchId, LocalDate date) {
+        public TrialBalanceReportResponse generateTrialBalanceReport(Integer branchId, LocalDate startDate, LocalDate endDate) {
 
-                LocalDateTime startDateTime = date.withDayOfYear(1).atStartOfDay();
-                LocalDateTime endDateTime = date.atStartOfDay().plusYears(2);
+                LocalDateTime startDateTime = startDate == null ? endDate.withDayOfYear(1).atStartOfDay() : startDate.plusDays(1).atStartOfDay();
+                LocalDateTime endDateTime = endDate.atStartOfDay();
                 Tuple totals = journalItemRepository.getTotalDebitAndCreditWithinTimeRange(branchId, startDateTime, endDateTime);
                 List<Tuple> entries = journalItemRepository.getTotalDebitAndCreditByAccount(branchId, startDateTime, endDateTime);
-                List<TrialBalanceReportResponse.BalanceEntry> items =  entries.stream().map(this::mapToBalanceEntry).collect(Collectors.toList());
+                List<TrialBalanceReportResponse.BalanceEntry> items =  entries.stream()
+                        .map(this::mapToBalanceEntry)
+                        .collect(Collectors.toList());
                 return TrialBalanceReportResponse.builder()
                         .startDate(startDateTime.toLocalDate())
                         .endDate(endDateTime.toLocalDate())

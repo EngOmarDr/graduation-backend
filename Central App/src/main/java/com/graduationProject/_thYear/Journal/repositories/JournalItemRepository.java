@@ -90,8 +90,8 @@ public interface JournalItemRepository extends JpaRepository<JournalItem, Intege
                 @Param("date") Date date
         );
 
-         @Query("SELECT CASE WHEN COALESCE(SUM(ji.debit),0) > COALESCE(SUM(ji.credit),0) THEN COALESCE(SUM(ji.debit),0) - COALESCE(SUM(ji.credit),0) ELSE 0 END  AS total_debit, " +
-                "CASE WHEN COALESCE(SUM(ji.credit),0) > COALESCE(SUM(ji.debit),0) THEN COALESCE(SUM(ji.credit),0) - COALESCE(SUM(ji.debit),0) ELSE 0 END AS total_credit " + 
+         @Query("SELECT COALESCE(SUM(CASE WHEN ji.debit > ji.credit THEN ji.debit - ji.credit ELSE 0 END),0) AS total_debit, " +
+                "COALESCE(SUM(CASE WHEN ji.credit > ji.debit THEN ji.credit - ji.debit ELSE 0 END),0) AS total_credit " + 
                 "FROM JournalItem ji "+
                 "WHERE ji.date BETWEEN :startDate AND :endDate " +
                 "AND (:branchId IS NULL OR ji.journalHeader.warehouse.branch.id = :branchId) " 
@@ -102,7 +102,7 @@ public interface JournalItemRepository extends JpaRepository<JournalItem, Intege
                 @Param("endDate") LocalDateTime endDate);
         
         @Query("SELECT  a.id AS accountId, a.name AS accountName, a.code AS accountCode, " +
-                "CASE WHEN COALESCE(SUM(ji.debit),0) > COALESCE(SUM(ji.credit),0) THEN COALESCE(SUM(ji.debit),0) - COALESCE(SUM(ji.credit),0) ELSE 0 END  AS total_debit, " +
+                "CASE WHEN COALESCE(SUM(ji.debit),0) > COALESCE(SUM(ji.credit),0) THEN COALESCE(SUM(ji.debit),0)  ELSE 0 END  AS total_debit, " +
                 "CASE WHEN COALESCE(SUM(ji.credit),0) > COALESCE(SUM(ji.debit),0) THEN COALESCE(SUM(ji.credit),0) - COALESCE(SUM(ji.debit),0) ELSE 0 END AS total_credit " + 
                 "FROM JournalItem ji "+
                 "JOIN ji.account a " +
