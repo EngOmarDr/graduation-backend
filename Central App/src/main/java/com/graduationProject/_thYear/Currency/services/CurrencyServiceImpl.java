@@ -65,8 +65,9 @@ public class CurrencyServiceImpl implements CurrencyService {
         Currency currency = currencyRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Currency not found with id: " + id));
         
-        if (id == currencyRepository.findAll(Sort.by("createdAt") ).get(0).getId()){
-            throw new RuntimeException("can't update the default currency");
+        Currency defaultCurrency = currencyRepository.findAll(Sort.by("createdAt") ).get(0); 
+        if (id == defaultCurrency.getId()){
+            request.setCurrencyValue(defaultCurrency.getCurrencyValue());
         }
 
         for (Currency c: currencyRepository.findAll(Sort.by("createdAt") )){
