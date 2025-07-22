@@ -13,13 +13,13 @@ import com.graduationProject._thYear.Journal.models.JournalHeader;
 public interface JournalHeaderRepository extends JpaRepository<JournalHeader, Integer> {
 
   //  List<JournalHeader> findByDateBetween(LocalDateTime startDate, LocalDateTime endDate);
-    @EntityGraph(attributePaths = {"journalItems", "warehouse", "currency"})
+    @EntityGraph(attributePaths = {"journalItems", "branch", "currency"})
     List<JournalHeader> findAll();
 
-    @EntityGraph(attributePaths = {"journalItems", "warehouse", "currency"})
+    @EntityGraph(attributePaths = {"journalItems", "branch", "currency"})
     List<JournalHeader> findByDateBetween(LocalDateTime startDate, LocalDateTime endDate);
 
-    @EntityGraph(attributePaths = {"journalItems", "warehouse", "currency"})
+    @EntityGraph(attributePaths = {"journalItems", "branch", "currency"})
     List<JournalHeader> findByParentType(Byte parentType);
 
   Optional<JournalHeader> findByKindAndParentId(JournalKind kind, Integer parentId);
