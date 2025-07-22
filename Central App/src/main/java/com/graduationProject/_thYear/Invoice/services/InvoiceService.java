@@ -601,7 +601,7 @@ public class InvoiceService {
                 .build();
 
         JournalHeader header = JournalHeader.builder()
-                .warehouse(invoice.getWarehouse())
+                .branch(invoice.getWarehouse().getBranch())
                 .currency(invoice.getCurrency())
                 .currencyValue(invoice.getCurrencyValue())
                 .date(invoice.getDate())
