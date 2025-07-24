@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 //
@@ -120,7 +121,7 @@ public class ProductPriceServiceImpl implements ProductPriceService{
         }
 
         if (request.getPrice() != null) {
-            productPrice.setPrice(request.getPrice());
+            productPrice.setPrice(BigDecimal.valueOf(request.getPrice()));
         }
 
         ProductPrice updated = productPriceRepository.save(productPrice);

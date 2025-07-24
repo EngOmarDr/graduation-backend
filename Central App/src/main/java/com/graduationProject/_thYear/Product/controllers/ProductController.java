@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -60,6 +61,12 @@ public class ProductController {
     public ResponseEntity<List<ProductResponse>> searchAccounts(@RequestParam String q) {
         var responses = productService.searchProducts(q);
         return ResponseEntity.ok(responses);
+    }
+
+    @PostMapping(value = "/import-excel", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> importProducts(@RequestParam("file") MultipartFile file) {
+        productService.importFromExcel(file);
+        return ResponseEntity.ok("Products imported successfully");
     }
 
 }

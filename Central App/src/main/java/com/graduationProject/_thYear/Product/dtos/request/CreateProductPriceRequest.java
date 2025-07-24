@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 @SuperBuilder
@@ -25,5 +27,5 @@ public class CreateProductPriceRequest {
 
     @NotNull(message = "Price value is required")
     @DecimalMin(value = "0.0", inclusive = true, message = "price Must be positive")
-    private Float price;
+    private BigDecimal price;
 }

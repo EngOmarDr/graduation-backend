@@ -13,6 +13,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "productPrice")
 @Builder
@@ -45,6 +47,6 @@ public class ProductPrice {
     @NotNull
     @Column(name = "price" ,nullable = false)
     @DecimalMin(value = "0.0", inclusive = true, message = "Must be positive")
-    private Float price;
+    private BigDecimal price;
 
 }

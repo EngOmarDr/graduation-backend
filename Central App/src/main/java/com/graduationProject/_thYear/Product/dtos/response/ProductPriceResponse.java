@@ -3,6 +3,8 @@ package com.graduationProject._thYear.Product.dtos.response;
 import lombok.Data;
 import lombok.experimental.SuperBuilder;
 
+import java.math.BigDecimal;
+
 @Data
 @SuperBuilder
 public class ProductPriceResponse {
@@ -13,5 +15,5 @@ public class ProductPriceResponse {
     private String priceName;
     private Integer unitItemId;
     private String unitItemName;
-    private Float price;
+    private BigDecimal price;
 }

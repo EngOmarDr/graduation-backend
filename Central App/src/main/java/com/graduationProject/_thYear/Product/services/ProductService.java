@@ -3,6 +3,7 @@ package com.graduationProject._thYear.Product.services;
 import com.graduationProject._thYear.Product.dtos.request.CreateProductRequest;
 import com.graduationProject._thYear.Product.dtos.request.UpdateProductRequest;
 import com.graduationProject._thYear.Product.dtos.response.ProductResponse;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
@@ -17,5 +18,7 @@ public interface ProductService {
     List<ProductResponse> getByBarcode(String barcode);
 
     List<ProductResponse> searchProducts(String searchTerm);
+
+    void importFromExcel(MultipartFile file);
 
 }
