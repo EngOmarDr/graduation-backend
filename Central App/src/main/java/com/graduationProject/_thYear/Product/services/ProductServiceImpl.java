@@ -19,6 +19,8 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Objects;
@@ -298,6 +301,49 @@ public class ProductServiceImpl implements ProductService{
             default -> "anonymous";
         };
     }
+
+    public void importFromExcel(MultipartFile file) {
+        try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
+            Sheet sheet = workbook.getSheetAt(0);
+
+            for (int i = 1; i <= sheet.getLastRowNum(); i++) { // skip header
+                Row row = sheet.getRow(i);
+                if (row == null) continue;
+
+                CreateProductRequest request = CreateProductRequest.builder()
+                        .code(getString(row, 0))
+                        .name(getString(row, 1))
+                        .type(Byte.valueOf(getString(row, 2)))
+                        .groupId(Integer.valueOf(getString(row, 3)))
+                        .defaultUnitId(Integer.valueOf(getString(row, 4)))
+                        .minQty(Float.valueOf(getString(row, 5)))
+                        .maxQty(Float.valueOf(getString(row, 6)))
+                        .orderQty(Float.valueOf(getString(row, 7)))
+                        .notes(getString(row, 8))
+                        .prices(List.of(CreateProductPriceRequest.builder()
+                                .unitItemId(Integer.valueOf(getString(row, 9)))
+                                .price(new BigDecimal(getString(row, 10)))
+                                .build()))
+                        .barcodes(List.of(CreateProductBarcodeRequest.builder()
+                                .unitItemId(Integer.valueOf(getString(row, 11)))
+                                .barcode(getString(row, 12))
+                                .build()))
+                        .build();
+
+                createProduct(request); // Call your existing logic
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read Excel file", e);
+        }
+    }
+
+    private String getString(Row row, int index) {
+        Cell cell = row.getCell(index);
+        if (cell == null) return "";
+        cell.setCellType(CellType.STRING);
+        return cell.getStringCellValue().trim();
+    }
+
     private List<ProductPriceResponse> convertPricesToResponse(List<ProductPrice> prices) {
         return prices.stream()
                 .map(this::convertPriceToResponse)
