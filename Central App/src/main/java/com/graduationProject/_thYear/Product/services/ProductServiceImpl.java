@@ -330,7 +330,7 @@ public class ProductServiceImpl implements ProductService{
                                 .build()))
                         .build();
 
-                createProduct(request); // Call your existing logic
+                createProduct(request);
             }
         } catch (IOException e) {
             throw new RuntimeException("Failed to read Excel file", e);

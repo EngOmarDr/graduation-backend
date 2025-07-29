@@ -173,10 +173,6 @@ public class JournalServiceImpl implements JournalService {
                 JournalHeader journalHeader = journalHeaderRepository.findById(id)
                         .orElseThrow(() -> new EntityNotFoundException("Journal not found with id: " + id));
 
-                // Prevent modification of posted journals
-                if (journalHeader.getIsPosted()) {
-                        throw new IllegalStateException("Cannot modify a posted journal");
-                }
 
                 // Update header fields from request
                 updateJournalHeader(journalHeader, request);
