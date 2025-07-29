@@ -1,8 +1,6 @@
 package com.graduationProject._thYear.Journal.controllers;
 
-import com.graduationProject._thYear.Auth.models.Role;
 import com.graduationProject._thYear.Auth.models.User;
-import com.graduationProject._thYear.Branch.models.Branch;
 import com.graduationProject._thYear.Journal.dtos.request.CreateJournalRequest;
 import com.graduationProject._thYear.Journal.dtos.request.UpdateJournalRequest;
 import com.graduationProject._thYear.Journal.dtos.response.GeneralJournalReportResponse;
@@ -10,7 +8,6 @@ import com.graduationProject._thYear.Journal.dtos.response.JournalResponse;
 import com.graduationProject._thYear.Journal.dtos.response.LedgerReport;
 import com.graduationProject._thYear.Journal.dtos.response.TrialBalanceReportResponse;
 import com.graduationProject._thYear.Journal.services.JournalService;
-import com.graduationProject._thYear.Warehouse.models.Warehouse;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,8 +27,9 @@ public class JournalController {
 
     private final JournalService journalService;
 
+
     @PostMapping
-    public ResponseEntity<JournalResponse> createJournal(@Valid @RequestBody CreateJournalRequest request) {
+    public ResponseEntity<JournalResponse> createJournal(@Valid @RequestBody CreateJournalRequest request ) {
         JournalResponse response = journalService.createJournal(request);
         return ResponseEntity.ok(response);
     }
