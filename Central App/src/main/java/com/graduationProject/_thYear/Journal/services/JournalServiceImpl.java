@@ -9,16 +9,21 @@ import com.graduationProject._thYear.Journal.models.JournalItem;
 import com.graduationProject._thYear.Journal.models.JournalKind;
 import com.graduationProject._thYear.Journal.repositories.JournalHeaderRepository;
 import com.graduationProject._thYear.Journal.repositories.JournalItemRepository;
+import com.graduationProject._thYear.Warehouse.models.Warehouse;
 import com.graduationProject._thYear.Account.repositories.AccountRepository;
+import com.graduationProject._thYear.Auth.models.Role;
+import com.graduationProject._thYear.Auth.models.User;
 import com.graduationProject._thYear.Branch.models.Branch;
 import com.graduationProject._thYear.Branch.repositories.BranchRepository;
 import com.graduationProject._thYear.Currency.repositories.CurrencyRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.Tuple;
 import jakarta.validation.constraints.NotNull;
-import lombok.RequiredArgsConstructor;
+
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.ResourceAccessException;
 
 import java.math.BigDecimal;
 import java.sql.Date;
@@ -32,7 +37,6 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
-@RequiredArgsConstructor
 public class JournalServiceImpl implements JournalService {
 
         private final JournalHeaderRepository journalHeaderRepository;
@@ -40,7 +44,23 @@ public class JournalServiceImpl implements JournalService {
         private final BranchRepository branchRepository;
         private final CurrencyRepository currencyRepository;
         private final AccountRepository accountRepository;
-
+        private final User user;
+        
+        public JournalServiceImpl(
+                JournalHeaderRepository journalHeaderRepository, 
+                JournalItemRepository journalItemRepository,
+                BranchRepository branchRepository,
+                CurrencyRepository currencyRepository,
+                AccountRepository accountRepository,
+                @AuthenticationPrincipal User user
+        ){
+                this.journalHeaderRepository = journalHeaderRepository;
+                this.journalItemRepository = journalItemRepository;
+                this.branchRepository = branchRepository;
+                this.currencyRepository = currencyRepository;
+                this.accountRepository = accountRepository;
+                this.user = user;
+        }
         @Override
         @Transactional
         public JournalResponse createJournal(CreateJournalRequest request) {
@@ -52,6 +72,7 @@ public class JournalServiceImpl implements JournalService {
                 Currency currency = currencyRepository.findById(request.getCurrencyId())
                         .orElseThrow(() -> new EntityNotFoundException("Currency not found with id: " + request.getCurrencyId()));
 
+                
                 // Create journal items (store original values)
                 List<JournalItem> journalItems = request.getJournalItems().stream()
                         .map(itemRequest -> {
@@ -163,7 +184,14 @@ public class JournalServiceImpl implements JournalService {
         public JournalResponse getJournalById(Integer id) {
                 JournalHeader journalHeader = journalHeaderRepository.findById(id)
                         .orElseThrow(() -> new EntityNotFoundException("Journal not found with id: " + id));
-
+                if (user.getRole().equals(Role.ADMIN)){
+                        Integer branchId = Optional.ofNullable(user.getWarehouse())
+                                .map(Warehouse::getBranch)
+                                .map(Branch::getId)
+                                .orElse(-1);
+                        journalHeaderRepository.findByIdAndBranchId(id, branchId)
+                        .orElseThrow(() -> new ResourceAccessException("Access to Resourse by User " + user.getUsername() + " Is Not Permissible."));
+                }
                 return mapToJournalResponse(journalHeader);
         }
 
@@ -172,6 +200,15 @@ public class JournalServiceImpl implements JournalService {
         public JournalResponse updateJournal(Integer id, UpdateJournalRequest request) {
                 JournalHeader journalHeader = journalHeaderRepository.findById(id)
                         .orElseThrow(() -> new EntityNotFoundException("Journal not found with id: " + id));
+                
+                if (user.getRole().equals(Role.ADMIN)){
+                        Integer branchId = Optional.ofNullable(user.getWarehouse())
+                                .map(Warehouse::getBranch)
+                                .map(Branch::getId)
+                                .orElse(-1);
+                        journalHeaderRepository.findByIdAndBranchId(id, branchId)
+                        .orElseThrow(() -> new ResourceAccessException("Access to Resourse by User " + user.getUsername() + " Is Not Permissible."));
+                }
 
                 // Prevent modification of posted journals
                 if (journalHeader.getIsPosted()) {
@@ -205,6 +242,7 @@ public class JournalServiceImpl implements JournalService {
                         journalHeader.setBranch(branch);;
                 }
 
+         
                 if (request.getDate() != null) {
                         journalHeader.setDate(request.getDate());
                 }
@@ -249,6 +287,7 @@ public class JournalServiceImpl implements JournalService {
                         journalItemRepository.delete(item);
                 }
 
+                
                 // Add new items
                 List<JournalItem> newItems = itemRequests.stream()
                         .map(itemRequest -> {
@@ -319,6 +358,14 @@ public class JournalServiceImpl implements JournalService {
                 JournalHeader journalHeader = journalHeaderRepository.findById(id)
                         .orElseThrow(() -> new EntityNotFoundException("Journal not found with id: " + id));
 
+                if (user.getRole().equals(Role.ADMIN)){
+                        Integer branchId = Optional.ofNullable(user.getWarehouse())
+                                .map(Warehouse::getBranch)
+                                .map(Branch::getId)
+                                .orElse(-1);
+                        journalHeaderRepository.findByIdAndBranchId(id, branchId)
+                        .orElseThrow(() -> new ResourceAccessException("Access to Resourse by User " + user.getUsername() + " Is Not Permissible."));
+                }
                 journalItemRepository.deleteAll(journalHeader.getJournalItems());
                 journalHeaderRepository.delete(journalHeader);
         }

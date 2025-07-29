@@ -9,7 +9,6 @@ import com.graduationProject._thYear.Journal.dtos.response.GeneralJournalReportR
 import com.graduationProject._thYear.Journal.dtos.response.JournalResponse;
 import com.graduationProject._thYear.Journal.dtos.response.LedgerReport;
 import com.graduationProject._thYear.Journal.dtos.response.TrialBalanceReportResponse;
-import com.graduationProject._thYear.Journal.repositories.JournalHeaderRepository;
 import com.graduationProject._thYear.Journal.services.JournalService;
 import com.graduationProject._thYear.Warehouse.models.Warehouse;
 
@@ -19,7 +18,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.ResourceAccessException;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -31,7 +29,6 @@ import java.util.Optional;
 public class JournalController {
 
     private final JournalService journalService;
-    private final JournalHeaderRepository journalHeaderRepository;
 
     @PostMapping
     public ResponseEntity<JournalResponse> createJournal(@Valid @RequestBody CreateJournalRequest request) {
@@ -66,15 +63,8 @@ public class JournalController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<JournalResponse> getJournalById(@PathVariable Integer id, @AuthenticationPrincipal User user) {
-        if (user.getRole().equals(Role.ADMIN)){
-            Integer branchId = Optional.ofNullable(user.getWarehouse())
-                .map(Warehouse::getBranch)
-                .map(Branch::getId)
-                .orElse(-1);
-            journalHeaderRepository.findByIdAndBranchId(id, branchId)
-                .orElseThrow(() -> new ResourceAccessException("Access to Resourse by User " + user.getUsername() + " Is Not Permissible."));
-        }
+    public ResponseEntity<JournalResponse> getJournalById(@PathVariable Integer id) {
+        
         JournalResponse response = journalService.getJournalById(id);
         return ResponseEntity.ok(response);
     }
@@ -82,32 +72,16 @@ public class JournalController {
     @PutMapping("/{id}")
     public ResponseEntity<JournalResponse> updateJournal(
             @PathVariable Integer id,
-            @Valid @RequestBody UpdateJournalRequest request,
-            @AuthenticationPrincipal User user
+            @Valid @RequestBody UpdateJournalRequest request
         ) {
-        if (user.getRole().equals(Role.ADMIN)){
-        Integer branchId = Optional.ofNullable(user.getWarehouse())
-            .map(Warehouse::getBranch)
-            .map(Branch::getId)
-            .orElse(-1);
-        journalHeaderRepository.findByIdAndBranchId(id, branchId)
-            .orElseThrow(() -> new ResourceAccessException("Access to Resourse by User " + user.getUsername() + " Is Not Permissible."));
-        }
-        JournalResponse response = journalService.updateJournal(id, request);
-        return ResponseEntity.ok(response);
+    
+            JournalResponse response = journalService.updateJournal(id, request);
+            return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
             
-    public ResponseEntity<Void> deleteJournal(@PathVariable Integer id, @AuthenticationPrincipal User user) {
-        if (user.getRole().equals(Role.ADMIN)){
-        Integer branchId = Optional.ofNullable(user.getWarehouse())
-            .map(Warehouse::getBranch)
-            .map(Branch::getId)
-            .orElse(-1);
-        journalHeaderRepository.findByIdAndBranchId(id, branchId)
-            .orElseThrow(() -> new ResourceAccessException("Access to Resourse by User " + user.getUsername() + " Is Not Permissible."));
-        }
+    public ResponseEntity<Void> deleteJournal(@PathVariable Integer id) {
         journalService.deleteJournal(id);
         return ResponseEntity.noContent().build();
     }
