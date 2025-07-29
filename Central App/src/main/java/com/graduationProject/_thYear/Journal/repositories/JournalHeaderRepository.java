@@ -10,12 +10,16 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import com.graduationProject._thYear.Journal.models.JournalHeader;
+import com.graduationProject._thYear.Branch.models.Branch;
+
 
 public interface JournalHeaderRepository extends JpaRepository<JournalHeader, Integer> {
 
   //  List<JournalHeader> findByDateBetween(LocalDateTime startDate, LocalDateTime endDate);
     @EntityGraph(attributePaths = {"journalItems", "branch", "currency"})
     List<JournalHeader> findAll();
+
+    Optional<JournalHeader> findByIdAndBranchId(Integer id, Integer branch);
 
 
     @EntityGraph(attributePaths = {"journalItems", "branch", "currency"})
