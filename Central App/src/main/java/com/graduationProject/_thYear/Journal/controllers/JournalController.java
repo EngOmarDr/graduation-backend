@@ -14,6 +14,7 @@ import com.graduationProject._thYear.Warehouse.models.Warehouse;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,8 +25,8 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/journals")
 @RequiredArgsConstructor
+@RequestMapping("/api/journals")
 public class JournalController {
 
     private final JournalService journalService;
@@ -44,12 +45,8 @@ public class JournalController {
         @RequestParam(required = false) LocalDate endDate,
         @AuthenticationPrincipal User user
     ) {
-        if (user.getRole().equals(Role.USER)){
-            branchId = Optional.ofNullable(user.getWarehouse())
-                .map(Warehouse::getBranch)
-                .map(Branch::getId)
-                .orElse(-1);
-        }
+        journalService.setUser(user);
+    
         List<JournalResponse> response = journalService.listJournals(branchId,parentType,startDate,endDate);
         return ResponseEntity.ok(response);
     }
@@ -63,8 +60,8 @@ public class JournalController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<JournalResponse> getJournalById(@PathVariable Integer id) {
-        
+    public ResponseEntity<JournalResponse> getJournalById(@PathVariable Integer id, @AuthenticationPrincipal User user) {
+        journalService.setUser(user);
         JournalResponse response = journalService.getJournalById(id);
         return ResponseEntity.ok(response);
     }
@@ -72,16 +69,18 @@ public class JournalController {
     @PutMapping("/{id}")
     public ResponseEntity<JournalResponse> updateJournal(
             @PathVariable Integer id,
-            @Valid @RequestBody UpdateJournalRequest request
+            @Valid @RequestBody UpdateJournalRequest request,
+            @AuthenticationPrincipal User user
         ) {
-    
+            journalService.setUser(user);
             JournalResponse response = journalService.updateJournal(id, request);
             return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
             
-    public ResponseEntity<Void> deleteJournal(@PathVariable Integer id) {
+    public ResponseEntity<Void> deleteJournal(@PathVariable Integer id, @AuthenticationPrincipal User user) {
+        journalService.setUser(user);
         journalService.deleteJournal(id);
         return ResponseEntity.noContent().build();
     }

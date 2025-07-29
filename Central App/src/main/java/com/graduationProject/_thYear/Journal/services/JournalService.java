@@ -3,6 +3,7 @@ package com.graduationProject._thYear.Journal.services;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.graduationProject._thYear.Auth.models.User;
 import com.graduationProject._thYear.Journal.dtos.request.CreateJournalRequest;
 import com.graduationProject._thYear.Journal.dtos.request.UpdateJournalRequest;
 import com.graduationProject._thYear.Journal.dtos.response.GeneralJournalReportResponse;
@@ -13,6 +14,7 @@ import com.graduationProject._thYear.Journal.dtos.response.TrialBalanceReportRes
 public interface JournalService {
     JournalResponse createJournal(CreateJournalRequest request);
 
+    void setUser(User user);
     // JournalResponse getAccountById(Integer id);
 
     List<JournalResponse> listJournals(

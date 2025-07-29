@@ -19,6 +19,7 @@ import com.graduationProject._thYear.Currency.repositories.CurrencyRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.Tuple;
 import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
@@ -37,6 +38,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class JournalServiceImpl implements JournalService {
 
         private final JournalHeaderRepository journalHeaderRepository;
@@ -44,23 +46,14 @@ public class JournalServiceImpl implements JournalService {
         private final BranchRepository branchRepository;
         private final CurrencyRepository currencyRepository;
         private final AccountRepository accountRepository;
-        private final User user;
+        private  User user;
         
-        public JournalServiceImpl(
-                JournalHeaderRepository journalHeaderRepository, 
-                JournalItemRepository journalItemRepository,
-                BranchRepository branchRepository,
-                CurrencyRepository currencyRepository,
-                AccountRepository accountRepository,
-                @AuthenticationPrincipal User user
-        ){
-                this.journalHeaderRepository = journalHeaderRepository;
-                this.journalItemRepository = journalItemRepository;
-                this.branchRepository = branchRepository;
-                this.currencyRepository = currencyRepository;
-                this.accountRepository = accountRepository;
+
+
+        public void setUser(User user){
                 this.user = user;
         }
+    
         @Override
         @Transactional
         public JournalResponse createJournal(CreateJournalRequest request) {
@@ -157,7 +150,13 @@ public class JournalServiceImpl implements JournalService {
 
         @Override
         public List<JournalResponse> listJournals(Integer branchId, Byte parentType, LocalDate startDate, LocalDate endDate) {
-        return journalHeaderRepository.list(
+                if (user.getRole().equals(Role.USER)){
+                   branchId = Optional.ofNullable(user.getWarehouse())
+                        .map(Warehouse::getBranch)
+                        .map(Branch::getId)
+                        .orElse(-1);
+                }
+                return journalHeaderRepository.list(
                         branchId, 
                         parentType,
                         Optional.ofNullable(startDate)
@@ -181,10 +180,11 @@ public class JournalServiceImpl implements JournalService {
         }
 
         @Override
+                
         public JournalResponse getJournalById(Integer id) {
                 JournalHeader journalHeader = journalHeaderRepository.findById(id)
                         .orElseThrow(() -> new EntityNotFoundException("Journal not found with id: " + id));
-                if (user.getRole().equals(Role.ADMIN)){
+                if (user.getRole().equals(Role.USER)){
                         Integer branchId = Optional.ofNullable(user.getWarehouse())
                                 .map(Warehouse::getBranch)
                                 .map(Branch::getId)
@@ -201,7 +201,7 @@ public class JournalServiceImpl implements JournalService {
                 JournalHeader journalHeader = journalHeaderRepository.findById(id)
                         .orElseThrow(() -> new EntityNotFoundException("Journal not found with id: " + id));
                 
-                if (user.getRole().equals(Role.ADMIN)){
+                if (user.getRole().equals(Role.USER)){
                         Integer branchId = Optional.ofNullable(user.getWarehouse())
                                 .map(Warehouse::getBranch)
                                 .map(Branch::getId)
@@ -354,7 +354,7 @@ public class JournalServiceImpl implements JournalService {
                 JournalHeader journalHeader = journalHeaderRepository.findById(id)
                         .orElseThrow(() -> new EntityNotFoundException("Journal not found with id: " + id));
 
-                if (user.getRole().equals(Role.ADMIN)){
+                if (user.getRole().equals(Role.USER)){
                         Integer branchId = Optional.ofNullable(user.getWarehouse())
                                 .map(Warehouse::getBranch)
                                 .map(Branch::getId)
