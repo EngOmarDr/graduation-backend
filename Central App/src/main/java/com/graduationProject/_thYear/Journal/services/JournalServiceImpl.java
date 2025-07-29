@@ -210,10 +210,6 @@ public class JournalServiceImpl implements JournalService {
                         .orElseThrow(() -> new ResourceAccessException("Access to Resourse by User " + user.getUsername() + " Is Not Permissible."));
                 }
 
-                // Prevent modification of posted journals
-                if (journalHeader.getIsPosted()) {
-                        throw new IllegalStateException("Cannot modify a posted journal");
-                }
 
                 // Update header fields from request
                 updateJournalHeader(journalHeader, request);

@@ -174,9 +174,6 @@ public class InvoiceService {
                 .orElseThrow(() -> new RuntimeException("Invoice not found"));
         boolean wasPosted = invoice.getIsPosted();
 
-        if (Boolean.TRUE.equals(wasPosted)) {
-            throw new RuntimeException("Invoice is posted. Cannot update.");
-        }
 
         Optional<JournalHeader> existingJournalOpt = journalHeaderRepository.findByKindAndParentId(JournalKind.INVOICE, invoice.getId());
 
