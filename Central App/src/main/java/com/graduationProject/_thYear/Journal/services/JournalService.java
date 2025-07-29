@@ -15,7 +15,12 @@ public interface JournalService {
 
     // JournalResponse getAccountById(Integer id);
 
-    List<JournalResponse> getAllJournals();
+    List<JournalResponse> listJournals(
+        Integer branchId,
+        Byte parentType,
+        LocalDate startDate,
+        LocalDate endDate
+    );
 
     List<JournalResponse> getJournalsByDateRange(LocalDate startDate, LocalDate endDate);
 

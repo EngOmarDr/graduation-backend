@@ -1,6 +1,5 @@
 package com.graduationProject._thYear.Auth.models;
 
-import com.graduationProject._thYear.Branch.models.Branch;
 import com.graduationProject._thYear.Warehouse.models.Warehouse;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

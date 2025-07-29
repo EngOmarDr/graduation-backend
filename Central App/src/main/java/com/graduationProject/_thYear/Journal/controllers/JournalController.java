@@ -1,5 +1,8 @@
 package com.graduationProject._thYear.Journal.controllers;
 
+import com.graduationProject._thYear.Auth.models.Role;
+import com.graduationProject._thYear.Auth.models.User;
+import com.graduationProject._thYear.Branch.models.Branch;
 import com.graduationProject._thYear.Journal.dtos.request.CreateJournalRequest;
 import com.graduationProject._thYear.Journal.dtos.request.UpdateJournalRequest;
 import com.graduationProject._thYear.Journal.dtos.response.GeneralJournalReportResponse;
@@ -7,14 +10,18 @@ import com.graduationProject._thYear.Journal.dtos.response.JournalResponse;
 import com.graduationProject._thYear.Journal.dtos.response.LedgerReport;
 import com.graduationProject._thYear.Journal.dtos.response.TrialBalanceReportResponse;
 import com.graduationProject._thYear.Journal.services.JournalService;
+import com.graduationProject._thYear.Warehouse.models.Warehouse;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/journals")
@@ -30,8 +37,21 @@ public class JournalController {
     }
 
     @GetMapping
-    public ResponseEntity<List<JournalResponse>> getAllJournals() {
-        List<JournalResponse> response = journalService.getAllJournals();
+    public ResponseEntity<List<JournalResponse>> listJournals(
+        @RequestParam(required = false) Integer branchId,
+        @RequestParam(required = false) Byte parentType,
+        @RequestParam(required = false) LocalDate startDate,
+        @RequestParam(required = false) LocalDate endDate,
+        @AuthenticationPrincipal User user
+    ) {
+        if (user.getRole().equals(Role.USER)){
+            System.out.println("hi t here");
+            branchId = Optional.ofNullable(user.getWarehouse())
+                .map(Warehouse::getBranch)
+                .map(Branch::getId)
+                .orElse(-1);
+        }
+        List<JournalResponse> response = journalService.listJournals(branchId,parentType,startDate,endDate);
         return ResponseEntity.ok(response);
     }
 

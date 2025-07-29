@@ -27,6 +27,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -134,8 +135,16 @@ public class JournalServiceImpl implements JournalService {
 
 
         @Override
-        public List<JournalResponse> getAllJournals() {
-                return journalHeaderRepository.findAll().stream()
+        public List<JournalResponse> listJournals(Integer branchId, Byte parentType, LocalDate startDate, LocalDate endDate) {
+        return journalHeaderRepository.list(
+                        branchId, 
+                        parentType,
+                        Optional.ofNullable(startDate)
+                                .map(date -> date .atStartOfDay())
+                                .orElse(null), 
+                        Optional.ofNullable(endDate)
+                                .map(date -> date.plusDays(1).atStartOfDay())
+                                .orElse(null)).stream()
                         .map(this::mapToJournalResponse)
                         .collect(Collectors.toList());
         }
