@@ -11,6 +11,7 @@ public class AccountResponse {
     private String code;
     private String name;
     private Integer parentId;
+    private String parentName;
     private Integer finalAccount;
 
 }
