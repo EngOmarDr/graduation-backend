@@ -1,6 +1,7 @@
 package com.graduationProject._thYear.Invoice.models;
 
 import com.graduationProject._thYear.Account.models.Account;
+import com.graduationProject._thYear.Auth.models.User;
 import com.graduationProject._thYear.Currency.models.Currency;
 import com.graduationProject._thYear.InvoiceType.models.InvoiceType;
 import com.graduationProject._thYear.Warehouse.models.Warehouse;
@@ -108,6 +109,11 @@ public class InvoiceHeader {
     @OneToMany(mappedBy = "invoiceHeader", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<InvoiceDiscount> invoiceDiscounts = new ArrayList<>();
+
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
 
 }

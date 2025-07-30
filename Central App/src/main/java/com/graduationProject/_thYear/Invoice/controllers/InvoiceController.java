@@ -1,13 +1,14 @@
 package com.graduationProject._thYear.Invoice.controllers;
 
+import com.graduationProject._thYear.Auth.models.User;
 import com.graduationProject._thYear.Invoice.dtos.requests.*;
 import com.graduationProject._thYear.Invoice.dtos.responses.*;
 import com.graduationProject._thYear.Invoice.services.InvoiceService;
 
-import com.graduationProject._thYear.Journal.dtos.response.JournalResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -21,7 +22,8 @@ public class InvoiceController {
     private final InvoiceService service;
 
     @PostMapping
-    public ResponseEntity<InvoiceResponse> create(@Valid @RequestBody CreateInvoiceRequest request) {
+    public ResponseEntity<InvoiceResponse> create(@Valid @RequestBody CreateInvoiceRequest request, @AuthenticationPrincipal User user) {
+        request.setUser(user);
         return ResponseEntity.ok(service.create(request));
     }
 

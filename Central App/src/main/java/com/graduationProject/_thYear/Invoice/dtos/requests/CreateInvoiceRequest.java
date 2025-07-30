@@ -1,5 +1,6 @@
 package com.graduationProject._thYear.Invoice.dtos.requests;
 
+import com.graduationProject._thYear.Auth.models.User;
 import com.graduationProject._thYear.Invoice.annotationValidator.UniqueInvoiceItemProducts;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
@@ -40,6 +41,8 @@ public class CreateInvoiceRequest {
     private LocalDateTime postedDate;
     private String notes;
 
+    private User user;
+    
     @Valid
     @NotNull(message = "invoiceItems are required")
     @NotEmpty(message = "At least one invoice item is required")

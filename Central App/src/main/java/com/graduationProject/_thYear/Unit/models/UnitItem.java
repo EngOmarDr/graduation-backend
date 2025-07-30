@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Builder.Default;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +40,8 @@ public class UnitItem {
     private Float fact;
 
     @Column(name = "is_def" )
-    private Boolean isDef;
+    @Default
+    private Boolean isDef = false;
 
     @OneToMany(mappedBy = "unitItem", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

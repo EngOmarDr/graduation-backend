@@ -88,12 +88,12 @@ public class InvoiceService {
                 .parentType(InvoiceKind.NORMAL)
                 .parentId(null)
                 .postedDate(Boolean.TRUE.equals(req.getIsPosted()) && req.getPostedDate() == null ? LocalDateTime.now() : req.getPostedDate())
+                .user(req.getUser())
                 .build();
-
 
         List<InvoiceItem> items = req.getInvoiceItems().stream().map(itemReq -> {
             Product product = productRepo.findById(itemReq.getProductId())
-                    .orElseThrow(() -> new RuntimeException(" product  not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException(" product  not found"));
             UnitItem unitItem = resolveUnitItem(product, itemReq.getUnitItemId());
             BigDecimal unitFact = Optional.ofNullable(itemReq.getUnitFact()).orElse(BigDecimal.valueOf(unitItem.getFact()));
 
@@ -154,7 +154,6 @@ public class InvoiceService {
                 journalHeaderRepository.save(journal);
             }
         }
-
         return toResponse(saved);
     }
 
@@ -469,9 +468,9 @@ public class InvoiceService {
             return unitItemRepo.findById(unitItemId).orElseThrow(() -> new RuntimeException("unitItemId  not found"));
         } else {
             return product.getDefaultUnit().getUnitItems().stream()
-                    .filter(UnitItem::getIsDef)
+                    .filter((UnitItem unitItem) -> unitItem.getIsDef())
                     .findFirst()
-                    .orElseThrow(() -> new RuntimeException("Default unit item not found"));
+                    .orElseThrow(() -> new  ResourceNotFoundException("Default unit item not found"));
         }
     }
 
