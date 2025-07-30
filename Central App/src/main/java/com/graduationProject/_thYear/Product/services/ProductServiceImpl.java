@@ -321,12 +321,13 @@ public class ProductServiceImpl implements ProductService{
                         .orderQty(Float.valueOf(getString(row, 7)))
                         .notes(getString(row, 8))
                         .prices(List.of(CreateProductPriceRequest.builder()
-                                .unitItemId(Integer.valueOf(getString(row, 9)))
-                                .price(new BigDecimal(getString(row, 10)))
+                                .priceId(Integer.valueOf(getString(row, 9)))
+                                .unitItemId(Integer.valueOf(getString(row, 10)))
+                                .price(new BigDecimal(getString(row, 11)))
                                 .build()))
                         .barcodes(List.of(CreateProductBarcodeRequest.builder()
-                                .unitItemId(Integer.valueOf(getString(row, 11)))
-                                .barcode(getString(row, 12))
+                                .unitItemId(Integer.valueOf(getString(row, 12)))
+                                .barcode(getString(row, 13))
                                 .build()))
                         .build();
 
