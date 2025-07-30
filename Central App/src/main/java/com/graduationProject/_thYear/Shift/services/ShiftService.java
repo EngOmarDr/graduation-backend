@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
@@ -25,7 +26,7 @@ public class ShiftService  {
     private final ShiftRepository shiftRepository;
     
     public ShiftResponse startShift(StartShiftRequest request){
-        List<Shift> previouseShifts = shiftRepository.findAll(Sort.by(Order.desc("startDate")));
+        List<Shift> previouseShifts = shiftRepository.findByUserId(request.getUser().getId(), Sort.by(Order.desc("startDate")));
         if (!previouseShifts.isEmpty() && previouseShifts.getFirst().getEndDate() == null){
             throw new ResourceAccessException("Can't start a new shift before closing the previouse one");
         }
@@ -65,6 +66,16 @@ public class ShiftService  {
 
         shiftRepository.save(shift);
         return ShiftResponse.fromShiftEntity(shift);
+    }
+
+
+
+    public List<ShiftResponse> listShifts(Integer userId, LocalDateTime startDate, LocalDateTime endDate, Boolean isClosed) {
+        List<Shift> shifts = shiftRepository.listShifts(userId, startDate, endDate, isClosed, Sort.by(Order.desc("startDate")));
+        System.out.println(isClosed);
+        return shifts.stream()
+            .map(ShiftResponse::fromShiftEntity)
+            .collect(Collectors.toList());
     }
    
 }
