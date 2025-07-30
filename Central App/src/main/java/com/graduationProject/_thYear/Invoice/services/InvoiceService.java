@@ -22,9 +22,12 @@ import com.graduationProject._thYear.Product.models.Product;
 import com.graduationProject._thYear.Product.repositories.ProductRepository;
 import com.graduationProject._thYear.ProductStock.models.ProductStock;
 import com.graduationProject._thYear.ProductStock.services.ProductStockService;
+import com.graduationProject._thYear.Shift.models.Shift;
+import com.graduationProject._thYear.Shift.repositories.ShiftRepository;
 import com.graduationProject._thYear.Unit.models.UnitItem;
 import com.graduationProject._thYear.Unit.repositories.UnitItemRepository;
 import com.graduationProject._thYear.Account.repositories.AccountRepository;
+import com.graduationProject._thYear.Auth.models.Role;
 import com.graduationProject._thYear.InvoiceType.repositories.InvoiceTypeRepository;
 import com.graduationProject._thYear.Warehouse.models.Warehouse;
 import com.graduationProject._thYear.Warehouse.repositories.WarehouseRepository;
@@ -36,7 +39,9 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.ResourceAccessException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -60,9 +65,18 @@ public class InvoiceService {
     private final ProductStockService stockService;
     private final JournalHeaderRepository journalHeaderRepository;
     private final JournalItemRepository journalItemRepository;
+    private final ShiftRepository shiftRepository;
 
     @Transactional
     public InvoiceResponse create(CreateInvoiceRequest req) {
+             List<Shift> previouseShifts = shiftRepository.findByUserId(req.getUser().getId(), Sort.by(Order.desc("startDate")));
+
+        if (req.getUser().getRole().equals(Role.USER)){
+            if (!previouseShifts.isEmpty() && previouseShifts.getFirst().getEndDate() != null){
+                throw new ResourceAccessException("Can't create an invoice without starting a shift first");
+            }
+        }
+        
         Warehouse warehouse = warehouseRepo.findById(req.getWarehouseId())
                 .orElseThrow(() -> new ResourceNotFoundException("warehouse  not found"));
         Account account = accountRepo.findById(req.getAccountId())
