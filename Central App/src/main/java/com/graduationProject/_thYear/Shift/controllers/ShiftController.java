@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -41,9 +40,12 @@ public class ShiftController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ShiftResponse> checkShift(@PathVariable Integer id) {
-        var response = shiftService.checkShift(id);
+    @GetMapping("/check")
+    public ResponseEntity<ShiftResponse> checkShift(
+            @AuthenticationPrincipal User user
+    ) {
+        
+        var response = shiftService.checkShift(user.getId());
         return ResponseEntity.ok(response);
     }
 
@@ -70,11 +72,11 @@ public class ShiftController {
         return ResponseEntity.ok(responses);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/close")
     public ResponseEntity<ShiftResponse> closeShift(
-            @PathVariable Integer id,
+            @AuthenticationPrincipal User user,
             @Valid @RequestBody CloseShiftRequest request) {
-        var response = shiftService.closeShift(id, request);
+        var response = shiftService.closeShift(user.getId(), request);
         return ResponseEntity.ok(response);
     }
 
