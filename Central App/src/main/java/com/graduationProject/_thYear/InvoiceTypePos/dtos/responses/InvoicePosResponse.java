@@ -5,5 +5,6 @@ import lombok.Data;
 
 @Data
 public class InvoicePosResponse {
+    private Integer id;
     private Integer invoiceTypeId;
 }

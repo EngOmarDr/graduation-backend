@@ -67,6 +67,7 @@ public class InvoicePosService {
 
     private InvoicePosResponse mapToResponse(InvoicePos invoicePos) {
         InvoicePosResponse response = new InvoicePosResponse();
+        response.setId(invoicePos.getId());
         response.setInvoiceTypeId(invoicePos.getInvoiceTypeId().getId());
         return response;
     }
