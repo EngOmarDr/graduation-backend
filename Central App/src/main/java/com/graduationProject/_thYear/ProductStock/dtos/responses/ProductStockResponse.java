@@ -10,8 +10,6 @@ import java.math.BigDecimal;
 @Builder
 public class ProductStockResponse {
 
-    // Product full details
-    private ProductResponse product;
     private Integer id;
     private Integer productId;
     private String productName;
