@@ -21,4 +21,6 @@ public interface ProductService {
 
     void importFromExcel(MultipartFile file);
 
+//    List<ProductResponse> getProductsByWarehouse(Integer warehouseId);
+
 }
