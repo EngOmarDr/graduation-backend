@@ -110,9 +110,9 @@ public class InvoiceHeader {
     @Builder.Default
     private List<InvoiceDiscount> invoiceDiscounts = new ArrayList<>();
 
-    @NotNull
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")
     private User user;
 
 

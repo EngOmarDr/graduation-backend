@@ -2,6 +2,8 @@ package com.graduationProject._thYear.Transfer.services;
 
 import com.graduationProject._thYear.Account.models.Account;
 import com.graduationProject._thYear.Account.repositories.AccountRepository;
+import com.graduationProject._thYear.Auth.models.User;
+import com.graduationProject._thYear.Auth.repositories.UserRepository;
 import com.graduationProject._thYear.Currency.repositories.CurrencyRepository;
 import com.graduationProject._thYear.Invoice.models.InvoiceHeader;
 import com.graduationProject._thYear.Invoice.models.InvoiceItem;
@@ -33,6 +35,8 @@ import com.graduationProject._thYear.Warehouse.repositories.WarehouseRepository;
 import com.graduationProject._thYear.exceptionHandler.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -55,6 +59,7 @@ public class TransferService {
     private final ProductRepository productRepo;
     private final UnitItemRepository unitItemRepo;
     private final ProductStockService stockService;
+    private final UserRepository userRepository;
 
     private final JournalHeaderRepository journalHeaderRepository;
 
@@ -68,6 +73,10 @@ public class TransferService {
                 .orElseThrow(() -> new ResourceNotFoundException("Cash account not found"));
         Account expenseAccount = accountRepo.findById(request.getExpenseAccountId())
                 .orElseThrow(() -> new ResourceNotFoundException("Expense account not found"));
+
+        if (request.getItems() == null || request.getItems().isEmpty()) {
+            throw new IllegalArgumentException("Transfer must contain at least one item");
+        }
 
         Transfer transfer = Transfer.builder()
                 .fromWarehouseId(fromWarehouse)
@@ -294,7 +303,7 @@ public class TransferService {
         );
     }
 
-
+    @Transactional
     private void createSingleInvoiceFromTransfer(Integer warehouseId, Integer invoiceTypeId, Transfer transfer) {
         InvoiceHeader invoice = new InvoiceHeader();
         invoice.setWarehouse(warehouseRepo.getReferenceById(warehouseId));
@@ -310,6 +319,12 @@ public class TransferService {
         invoice.setParentId(transfer.getId());
         invoice.setIsSuspended(false);
         invoice.setInvoiceDiscounts(new ArrayList<>());
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = userRepository.findByUsername(auth.getName())
+                .orElseThrow(() -> new ResourceNotFoundException("Current user not found"));
+
+        invoice.setUser(currentUser);
 
         List<InvoiceItem> items = new ArrayList<>();
 
