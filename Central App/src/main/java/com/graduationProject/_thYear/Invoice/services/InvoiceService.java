@@ -149,23 +149,25 @@ public class InvoiceService {
         invoice.setTotalExtra(calculateTotalExtras(discounts));
 
         InvoiceHeader saved = headerRepo.save(invoice);
+        if (!saved.getIsSuspended()) {
 
-        if (saved.getIsPosted()) {
-            adjustStock(items, warehouse.getId(), type, false);
-        }
+            if (saved.getIsPosted()) {
+                adjustStock(items, warehouse.getId(), type, false);
+            }
 
 
-        if (invoiceType.getIsNoEntry() != null && invoiceType.getIsNoEntry()) {
-            return toResponse(saved);
-        }
+            if (invoiceType.getIsNoEntry() != null && invoiceType.getIsNoEntry()) {
+                return toResponse(saved);
+            }
 
-        if (invoiceType.getIsAutoEntry() != null && invoiceType.getIsAutoEntry()) {
-            JournalHeader journal = generateJournalFromInvoice(saved);
-            journalHeaderRepository.save(journal);
-
-            if (Boolean.TRUE.equals(invoiceType.getIsAutoEntryPost())) {
-                journal.setIsPosted(true);
+            if (invoiceType.getIsAutoEntry() != null && invoiceType.getIsAutoEntry()) {
+                JournalHeader journal = generateJournalFromInvoice(saved);
                 journalHeaderRepository.save(journal);
+
+                if (Boolean.TRUE.equals(invoiceType.getIsAutoEntryPost())) {
+                    journal.setIsPosted(true);
+                    journalHeaderRepository.save(journal);
+                }
             }
         }
         return toResponse(saved);
@@ -285,24 +287,27 @@ public class InvoiceService {
         invoice.setTotalExtra(calculateTotalExtras(invoice.getInvoiceDiscounts()));
 
         InvoiceHeader updated = headerRepo.save(invoice);
-        if (wasPosted) {
-            adjustStock(oldItems, invoice.getWarehouse().getId(), oldType, true);
-        }
-
-        if (updated.getIsPosted()) adjustStock(updated.getInvoiceItems(), updated.getWarehouse().getId(), updated.getInvoiceType(), false);
-
-        if (invoice.getInvoiceType().getIsNoEntry() != null && invoice.getInvoiceType().getIsNoEntry()) {
-            return toResponse(updated);
-        }
-
-        if (invoice.getInvoiceType().getIsAutoEntry() != null && invoice.getInvoiceType().getIsAutoEntry()) {
-            JournalHeader newJournal = generateJournalFromInvoice(invoice);
-
-            if (Boolean.TRUE.equals(invoice.getInvoiceType().getIsAutoEntryPost())) {
-                newJournal.setIsPosted(true);
+        if (!updated.getIsSuspended()) {
+            if (wasPosted) {
+                adjustStock(oldItems, invoice.getWarehouse().getId(), oldType, true);
             }
 
-            journalHeaderRepository.save(newJournal);
+            if (updated.getIsPosted())
+                adjustStock(updated.getInvoiceItems(), updated.getWarehouse().getId(), updated.getInvoiceType(), false);
+
+            if (invoice.getInvoiceType().getIsNoEntry() != null && invoice.getInvoiceType().getIsNoEntry()) {
+                return toResponse(updated);
+            }
+
+            if (invoice.getInvoiceType().getIsAutoEntry() != null && invoice.getInvoiceType().getIsAutoEntry()) {
+                JournalHeader newJournal = generateJournalFromInvoice(invoice);
+
+                if (Boolean.TRUE.equals(invoice.getInvoiceType().getIsAutoEntryPost())) {
+                    newJournal.setIsPosted(true);
+                }
+
+                journalHeaderRepository.save(newJournal);
+            }
         }
 
         return toResponse(updated);
@@ -609,7 +614,6 @@ public class InvoiceService {
                 .currencyValue(invoice.getCurrencyValue())
                 .date(invoice.getDate())
                 .build();
-
         JournalHeader header = JournalHeader.builder()
                 .branch(invoice.getWarehouse().getBranch())
                 .currency(invoice.getCurrency())

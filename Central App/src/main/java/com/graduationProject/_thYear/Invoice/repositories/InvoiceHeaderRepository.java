@@ -6,6 +6,7 @@ import com.graduationProject._thYear.Invoice.models.InvoiceKind;
 import com.graduationProject._thYear.InvoiceType.models.Type;
 import jakarta.persistence.Tuple;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -127,5 +128,81 @@ public interface InvoiceHeaderRepository extends JpaRepository<InvoiceHeader,Int
     List<InvoiceHeader> findByInvoiceType_Id(Integer id);
 
     List<InvoiceHeader> findByParentTypeAndParentId(InvoiceKind parentType, Integer parentId);
+//
+//    // Total sales
+//    @Query("SELECT COALESCE(SUM(inv.total), 0) " +
+//            "FROM InvoiceHeader inv " +
+//            "WHERE inv.invoiceType.isSales = true " +
+//            "AND inv.date BETWEEN :startDate AND :endDate")
+//    BigDecimal getTotalSales(LocalDateTime startDate, LocalDateTime endDate);
+//
+//    // Total purchases
+//    @Query("SELECT COALESCE(SUM(inv.total), 0) " +
+//            "FROM InvoiceHeader inv " +
+//            "WHERE inv.invoiceType.isPurchase = true " +
+//            "AND inv.date BETWEEN :startDate AND :endDate")
+//    BigDecimal getTotalPurchases(LocalDateTime startDate, LocalDateTime endDate);
+//
+//    // Total returns
+//    @Query("SELECT COALESCE(SUM(inv.total), 0) " +
+//            "FROM InvoiceHeader inv " +
+//            "WHERE inv.invoiceType.isReturn = true " +
+//            "AND inv.date BETWEEN :startDate AND :endDate")
+//    BigDecimal getTotalReturns(LocalDateTime startDate, LocalDateTime endDate);
+//
+//    // Branch sales
+//    @Query("SELECT b.name, COALESCE(SUM(inv.total), 0) " +
+//            "FROM InvoiceHeader inv " +
+//            "JOIN inv.warehouse w " +
+//            "JOIN w.branch b " +
+//            "WHERE inv.invoiceType.isSales = true " +
+//            "AND inv.date BETWEEN :startDate AND :endDate " +
+//            "GROUP BY b.name")
+//    List<Object[]> getBranchSales(LocalDateTime startDate, LocalDateTime endDate);
+//
+//    // Sales per employee
+//    @Query("SELECT u.username, SUM(inv.total) " +
+//            "FROM InvoiceHeader inv " +
+//            "JOIN inv.user u " +
+//            "WHERE inv.invoiceType.isSales = true " +
+//            "AND inv.date BETWEEN :startDate AND :endDate " +
+//            "GROUP BY u.username")
+//    List<Object[]> getEmployeePerformance(LocalDateTime startDate, LocalDateTime endDate);
+//
+//    // Monthly sales trend
+//    @Query("SELECT FUNCTION('MONTH', inv.date), SUM(inv.total) " +
+//            "FROM InvoiceHeader inv " +
+//            "WHERE inv.invoiceType.isSales = true " +
+//            "AND inv.date >= :startDate " +
+//            "GROUP BY FUNCTION('MONTH', inv.date) " +
+//            "ORDER BY FUNCTION('MONTH', inv.date)")
+//    List<Object[]> getMonthlySalesTrend(LocalDateTime startDate);
+//
+//
+//
+//    // Top Selling products
+//    @Query("SELECT p.name, SUM(d.qty) " +
+//            "FROM InvoiceDetail d " +
+//            "JOIN d.product p " +
+//            "JOIN d.invoiceHeader h " +
+//            "WHERE h.invoiceType.isSales = true " +
+//            "AND h.date BETWEEN :startDate AND :endDate " +
+//            "GROUP BY p.name " +
+//            "ORDER BY SUM(d.qty) DESC")
+//    List<Object[]> getTopSellingProducts(LocalDateTime startDate, LocalDateTime endDate);
+//
+//    // Most returned products
+//    @Query("SELECT p.name, SUM(d.qty) " +
+//            "FROM InvoiceDetail d " +
+//            "JOIN d.product p " +
+//            "JOIN d.invoiceHeader h " +
+//            "WHERE h.invoiceType.isReturn = true " +
+//            "AND h.date BETWEEN :startDate AND :endDate " +
+//            "GROUP BY p.name " +
+//            "ORDER BY SUM(d.qty) DESC")
+//    List<Object[]> getMostReturnedProducts(LocalDateTime startDate, LocalDateTime endDate);
+
+
+
 
 }
