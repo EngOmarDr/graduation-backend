@@ -41,8 +41,5 @@ public interface  WarehouseRepository extends JpaRepository<Warehouse, Integer> 
         "GROUP BY it.product"
     )
     List<Tuple> getStock(Integer warehouseId, Integer productId, Integer groupId);
-//
-//    @Query("SELECT COUNT(w) FROM Warehouse w")
-//    Long getTotalWarehouses();
 
 }

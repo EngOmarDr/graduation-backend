@@ -9,8 +9,5 @@ public interface BranchRepository extends JpaRepository<Branch, Integer> {
     boolean existsByPhone(String phone);
 
     boolean existsByName(String name);
-//
-//    @Query("SELECT COUNT(b) FROM Branch b")
-//    Long getTotalBranches();
 
 }

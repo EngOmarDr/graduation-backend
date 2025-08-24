@@ -13,5 +13,6 @@ public class AccountResponse {
     private Integer parentId;
     private String parentName;
     private Integer finalAccount;
+    private String finalAccountName;
 
 }

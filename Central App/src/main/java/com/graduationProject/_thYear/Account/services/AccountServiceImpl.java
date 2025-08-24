@@ -143,8 +143,10 @@ public class AccountServiceImpl implements AccountService {
 
     private AccountResponse convertToResponse(Account account) {
         Integer finalAccountId = null;
+        String finalAccountNmae = null;
         if (account.getFinalAccount() != null && account.getFinalAccount().getId() != null) {
             finalAccountId = account.getFinalAccount().getId();
+            finalAccountNmae = account.getFinalAccount().getName();
         }
         Integer parentId = null;
         String  parentName= null;
@@ -157,6 +159,7 @@ public class AccountServiceImpl implements AccountService {
                 .code(account.getCode())
                 .name(account.getName())
                 .finalAccount(finalAccountId)
+                .finalAccountName(finalAccountNmae)
                 .parentId(parentId)
                 .parentName(parentName)
                 .build();
