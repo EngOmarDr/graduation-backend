@@ -87,7 +87,7 @@ public class DashboardStatisticsResponse {
                     .branchName((String) tuple.get("branch_name"))
                     .branchSales((BigDecimal) tuple.get("branch_sales"))
                     .branchInvoiceCount((Long) tuple.get("branch_invoice_count"))
-                    .shareOfTotalPercentage((BigDecimal) tuple.get("share_of_total_percentage"))
+    //                .shareOfTotalPercentage((BigDecimal) tuple.get("share_of_total_percentage"))
                     .build();
         }
     }
