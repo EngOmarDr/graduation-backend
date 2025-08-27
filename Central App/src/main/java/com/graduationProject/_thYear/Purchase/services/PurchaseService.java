@@ -107,14 +107,23 @@ public class PurchaseService {
         // Handle status + system-generated dates
         if (req.getStatus() != null) {
             StatusType newStatus = StatusType.fromCode(req.getStatus());
-            if (newStatus != header.getStatus()) {
-                header.setStatus(newStatus);
 
-                switch (newStatus) {
-                    case request -> header.setRequestDate(LocalDateTime.now());
-                    case buy -> header.setBuyDate(LocalDateTime.now());
-                    case receive -> header.setReceiveDate(LocalDateTime.now());
-                    default -> { /* supply already has supplyDate on create */ }
+            // Always set the status (in case it's null initially)
+            header.setStatus(newStatus);
+
+            switch (newStatus) {
+                case request -> {
+                        header.setRequestDate(LocalDateTime.now());
+
+                }
+                case buy -> {
+                        header.setBuyDate(LocalDateTime.now());
+                }
+                case receive -> {
+                        header.setReceiveDate(LocalDateTime.now());
+                }
+                case supply -> {
+                    header.setSupplyDate(LocalDateTime.now());
                 }
             }
         }
