@@ -93,46 +93,35 @@ public class PurchaseService {
         PurchaseHeader header = purchaseHeaderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Purchase not found"));
 
+        StatusType oldStatus = header.getStatus();
+
         if (req.getWarehouseId() != null) {
             Warehouse warehouse = warehouseRepository.findById(req.getWarehouseId())
                     .orElseThrow(() -> new ResourceNotFoundException("Warehouse not found"));
             header.setWarehouseId(warehouse);
         }
 
-
         if (req.getNotes() != null) {
             header.setNotes(req.getNotes());
         }
 
-        // Handle status + system-generated dates
+
         if (req.getStatus() != null) {
             StatusType newStatus = StatusType.fromCode(req.getStatus());
-
-            // Always set the status (in case it's null initially)
             header.setStatus(newStatus);
 
             switch (newStatus) {
-                case request -> {
-                        header.setRequestDate(LocalDateTime.now());
-
-                }
-                case buy -> {
-                        header.setBuyDate(LocalDateTime.now());
-                }
-                case receive -> {
-                        header.setReceiveDate(LocalDateTime.now());
-                }
-                case supply -> {
-                    header.setSupplyDate(LocalDateTime.now());
-                }
+                case request -> header.setRequestDate(LocalDateTime.now());
+                case buy -> header.setBuyDate(LocalDateTime.now());
+                case receive -> header.setReceiveDate(LocalDateTime.now());
+                case supply -> header.setSupplyDate(LocalDateTime.now());
             }
         }
 
-
         if (req.getItems() != null && !req.getItems().isEmpty()) {
 
-            // If current status is "receive" → rollback old stock first
-            if (header.getStatus() == StatusType.receive) {
+            // Only rollback if it was already "receive" before
+            if (oldStatus == StatusType.receive) {
                 for (PurchaseItem oldItem : header.getItems()) {
                     stockService.decreaseStock(
                             oldItem.getProductId().getId(),
@@ -142,7 +131,6 @@ public class PurchaseService {
                     );
                 }
             }
-
 
             header.getItems().clear();
 
@@ -156,7 +144,7 @@ public class PurchaseService {
                         ? itemReq.getUnitFact()
                         : BigDecimal.valueOf(unitItem.getFact());
 
-                // If status = receive → increase stock with new quantities
+                // If new status is receive → increase stock
                 if (header.getStatus() == StatusType.receive) {
                     Optional<ProductStock> stock = stockService.findStock(
                             product.getId(),
@@ -218,6 +206,16 @@ public class PurchaseService {
     }
 
 
+        public List<PurchaseHeaderResponse> getByStatus(StatusType status) {
+            return purchaseHeaderRepository.findByStatus(status)
+                    .stream()
+                    .map(this::toResponse)
+                    .toList();
+        }
+
+
+
+
 
     private UnitItem resolveUnitItem(Product product, Integer unitItemId) {
         if (unitItemId != null) {
@@ -240,6 +238,7 @@ public class PurchaseService {
                 .buyDate(header.getBuyDate())
                 .receiveDate(header.getReceiveDate())
                 .notes(header.getNotes())
+                .status(String.valueOf(header.getStatus()))
                 .items(header.getItems().stream().map(this::mapItem).toList())
                 .build();
     }

@@ -46,8 +46,7 @@ public class PurchaseHeader {
     @Column(name = "receiveDate")
     private LocalDateTime receiveDate;
 
-    @NotNull
-    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
     private StatusType status; // supply - request - buy - receive
 
     @Column(name = "notes")

@@ -6,6 +6,7 @@ import com.graduationProject._thYear.Purchase.dtos.requests.UpdatePurchaseHeader
 import com.graduationProject._thYear.Purchase.dtos.requests.UpdatePurchaseItemRequest;
 
 import com.graduationProject._thYear.Purchase.dtos.responses.PurchaseHeaderResponse;
+import com.graduationProject._thYear.Purchase.models.StatusType;
 import com.graduationProject._thYear.Purchase.services.PurchaseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -45,5 +46,12 @@ public class PurchaseController {
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
         purchaseService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+
+    @GetMapping("/status/{status}")
+    public ResponseEntity<List<PurchaseHeaderResponse>> getByStatus(@PathVariable Integer status) {
+        StatusType st = StatusType.fromCode(status); // or .toUpperCase() depending on how you send
+        return ResponseEntity.ok(purchaseService.getByStatus(st));
     }
 }
