@@ -11,12 +11,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Builder.Default;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "invoiceHeader")
@@ -29,6 +31,12 @@ public class InvoiceHeader {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false, updatable = false)
     private Integer id;
+
+
+    @Column(name = "globalId", nullable = false, updatable = false)
+    @Default
+    private UUID globalId = UUID.randomUUID();
+
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
@@ -115,5 +123,15 @@ public class InvoiceHeader {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+
+
+    @Column(name = "createdAt")
+    private LocalDateTime createdAt;
+
+      @Column(name = "updatedAt")
+    private LocalDateTime updatedAt;
+
+      @Column(name = "deletedAt")
+    private LocalDateTime deletedAt;
 
 }

@@ -1,6 +1,9 @@
 package com.graduationProject._thYear.Product.models;
 
 
+import java.time.LocalDateTime;
+import java.util.UUID;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.graduationProject._thYear.Unit.models.UnitItem;
@@ -8,6 +11,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -24,6 +28,19 @@ public class ProductBarcode {
     @Column(name = "id")
     private Integer id ;
 
+     @Column(name = "globalId", nullable = false, updatable = false)
+    @Default
+    private UUID globalId = UUID.randomUUID();
+
+    @Column(name = "createdAt")
+    private LocalDateTime createdAt;
+
+      @Column(name = "updatedAt")
+    private LocalDateTime updatedAt;
+
+      @Column(name = "deletedAt")
+    private LocalDateTime deletedAt;
+    
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)

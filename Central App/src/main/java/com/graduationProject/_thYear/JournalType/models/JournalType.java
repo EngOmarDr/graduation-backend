@@ -1,5 +1,8 @@
 package com.graduationProject._thYear.JournalType.models;
 
+import java.time.LocalDateTime;
+import java.util.UUID;
+
 import com.graduationProject._thYear.Account.models.Account;
 import com.graduationProject._thYear.Currency.models.Currency;
 
@@ -7,6 +10,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -22,6 +26,20 @@ public class JournalType {
     @Column(name = "id")
     private Short id;
 
+     @Column(name = "globalId", nullable = false, updatable = false)
+    @Default
+    private UUID globalId = UUID.randomUUID();
+
+    @Column(name = "createdAt")
+    private LocalDateTime createdAt;
+
+      @Column(name = "updatedAt")
+    private LocalDateTime updatedAt;
+
+      @Column(name = "deletedAt")
+    private LocalDateTime deletedAt;
+    
+    
     @NotNull
     @Column(name = "name", unique = true, nullable = false)
     private String name;

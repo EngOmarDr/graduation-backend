@@ -121,6 +121,25 @@ public interface InvoiceHeaderRepository extends JpaRepository<InvoiceHeader,Int
    )
    Tuple getProductStockSideItems(LocalDateTime startDate, LocalDateTime endDate,Integer productId, Integer groupId, Integer warehouseId);
 
+   @Query(value = """
+                SELECT ih FROM InvoiceHeader ih
+                WHERE ih.createdAt > :date
+           """)
+    List<InvoiceHeader> findCreatedAfterDateTime(LocalDateTime date);
+
+    @Query(value = """
+                SELECT ih FROM InvoiceHeader ih
+                WHERE ih.updatedAt > :date
+           """)
+    List<InvoiceHeader> findUpdatedAfterDateTime(LocalDateTime date);
+
+
+    @Query(value = """
+                SELECT ih FROM InvoiceHeader ih
+                WHERE ih.deletedAt > :date
+           """)
+    List<InvoiceHeader> findDeletedAfterDateTime(LocalDateTime date);
+
 
     List<InvoiceHeader> findByInvoiceType_Type(Type type);
     

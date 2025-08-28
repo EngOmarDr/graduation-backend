@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import com.graduationProject._thYear.Branch.models.Branch;
 import com.graduationProject._thYear.Currency.models.Currency;
@@ -12,6 +13,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -26,6 +28,10 @@ public class JournalHeader {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false, updatable = false)
     private Integer id;
+
+    @Column(name = "globalId", nullable = false, updatable = false)
+    @Default
+    private UUID globalId = UUID.randomUUID();
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
@@ -84,4 +90,14 @@ public class JournalHeader {
         journalItems.add(journalItem);
         journalItem.setJournalHeader(this);
     }
+
+    @Column(name = "createdAt")
+    private LocalDateTime createdAt;
+
+      @Column(name = "updatedAt")
+    private LocalDateTime updatedAt;
+
+      @Column(name = "deletedAt")
+    private LocalDateTime deletedAt;
+
 }

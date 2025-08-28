@@ -1,7 +1,5 @@
-package com.graduationProject._thYear.Product.models;
+ package com.graduationProject._thYear.Product.models;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.graduationProject._thYear.Group.models.Group;
 import com.graduationProject._thYear.Unit.models.Unit;

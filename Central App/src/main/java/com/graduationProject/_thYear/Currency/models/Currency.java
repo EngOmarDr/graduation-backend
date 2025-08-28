@@ -1,6 +1,7 @@
 package com.graduationProject._thYear.Currency.models;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -22,6 +23,17 @@ public class Currency {
     @Column(name = "id")
     private Integer id;
 
+
+     @Column(name = "globalId", nullable = false, updatable = false)
+    @Default
+    private UUID globalId = UUID.randomUUID();
+
+      @Column(name = "updatedAt")
+    private LocalDateTime updatedAt;
+
+      @Column(name = "deletedAt")
+    private LocalDateTime deletedAt;
+    
     @NotNull
     @Column(name = "code" , unique = true, nullable = false)
     private String code;

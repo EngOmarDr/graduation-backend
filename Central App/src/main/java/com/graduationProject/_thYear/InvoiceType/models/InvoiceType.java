@@ -1,5 +1,8 @@
 package com.graduationProject._thYear.InvoiceType.models;
 
+import java.time.LocalDateTime;
+import java.util.UUID;
+
 import com.graduationProject._thYear.Account.models.Account;
 import com.graduationProject._thYear.Currency.models.Currency;
 import com.graduationProject._thYear.Product.models.Price;
@@ -7,6 +10,7 @@ import com.graduationProject._thYear.Warehouse.models.Warehouse;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -22,6 +26,19 @@ public class InvoiceType {
     @Column(name = "id", nullable = false, updatable = false)
     private Integer id;
 
+     @Column(name = "globalId", nullable = false, updatable = false)
+    @Default
+    private UUID globalId = UUID.randomUUID();
+
+    @Column(name = "createdAt")
+    private LocalDateTime createdAt;
+
+      @Column(name = "updatedAt")
+    private LocalDateTime updatedAt;
+
+      @Column(name = "deletedAt")
+    private LocalDateTime deletedAt;
+    
     @Enumerated(EnumType.STRING)
     private Type type; // buy - sale - retrieve_buy - retrieve_sale - input - output
 

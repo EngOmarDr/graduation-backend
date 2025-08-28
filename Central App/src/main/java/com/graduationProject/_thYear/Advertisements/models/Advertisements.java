@@ -2,8 +2,10 @@ package com.graduationProject._thYear.Advertisements.models;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.Builder.Default;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "advertisements")
@@ -19,6 +21,19 @@ public class Advertisements {
     @Column(name = "id")
     private Integer id;
 
+        @Column(name = "globalId", nullable = false, updatable = false)
+    @Default
+    private UUID globalId = UUID.randomUUID();
+
+    @Column(name = "createdAt")
+    private LocalDateTime createdAt;
+
+    @Column(name = "updatedAt")
+    private LocalDateTime updatedAt;
+
+    @Column(name = "deletedAt")
+    private LocalDateTime deletedAt;
+    
     @Column(nullable = false)
     private String name;
 
@@ -32,9 +47,7 @@ public class Advertisements {
     @Column(name = "duration_seconds", nullable = false)
     private Integer duration;
 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
+   
     @PrePersist
     public void onCreate() {
         this.createdAt = LocalDateTime.now();
