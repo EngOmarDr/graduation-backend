@@ -1,7 +1,5 @@
 package com.graduationProject._thYear.Product.models;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.graduationProject._thYear.Group.models.Group;
 import com.graduationProject._thYear.Unit.models.Unit;
@@ -47,7 +45,7 @@ public class Product {
 
       @Column(name = "deletedAt")
     private LocalDateTime deletedAt;
-    
+
     @NotNull
     @Column(name = "code" , unique = true, nullable = false)
     private String code;

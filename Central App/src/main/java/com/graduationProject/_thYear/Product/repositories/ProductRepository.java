@@ -21,20 +21,20 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
     
    @Query(value = """
                 SELECT p FROM Product p
-                WHERE ih.createdAt > :date
+                WHERE p.createdAt > :date
            """)
     List<InvoiceHeader> findCreatedAfterDateTime(LocalDateTime date);
 
     @Query(value = """
                 SELECT p FROM Product p
-                WHERE ih.updatedAt > :date
+                WHERE p.updatedAt > :date
            """)
     List<InvoiceHeader> findUpdatedAfterDateTime(LocalDateTime date);
 
 
     @Query(value = """
                 SELECT p FROM Product p
-                WHERE ih.deletedAt > :date
+                WHERE p.deletedAt > :date
            """)
     List<InvoiceHeader> findDeletedAfterDateTime(LocalDateTime date);
 
