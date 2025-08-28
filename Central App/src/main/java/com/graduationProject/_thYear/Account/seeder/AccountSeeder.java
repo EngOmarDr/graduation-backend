@@ -35,8 +35,19 @@ public class AccountSeeder implements CommandLineRunner {
         entity3.setCode("03");
         entity3.setParent(entity2);
 
+        Account entity4 = new Account();
+        entity4.setName("حساب صندوق");
+        entity4.setCode("04");
+
+        Account entity5 = new Account();
+        entity5.setName("حساب مشتريات");
+        entity5.setCode("05");
+
         accountRepository.save(entity1);
         accountRepository.save(entity2);
         accountRepository.save(entity3);
+        accountRepository.save(entity4);
+        accountRepository.save(entity5);
+
     }
 }

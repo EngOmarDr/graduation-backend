@@ -7,7 +7,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum InvoiceKind {
     NORMAL(0),
-    TRANSFER(1);
+    TRANSFER(1),
+    PURCHASE(2);
 
     private final int code;
 

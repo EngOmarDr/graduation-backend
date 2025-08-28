@@ -24,6 +24,10 @@ public class CreatePurchaseHeaderRequest {
 
     private String notes;
 
+    private BigDecimal total;
+
+    private String supplierName;
+
     @NotNull
     private List<CreatePurchaseItemRequest> items;
 }

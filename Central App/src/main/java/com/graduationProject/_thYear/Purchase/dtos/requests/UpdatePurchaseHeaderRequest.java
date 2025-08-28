@@ -4,6 +4,7 @@ import com.graduationProject._thYear.Transfer.dtos.requests.CreateTransferItemRe
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -20,6 +21,10 @@ public class UpdatePurchaseHeaderRequest {
     private LocalDateTime receiveDate;
 
     private String notes;
+
+    private BigDecimal total;
+
+    private String supplierName;
 
     private Integer status;
 

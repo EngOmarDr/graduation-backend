@@ -1,14 +1,17 @@
 package com.graduationProject._thYear.Purchase.models;
 
+import com.graduationProject._thYear.Account.models.Account;
 import com.graduationProject._thYear.Transfer.models.TransferItem;
 import com.graduationProject._thYear.Warehouse.models.Warehouse;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +51,14 @@ public class PurchaseHeader {
 
     @Enumerated(EnumType.STRING)
     private StatusType status; // supply - request - buy - receive
+
+    @DecimalMin(value = "0.00", inclusive = true ,message = "Value must be positive")
+    @Column(name = "total")
+    private BigDecimal total;
+
+
+    @Column(name = "supplierName")
+    private String supplierName;
 
     @Column(name = "notes")
     private String notes;

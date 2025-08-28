@@ -1,6 +1,20 @@
 package com.graduationProject._thYear.Purchase.services;
 
 
+import com.graduationProject._thYear.Account.models.Account;
+import com.graduationProject._thYear.Account.repositories.AccountRepository;
+import com.graduationProject._thYear.Auth.models.User;
+import com.graduationProject._thYear.Auth.repositories.UserRepository;
+import com.graduationProject._thYear.Currency.repositories.CurrencyRepository;
+import com.graduationProject._thYear.Invoice.models.InvoiceHeader;
+import com.graduationProject._thYear.Invoice.models.InvoiceItem;
+import com.graduationProject._thYear.Invoice.models.InvoiceKind;
+import com.graduationProject._thYear.Invoice.repositories.InvoiceHeaderRepository;
+import com.graduationProject._thYear.InvoiceType.repositories.InvoiceTypeRepository;
+import com.graduationProject._thYear.Journal.models.JournalHeader;
+import com.graduationProject._thYear.Journal.models.JournalItem;
+import com.graduationProject._thYear.Journal.models.JournalKind;
+import com.graduationProject._thYear.Journal.repositories.JournalHeaderRepository;
 import com.graduationProject._thYear.ProductStock.models.ProductStock;
 import com.graduationProject._thYear.ProductStock.services.ProductStockService;
 import com.graduationProject._thYear.Purchase.dtos.requests.CreatePurchaseHeaderRequest;
@@ -14,6 +28,8 @@ import com.graduationProject._thYear.Purchase.repositories.PurchaseHeaderReposit
 import com.graduationProject._thYear.Product.models.Product;
 import com.graduationProject._thYear.Product.repositories.ProductRepository;
 import com.graduationProject._thYear.Purchase.repositories.PurchaseItemRepository;
+import com.graduationProject._thYear.Transfer.models.Transfer;
+import com.graduationProject._thYear.Transfer.models.TransferItem;
 import com.graduationProject._thYear.Unit.models.UnitItem;
 import com.graduationProject._thYear.Unit.repositories.UnitItemRepository;
 import com.graduationProject._thYear.Warehouse.models.Warehouse;
@@ -21,10 +37,13 @@ import com.graduationProject._thYear.Warehouse.repositories.WarehouseRepository;
 import com.graduationProject._thYear.exceptionHandler.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -39,6 +58,12 @@ public class PurchaseService {
     private final ProductRepository productRepository;
     private final UnitItemRepository unitItemRepository;
     private final ProductStockService stockService;
+    private final InvoiceTypeRepository invoiceTypeRepository;
+    private final InvoiceHeaderRepository invoiceHeaderRepository;
+    private final UserRepository userRepository;
+    private final CurrencyRepository currencyRepository;
+    private final AccountRepository accountRepository;
+    private final JournalHeaderRepository journalHeaderRepository;
     @Transactional
     public PurchaseHeaderResponse create(CreatePurchaseHeaderRequest request) {
         Warehouse warehouse = warehouseRepository.findById(request.getWarehouseId())
@@ -58,6 +83,8 @@ public class PurchaseService {
                 .requestDate(null)
                 .buyDate(null)
                 .receiveDate(null)
+                .total(request.getTotal())
+                .supplierName(request.getSupplierName())
                 .notes(request.getNotes())
                 .status(StatusType.supply) //  always start with "supply"
                 .build();
@@ -95,6 +122,10 @@ public class PurchaseService {
 
         StatusType oldStatus = header.getStatus();
 
+        if(oldStatus == StatusType.receive){
+            throw (new ResourceNotFoundException("can't update the purchase if status is receive "));
+        }
+
         if (req.getWarehouseId() != null) {
             Warehouse warehouse = warehouseRepository.findById(req.getWarehouseId())
                     .orElseThrow(() -> new ResourceNotFoundException("Warehouse not found"));
@@ -103,6 +134,14 @@ public class PurchaseService {
 
         if (req.getNotes() != null) {
             header.setNotes(req.getNotes());
+        }
+
+        if (req.getTotal() != null) {
+            header.setTotal(req.getTotal());
+        }
+
+        if (req.getSupplierName() != null) {
+            header.setSupplierName(req.getSupplierName());
         }
 
 
@@ -171,6 +210,12 @@ public class PurchaseService {
 
         PurchaseHeader updated = purchaseHeaderRepository.save(header);
 
+        if(header.getStatus() == StatusType.receive){
+            createTransferInvoices(header);
+                   deleteJournalForTransfer(header.getId());
+                   createJournalForTransfer(header);
+        }
+
         return toResponse(updated);
     }
 
@@ -190,6 +235,14 @@ public class PurchaseService {
         PurchaseHeader header = purchaseHeaderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Purchase not found"));
 
+
+        List<InvoiceHeader> invoices = invoiceHeaderRepository
+                .findByParentTypeAndParentId(InvoiceKind.PURCHASE, header.getId());
+
+        for (InvoiceHeader invoice : invoices) {
+            invoiceHeaderRepository.delete(invoice);
+        }
+
         if (header.getStatus() == StatusType.receive) {
             //  Reverse stock before deletion
             for (PurchaseItem item : header.getItems()) {
@@ -201,6 +254,7 @@ public class PurchaseService {
             }
         }
 
+        deleteJournalForTransfer(header.getId());
 
         purchaseHeaderRepository.delete(header);
     }
@@ -228,6 +282,143 @@ public class PurchaseService {
                     .orElseThrow(() -> new ResourceNotFoundException("Default UnitItem not found"));
         }
     }
+
+    @Transactional
+    public void createTransferInvoices(PurchaseHeader purchaseHeader) {
+        createSingleInvoiceFromTransfer(
+                purchaseHeader.getWarehouseId().getId(),
+                1, // buy invoice
+                purchaseHeader
+        );
+    }
+
+
+
+    @Transactional
+    private void createSingleInvoiceFromTransfer(Integer warehouseId, Integer invoiceTypeId, PurchaseHeader purchaseHeader) {
+        InvoiceHeader invoice = new InvoiceHeader();
+        invoice.setWarehouse(warehouseRepository.getReferenceById(warehouseId));
+        invoice.setInvoiceType(invoiceTypeRepository.getReferenceById(invoiceTypeId));
+        invoice.setDate(purchaseHeader.getReceiveDate());
+        invoice.setAccount(invoiceTypeRepository.getReferenceById(invoiceTypeId).getDefaultCashAccId());
+        invoice.setCurrency(invoiceTypeRepository.getReferenceById(invoiceTypeId).getDefaultCurrencyId());
+        invoice.setCurrencyValue(BigDecimal.valueOf(1));
+        invoice.setIsPosted(true);
+        invoice.setPostedDate(Boolean.TRUE.equals(invoice.getIsPosted()) && invoice.getPostedDate() == null ? LocalDateTime.now() : invoice.getPostedDate());
+        invoice.setPayType(0);
+        invoice.setParentType(InvoiceKind.PURCHASE);
+        invoice.setParentId(purchaseHeader.getId());
+        invoice.setIsSuspended(false);
+        invoice.setInvoiceDiscounts(new ArrayList<>());
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = userRepository.findByUsername(auth.getName())
+                .orElseThrow(() -> new ResourceNotFoundException("Current user not found"));
+
+        invoice.setUser(currentUser);
+
+        List<InvoiceItem> items = new ArrayList<>();
+
+        for (PurchaseItem purchaseItem : purchaseHeader.getItems()) {
+
+            Product product = purchaseItem.getProductId();
+
+            UnitItem unitItem = resolveUnitItem(product, purchaseItem.getUnitItemId().getId());
+
+            BigDecimal unitFact = purchaseItem.getUnitFact() != null
+                    ? purchaseItem.getUnitFact()
+                    : BigDecimal.valueOf(unitItem.getFact());
+
+            InvoiceItem item = InvoiceItem.builder()
+                    .invoiceHeader(invoice)
+                    .product(product)
+                    .qty(purchaseItem.getQty())
+                    .price(BigDecimal.ZERO)
+                    .unitItem(unitItem)
+                    .unitFact(unitFact)
+                    .bonusQty(BigDecimal.ZERO)
+                    .build();
+
+            items.add(item);
+        }
+
+        invoice.setInvoiceItems(items);
+        invoiceHeaderRepository.save(invoice);
+    }
+
+
+
+    @Transactional
+    public void createJournalForTransfer(PurchaseHeader purchaseHeader) {
+        if (purchaseHeader.getTotal() == null || purchaseHeader.getTotal().compareTo(BigDecimal.ZERO) <= 0) {
+            return; // No need for journal
+        }
+
+        JournalHeader header = JournalHeader.builder()
+                .branch(purchaseHeader.getWarehouseId().getBranch())
+                .date(purchaseHeader.getReceiveDate())
+                .currency(currencyRepository.getReferenceById(1)) // Default currency
+                .currencyValue(BigDecimal.ONE)
+                .isPosted(true)
+               // .postedDate(LocalDateTime.now())
+                .kind(JournalKind.PURCHASE)
+                .parentId(purchaseHeader.getId())
+                .parentType(0)
+                .build();
+
+        Account cashAccount = accountRepository.getReferenceById(4);
+        Account billAccount =  accountRepository.getReferenceById(5);
+
+        JournalItem cash = JournalItem.builder()
+                .journalHeader(header)
+                .account(cashAccount)
+                .debit(BigDecimal.ZERO)
+                .credit(purchaseHeader.getTotal())
+                .currency(header.getCurrency())
+                .currencyValue(header.getCurrencyValue())
+                .date(header.getDate())
+                .build();
+
+        JournalItem bill = JournalItem.builder()
+                .journalHeader(header)
+                .account(billAccount)
+                .debit(purchaseHeader.getTotal())
+                .credit(BigDecimal.ZERO)
+                .currency(header.getCurrency())
+                .currencyValue(header.getCurrencyValue())
+                .date(header.getDate())
+                .build();
+
+
+
+        header.setJournalItems(List.of(cash, bill));
+
+
+        BigDecimal totalDebit = header.getJournalItems().stream()
+                .map(JournalItem::getDebit)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal totalCredit = header.getJournalItems().stream()
+                .map(JournalItem::getCredit)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+
+        if (totalDebit.compareTo(totalCredit) != 0) {
+            throw new IllegalStateException("Journal entry is unbalanced! Debit: " + totalDebit + " ≠ Credit: " + totalCredit);
+        }
+
+
+        header.setDebit(totalDebit);
+        header.setCredit(totalCredit);
+
+        journalHeaderRepository.save(header);
+    }
+
+    @Transactional
+    public void deleteJournalForTransfer(Integer purchaseId) {
+        Optional<JournalHeader> journalOpt = journalHeaderRepository.findByKindAndParentId(JournalKind.PURCHASE, purchaseId);
+        journalOpt.ifPresent(journalHeaderRepository::delete);
+    }
+
     private PurchaseHeaderResponse toResponse(PurchaseHeader header) {
         return PurchaseHeaderResponse.builder()
                 .id(header.getId())
@@ -238,6 +429,8 @@ public class PurchaseService {
                 .buyDate(header.getBuyDate())
                 .receiveDate(header.getReceiveDate())
                 .notes(header.getNotes())
+                .total(header.getTotal())
+                .supplierName(header.getSupplierName())
                 .status(String.valueOf(header.getStatus()))
                 .items(header.getItems().stream().map(this::mapItem).toList())
                 .build();

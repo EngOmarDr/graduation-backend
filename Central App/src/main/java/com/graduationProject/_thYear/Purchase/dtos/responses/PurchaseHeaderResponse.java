@@ -19,5 +19,7 @@ public class PurchaseHeaderResponse {
     private LocalDateTime receiveDate;
     private String status;
     private String notes;
+    private BigDecimal total;
+    private String supplierName;
     private List<PurchaseItemResponse> items;
 }
