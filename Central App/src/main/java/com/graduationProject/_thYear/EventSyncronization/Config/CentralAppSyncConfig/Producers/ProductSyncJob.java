@@ -14,13 +14,13 @@ import com.graduationProject._thYear.Invoice.models.InvoiceHeader;
 @Configuration
 public class ProductSyncJob {
     
-    private List<InvoiceHeader> result;
+    // private List<InvoiceHeader> result;
     
-    @Bean
-    public Job syncProduct(JobRepository jobRepository, Step step1, Step stepTasklet) {
-    return new JobBuilder("SyncDataJob", jobRepository)
-        .start(step1)
-        .next(stepTasklet)
-        .build();
-    }
+    // @Bean
+    // public Job syncProduct(JobRepository jobRepository, Step step1, Step stepTasklet) {
+    // return new JobBuilder("SyncDataJob", jobRepository)
+    //     .start(step1)
+    //     .next(stepTasklet)
+    //     .build();
+    // }
 }
