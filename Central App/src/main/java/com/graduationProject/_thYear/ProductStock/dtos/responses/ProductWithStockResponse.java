@@ -8,11 +8,12 @@ import java.math.BigDecimal;
 
 @Data
 @Builder
-public class ProductStockResponse {
+public class ProductWithStockResponse {
+    // Product full details
+    private ProductResponse product;
 
-    private Integer id;
-    private Integer productId;
-    private String productName;
+    // Stock details
+    private Integer stockId;
     private Integer warehouseId;
     private String warehouseName;
     private Integer unitItemId;

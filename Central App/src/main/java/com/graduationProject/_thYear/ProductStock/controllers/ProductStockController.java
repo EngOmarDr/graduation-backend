@@ -4,6 +4,7 @@ import com.graduationProject._thYear.ProductStock.dtos.requests.CreateProductSto
 import com.graduationProject._thYear.ProductStock.dtos.requests.UpdateProductStockRequest;
 import com.graduationProject._thYear.ProductStock.dtos.requests.UpdateStockQuantityRequest;
 import com.graduationProject._thYear.ProductStock.dtos.responses.ProductStockResponse;
+import com.graduationProject._thYear.ProductStock.dtos.responses.ProductWithStockResponse;
 import com.graduationProject._thYear.ProductStock.services.ProductStockService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +47,7 @@ public class ProductStockController {
     }
 
     @GetMapping("/by-warehouse/{warehouseId}")
-    public ResponseEntity<List<ProductStockResponse>> getByWarehouse(@PathVariable Integer warehouseId) {
+    public ResponseEntity<List<ProductWithStockResponse>> getByWarehouse(@PathVariable Integer warehouseId) {
         return ResponseEntity.ok(service.getByWarehouseId(warehouseId));
     }
 

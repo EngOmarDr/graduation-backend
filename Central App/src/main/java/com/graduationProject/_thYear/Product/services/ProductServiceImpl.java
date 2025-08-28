@@ -12,6 +12,8 @@ import com.graduationProject._thYear.Product.models.ProductBarcode;
 import com.graduationProject._thYear.Product.models.ProductPrice;
 import com.graduationProject._thYear.Product.repositories.ProductBarcodeRepository;
 import com.graduationProject._thYear.Product.repositories.ProductRepository;
+import com.graduationProject._thYear.ProductStock.models.ProductStock;
+import com.graduationProject._thYear.ProductStock.repositories.ProductStockRepository;
 import com.graduationProject._thYear.Unit.models.Unit;
 import com.graduationProject._thYear.Unit.repositories.UnitRepository;
 import com.graduationProject._thYear.exceptionHandler.ResourceNotFoundException;
@@ -46,6 +48,7 @@ public class ProductServiceImpl implements ProductService{
     private final ProductPriceService productPriceService;
     private final ProductBarcodeService productBarcodeService;
     private final ImageStorageService imageStorageService;
+    // private final ProductStockRepository productStockRepository;
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -294,7 +297,7 @@ public class ProductServiceImpl implements ProductService{
                 .barcodes(convertBarcodesToResponse(product.getBarcodes()))
                 .build();
     }
-    private String getTypeName(Byte type) {
+    public String getTypeName(Byte type) {
         return switch (type) {
             case Product.TYPE_WAREHOUSE -> "TYPE_WAREHOUSE ";
             case Product.TYPE_SERVICE -> "TYPE_SERVICE ";
@@ -345,7 +348,7 @@ public class ProductServiceImpl implements ProductService{
         return cell.getStringCellValue().trim();
     }
 
-    private List<ProductPriceResponse> convertPricesToResponse(List<ProductPrice> prices) {
+    public List<ProductPriceResponse> convertPricesToResponse(List<ProductPrice> prices) {
         return prices.stream()
                 .map(this::convertPriceToResponse)
                 .collect(Collectors.toList());
@@ -364,7 +367,7 @@ public class ProductServiceImpl implements ProductService{
                 .build();
     }
 
-    private List<ProductBarcodeResponse> convertBarcodesToResponse(List<ProductBarcode> barcodes) {
+    public List<ProductBarcodeResponse> convertBarcodesToResponse(List<ProductBarcode> barcodes) {
         return barcodes.stream()
                 .map(this::convertBarcodeToResponse)
                 .collect(Collectors.toList());

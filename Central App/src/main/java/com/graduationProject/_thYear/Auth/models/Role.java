@@ -7,7 +7,10 @@ import lombok.RequiredArgsConstructor;
 public enum Role {
     USER,
     ADMIN,
-    MANAGER;
+    MANAGER,
+
+    PURCHASE_MANAGER;
+
 
 
     @JsonCreator

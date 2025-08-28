@@ -9,7 +9,8 @@ public enum JournalKind {
     NORMAL(0),
     JOURNAL_TYPE(1),
     INVOICE(2),
-    TRANSFER(3);
+    TRANSFER(3),
+    PURCHASE(4);
 
     private final int code;
 

@@ -58,7 +58,6 @@ public class AuthenticationService {
             warehouse = warehouseRepository.findById(request.getWarehouseId())
                     .orElseThrow(() -> new RuntimeException("Warehouse not found"));
         }
-
         var user = User.builder()
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
@@ -76,6 +75,7 @@ public class AuthenticationService {
                 .username(user.getUsername())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
+                .warehouseId(warehouse.getId())
                 .role(user.getRole())
                 .build();
     }
