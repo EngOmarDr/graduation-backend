@@ -4,11 +4,13 @@ import lombok.Data;
 import lombok.experimental.SuperBuilder;
 
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @SuperBuilder
 public class ProductResponse {
     private Integer id;
+    private UUID globalId;
     private String code;
     private String name;
     private Integer groupId;

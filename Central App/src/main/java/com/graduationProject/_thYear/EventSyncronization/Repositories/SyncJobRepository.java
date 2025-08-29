@@ -1,5 +1,7 @@
 package com.graduationProject._thYear.EventSyncronization.Repositories;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -15,5 +17,5 @@ public interface SyncJobRepository extends JpaRepository<SyncJob, Integer> {
             LIMIT 1
         """
     )
-    SyncJob findLastByTopic(String topic);
+    Optional<SyncJob> findLastByTopic(String topic);
 }

@@ -37,7 +37,7 @@ public class Price {
 
       @Column(name = "deletedAt")
     private LocalDateTime deletedAt;
-    
+  
     @NotNull
     @Column(name = "name" , unique = true , nullable = false)
     private String name;

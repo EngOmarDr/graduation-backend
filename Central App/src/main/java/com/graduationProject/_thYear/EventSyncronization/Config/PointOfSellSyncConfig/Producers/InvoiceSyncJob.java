@@ -15,21 +15,21 @@ import com.graduationProject._thYear.Invoice.repositories.InvoiceHeaderRepositor
 public class InvoiceSyncJob {
 
 
-    @Bean
-    public ApplicationRunner runner1(InvoiceHeaderRepository repository, SyncJobRepository repository2) {
-        return args -> {
-            List<InvoiceHeader> records = repository.findAll();
-            repository2.save(SyncJob.builder().topic("invoice").build());
+    // @Bean
+    // public ApplicationRunner runner1(InvoiceHeaderRepository repository, SyncJobRepository repository2) {
+    //     return args -> {
+    //         List<InvoiceHeader> records = repository.findAll();
+    //         repository2.save(SyncJob.builder().topic("invoice").build());
 
-            System.out.println(repository2.findLastByTopic("invoice"));
-            System.out.println("before for loop");
-            for(InvoiceHeader record: records){
-                System.out.println(record.getId());
-                System.out.println(record.getGlobalId());
-            }
-            System.out.println("hi there");
-        };
-    }
+    //         System.out.println(repository2.findLastByTopic("invoice"));
+    //         System.out.println("before for loop");
+    //         for(InvoiceHeader record: records){
+    //             System.out.println(record.getId());
+    //             System.out.println(record.getGlobalId());
+    //         }
+    //         System.out.println("hi there");
+    //     };
+    // }
 
     
 }

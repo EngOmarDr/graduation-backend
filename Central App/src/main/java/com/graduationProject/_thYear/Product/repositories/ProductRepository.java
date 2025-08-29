@@ -2,6 +2,9 @@ package com.graduationProject._thYear.Product.repositories;
 
 import com.graduationProject._thYear.Invoice.models.InvoiceHeader;
 import com.graduationProject._thYear.Product.models.Product;
+
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,24 +21,25 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
     List<Product> searchByNameOrCode(@Param("searchTerm") String searchTerm);
 
 
+    Slice<Product> findAllByCreatedAtAfter(LocalDateTime dateTime);
     
    @Query(value = """
                 SELECT p FROM Product p
-                WHERE p.createdAt > :date
+                WHERE :date IS null OR p.createdAt > :date
            """)
-    List<InvoiceHeader> findCreatedAfterDateTime(LocalDateTime date);
+    Slice<Product> findCreatedAfterDateTime(LocalDateTime date, PageRequest pageRequest);
 
     @Query(value = """
                 SELECT p FROM Product p
                 WHERE p.updatedAt > :date
            """)
-    List<InvoiceHeader> findUpdatedAfterDateTime(LocalDateTime date);
+    Slice<Product> findUpdatedAfterDateTime(LocalDateTime date);
 
 
     @Query(value = """
                 SELECT p FROM Product p
                 WHERE p.deletedAt > :date
            """)
-    List<InvoiceHeader> findDeletedAfterDateTime(LocalDateTime date);
+    Slice<Product> findDeletedAfterDateTime(LocalDateTime date);
 
 }

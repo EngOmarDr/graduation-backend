@@ -282,6 +282,7 @@ public class ProductServiceImpl implements ProductService{
 
         return ProductResponse.builder()
                 .id(product.getId())
+                .globalId(product.getGlobalId())
                 .code(product.getCode())
                 .name(product.getName())
                 .image(product.getImage())
