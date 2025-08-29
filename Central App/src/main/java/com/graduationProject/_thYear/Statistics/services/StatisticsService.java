@@ -127,14 +127,24 @@ public class StatisticsService {
 
     private BigDecimal getBigDecimal(Tuple tuple, String alias) {
         if (tuple == null) return BigDecimal.ZERO;
-        BigDecimal value = nullSafeGet(tuple, alias, BigDecimal.class);
-        return value != null ? value : BigDecimal.ZERO;
+        Object raw = nullSafeGet(tuple, alias, Object.class);
+        if (raw == null) return BigDecimal.ZERO;
+        if (raw instanceof BigDecimal bd) return bd;
+        if (raw instanceof Number n) return BigDecimal.valueOf(n.doubleValue());
+        try { return new BigDecimal(raw.toString()); } catch (Exception e) { return BigDecimal.ZERO; }
     }
 
     private Long getLong(Tuple tuple, String alias) {
         if (tuple == null) return 0L;
-        Long value = nullSafeGet(tuple, alias, Long.class);
-        return value != null ? value : 0L;
+        Object raw = nullSafeGet(tuple, alias, Object.class);
+        if (raw == null) return 0L;
+        if (raw instanceof Long l) return l;
+        if (raw instanceof Integer i) return i.longValue();
+        if (raw instanceof Short s) return s.longValue();
+        if (raw instanceof java.math.BigInteger bi) return bi.longValue();
+        if (raw instanceof BigDecimal bd) return bd.longValue();
+        if (raw instanceof Number n) return n.longValue();
+        try { return Long.parseLong(raw.toString()); } catch (Exception e) { return 0L; }
     }
 
     private <T> T nullSafeGet(Tuple tuple, String alias, Class<T> type) {

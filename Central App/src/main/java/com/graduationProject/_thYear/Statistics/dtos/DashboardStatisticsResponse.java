@@ -23,6 +23,42 @@ public class DashboardStatisticsResponse {
     private TimeTrends timeTrends;
     private InventoryInsights inventoryInsights;
 
+    private static Long toLong(Object raw) {
+        if (raw == null) return 0L;
+        if (raw instanceof Long l) return l;
+        if (raw instanceof Integer i) return i.longValue();
+        if (raw instanceof Short s) return s.longValue();
+        if (raw instanceof java.math.BigInteger bi) return bi.longValue();
+        if (raw instanceof BigDecimal bd) return bd.longValue();
+        if (raw instanceof Number n) return n.longValue();
+        try { return Long.parseLong(raw.toString()); } catch (Exception e) { return 0L; }
+    }
+
+    private static Integer toInt(Object raw) {
+        if (raw == null) return null;
+        if (raw instanceof Integer i) return i;
+        if (raw instanceof Short s) return (int) s;
+        if (raw instanceof Long l) return l.intValue();
+        if (raw instanceof java.math.BigInteger bi) return bi.intValue();
+        if (raw instanceof BigDecimal bd) return bd.intValue();
+        if (raw instanceof Number n) return n.intValue();
+        try { return Integer.parseInt(raw.toString()); } catch (Exception e) { return null; }
+    }
+
+    private static BigDecimal toBigDecimal(Object raw) {
+        if (raw == null) return BigDecimal.ZERO;
+        if (raw instanceof BigDecimal bd) return bd;
+        if (raw instanceof Number n) return BigDecimal.valueOf(n.doubleValue());
+        try { return new BigDecimal(raw.toString()); } catch (Exception e) { return BigDecimal.ZERO; }
+    }
+
+    private static Float toFloat(Object raw) {
+        if (raw == null) return null;
+        if (raw instanceof Float f) return f;
+        if (raw instanceof Number n) return n.floatValue();
+        try { return Float.parseFloat(raw.toString()); } catch (Exception e) { return null; }
+    }
+
     @Data
     @Builder
     @NoArgsConstructor
@@ -50,20 +86,20 @@ public class DashboardStatisticsResponse {
 
         public static GeneralIndicators fromTuple(Tuple tuple) {
             return GeneralIndicators.builder()
-                    .totalSales((BigDecimal) tuple.get("total_sales"))
-                    .totalInvoices((Long) tuple.get("total_invoices"))
-                    .totalPurchases((BigDecimal) tuple.get("total_purchases"))
-                    .totalPurchaseInvoices((Long) tuple.get("total_purchase_invoices"))
-                    .totalReturnsValue((BigDecimal) tuple.get("total_returns_value"))
-                    .totalReturnInvoices((Long) tuple.get("total_return_invoices"))
-                    .totalBranches((Long) tuple.get("total_branches"))
-                    .totalWarehouses((Long) tuple.get("total_warehouses"))
-                    .totalPos((Long) tuple.get("total_pos"))
-                    .totalActiveEmployees((Long) tuple.get("total_active_employees"))
-                    .totalProducts((Long) tuple.get("total_products"))
-                    .warehouseProducts((Long) tuple.get("warehouse_products"))
-                    .serviceProducts((Long) tuple.get("service_products"))
-                    .totalStockQuantity((BigDecimal) tuple.get("total_stock_quantity"))
+                    .totalSales(toBigDecimal(tuple.get("total_sales")))
+                    .totalInvoices(toLong(tuple.get("total_invoices")))
+                    .totalPurchases(toBigDecimal(tuple.get("total_purchases")))
+                    .totalPurchaseInvoices(toLong(tuple.get("total_purchase_invoices")))
+                    .totalReturnsValue(toBigDecimal(tuple.get("total_returns_value")))
+                    .totalReturnInvoices(toLong(tuple.get("total_return_invoices")))
+                    .totalBranches(toLong(tuple.get("total_branches")))
+                    .totalWarehouses(toLong(tuple.get("total_warehouses")))
+                    .totalPos(toLong(tuple.get("total_pos")))
+                    .totalActiveEmployees(toLong(tuple.get("total_active_employees")))
+                    .totalProducts(toLong(tuple.get("total_products")))
+                    .warehouseProducts(toLong(tuple.get("warehouse_products")))
+                    .serviceProducts(toLong(tuple.get("service_products")))
+                    .totalStockQuantity(toBigDecimal(tuple.get("total_stock_quantity")))
                     .build();
         }
     }
@@ -76,18 +112,18 @@ public class DashboardStatisticsResponse {
         private Integer branchId;
         private String branchName;
         private BigDecimal branchSales;
-//        private BigDecimal branchQuantitySold;
+        //        private BigDecimal branchQuantitySold;
         private Long branchInvoiceCount;
-        private BigDecimal shareOfTotalPercentage;
+    //    private BigDecimal shareOfTotalPercentage;
 
 
         public static BranchPerformance fromTuple(Tuple tuple) {
             return BranchPerformance.builder()
-                    .branchId((Integer) tuple.get("branch_id"))
+                    .branchId(toInt(tuple.get("branch_id")))
                     .branchName((String) tuple.get("branch_name"))
-                    .branchSales((BigDecimal) tuple.get("branch_sales"))
-                    .branchInvoiceCount((Long) tuple.get("branch_invoice_count"))
-    //                .shareOfTotalPercentage((BigDecimal) tuple.get("share_of_total_percentage"))
+                    .branchSales(toBigDecimal(tuple.get("branch_sales")))
+                    .branchInvoiceCount(toLong(tuple.get("branch_invoice_count")))
+              //      .shareOfTotalPercentage(toBigDecimal(tuple.get("share_of_total_percentage")))
                     .build();
         }
     }
@@ -121,14 +157,14 @@ public class DashboardStatisticsResponse {
 
         public static ProductProfitability fromTuple(Tuple tuple) {
             return ProductProfitability.builder()
-                    .productId((Integer) tuple.get("product_id"))
+                    .productId(toInt(tuple.get("product_id")))
                     .productName((String) tuple.get("product_name"))
                     .productGroup((String) tuple.get("product_group"))
-                    .totalQuantitySold((BigDecimal) tuple.get("total_quantity_sold"))
-                    .totalSalesRevenue((BigDecimal) tuple.get("total_sales_revenue"))
-                    .totalPurchaseCost((BigDecimal) tuple.get("total_purchase_cost"))
-                    .grossProfit((BigDecimal) tuple.get("gross_profit"))
-                    .profitMarginPercentage((BigDecimal) tuple.get("profit_margin_percentage"))
+                    .totalQuantitySold(toBigDecimal(tuple.get("total_quantity_sold")))
+                    .totalSalesRevenue(toBigDecimal(tuple.get("total_sales_revenue")))
+                    .totalPurchaseCost(toBigDecimal(tuple.get("total_purchase_cost")))
+                    .grossProfit(toBigDecimal(tuple.get("gross_profit")))
+                    .profitMarginPercentage(toBigDecimal(tuple.get("profit_margin_percentage")))
                     .build();
         }
     }
@@ -148,12 +184,12 @@ public class DashboardStatisticsResponse {
 
         public static ProductMovement fromTuple(Tuple tuple) {
             return ProductMovement.builder()
-                    .productId((Integer) tuple.get("product_id"))
+                    .productId(toInt(tuple.get("product_id")))
                     .productName((String) tuple.get("product_name"))
                     .productGroup((String) tuple.get("product_group"))
-                    .totalQuantitySold((BigDecimal) tuple.get("total_quantity_sold"))
-                    .totalSalesValue((BigDecimal) tuple.get("total_sales_value"))
-                    .totalSalesOccurrences((Long) tuple.get("total_sales_occurrences"))
+                    .totalQuantitySold(toBigDecimal(tuple.get("total_quantity_sold")))
+                    .totalSalesValue(toBigDecimal(tuple.get("total_sales_value")))
+                    .totalSalesOccurrences(toLong(tuple.get("total_sales_occurrences")))
                     .build();
         }
     }
@@ -172,11 +208,11 @@ public class DashboardStatisticsResponse {
 
         public static FinancialAnalysis fromTuple(Tuple tuple) {
             return FinancialAnalysis.builder()
-                    .totalRevenue((BigDecimal) tuple.get("total_revenue"))
-                    .totalCost((BigDecimal) tuple.get("total_cost"))
-                    .totalReturnsValue((BigDecimal) tuple.get("total_returns_value"))
-                    .grossProfit((BigDecimal) tuple.get("gross_profit"))
-                    .profitMarginPercentage((BigDecimal) tuple.get("profit_margin_percentage"))
+                    .totalRevenue(toBigDecimal(tuple.get("total_revenue")))
+                    .totalCost(toBigDecimal(tuple.get("total_cost")))
+                    .totalReturnsValue(toBigDecimal(tuple.get("total_returns_value")))
+                    .grossProfit(toBigDecimal(tuple.get("gross_profit")))
+                    .profitMarginPercentage(toBigDecimal(tuple.get("profit_margin_percentage")))
                     .build();
         }
     }
@@ -217,9 +253,9 @@ public class DashboardStatisticsResponse {
         public static DailyTrend fromTuple(Tuple tuple) {
             return DailyTrend.builder()
                     .saleDate(tuple.get("sale_date").toString())
-                    .dailySales((BigDecimal) tuple.get("daily_sales"))
-                    .dailyQuantity((BigDecimal) tuple.get("daily_quantity"))
-                    .dailyInvoices((Long) tuple.get("daily_invoices"))
+                    .dailySales(toBigDecimal(tuple.get("daily_sales")))
+                    .dailyQuantity(toBigDecimal(tuple.get("daily_quantity")))
+                    .dailyInvoices(toLong(tuple.get("daily_invoices")))
                     .build();
         }
     }
@@ -238,12 +274,12 @@ public class DashboardStatisticsResponse {
 
         public static MonthlyTrend fromTuple(Tuple tuple) {
             return MonthlyTrend.builder()
-                    .saleYear((Integer) tuple.get("sale_year"))
-                    .saleMonth((Integer) tuple.get("sale_month"))
+                    .saleYear(toInt(tuple.get("sale_year")))
+                    .saleMonth(toInt(tuple.get("sale_month")))
                     .yearMonth((String) tuple.get("year_month"))
-                    .monthlySales((BigDecimal) tuple.get("monthly_sales"))
-                    .monthlyQuantity((BigDecimal) tuple.get("monthly_quantity"))
-                    .monthlyInvoices((Long) tuple.get("monthly_invoices"))
+                    .monthlySales(toBigDecimal(tuple.get("monthly_sales")))
+                    .monthlyQuantity(toBigDecimal(tuple.get("monthly_quantity")))
+                    .monthlyInvoices(toLong(tuple.get("monthly_invoices")))
                     .build();
         }
 
@@ -262,9 +298,9 @@ public class DashboardStatisticsResponse {
         public static PeriodComparison fromTuple(Tuple tuple) {
             return PeriodComparison.builder()
                     .periodType((String) tuple.get("period_type"))
-                    .salesAmount((BigDecimal) tuple.get("sales_amount"))
-                    .purchaseAmount((BigDecimal) tuple.get("purchase_amount"))
-                    .salesCount((Long) tuple.get("sales_count"))
+                    .salesAmount(toBigDecimal(tuple.get("sales_amount")))
+                    .purchaseAmount(toBigDecimal(tuple.get("purchase_amount")))
+                    .salesCount(toLong(tuple.get("sales_count")))
                     .build();
         }
 
@@ -275,7 +311,7 @@ public class DashboardStatisticsResponse {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class InventoryInsights {
-//        private List<WarehousePerformance> warehousePerformance;
+        //        private List<WarehousePerformance> warehousePerformance;
 //        private List<InventoryTurnover> inventoryTurnover;
         private List<StockLevel> stockLevels;
         private Map<String, Long> stockStatusSummary;
@@ -327,13 +363,13 @@ public class DashboardStatisticsResponse {
 
         public static StockLevel fromTuple(Tuple tuple) {
             return StockLevel.builder()
-                    .branchId((Integer) tuple.get("branch_id"))
+                    .branchId(toInt(tuple.get("branch_id")))
                     .branchName((String) tuple.get("branch_name"))
-                    .productId((Integer) tuple.get("product_id"))
+                    .productId(toInt(tuple.get("product_id")))
                     .productName((String) tuple.get("product_name"))
-                    .minQuantity((Float) tuple.get("min_quantity"))
-                    .maxQuantity((Float) tuple.get("max_quantity"))
-                    .currentStock((BigDecimal) tuple.get("current_stock"))
+                    .minQuantity(toFloat(tuple.get("min_quantity")))
+                    .maxQuantity(toFloat(tuple.get("max_quantity")))
+                    .currentStock(toBigDecimal(tuple.get("current_stock")))
                     .stockStatus((String) tuple.get("stock_status"))
                     .build();
         }
