@@ -27,6 +27,7 @@ public class UnitItemServiceImpl implements UnitItemService{
 
     private final UnitItemRepository unitItemRepository;
     private final UnitRepository unitRepository;
+    private final UnitService unitService;
 
     @Override
     public UnitItemResponse createUnitItem(CreateUnitItemRequest request) {
@@ -116,17 +117,27 @@ public class UnitItemServiceImpl implements UnitItemService{
     @Override
     public UnitItem saveOrUpdate(UnitItemRecord unitItemRecord){
 
+        UnitItem unitItem = saveOrUpdateReference(unitItemRecord);
+        unitItemRepository.save(unitItem);
+        return unitItem;
+    }
+
+     @Override
+    public UnitItem saveOrUpdateReference(UnitItemRecord unitItemRecord){
+
         UnitItem unitItem = unitItemRepository.findByGlobalId(unitItemRecord.getGlobalId())
             .orElse(new UnitItem());
 
-        unitItem.toBuilder()
+        Unit unit = unitService.saveOrUpdate(unitItemRecord.getUnit());
+
+        unitItem = unitItem.toBuilder()
             .globalId(unitItemRecord.getGlobalId())
             .name(unitItemRecord.getName())
             .fact(unitItemRecord.getFact())
             .isDef(unitItemRecord.getIsDef())
+            .unit(unit)
             .build();
-            
-        unitItemRepository.save(unitItem);
+
         return unitItem;
     }
 

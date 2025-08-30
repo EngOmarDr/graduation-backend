@@ -141,31 +141,32 @@ public class ProductPriceServiceImpl implements ProductPriceService{
         productPriceRepository.delete(productPrice);
     }
 
-    @Override
-    public ProductPrice saveOrUpdate(ProductPriceRecord productPriceRecord){
-        ProductPrice productPrice = saveOrUpdateReference(productPriceRecord);
-        productPriceRepository.save(productPrice);
-        return productPrice;
-    }
+    // @Override
+    // public ProductPrice saveOrUpdate(ProductPriceRecord productPriceRecord){
+    //     ProductPrice productPrice = saveOrUpdateReference(productPriceRecord);
+    //     productPriceRepository.save(productPrice);
+    //     return productPrice;
+    // }
      @Override
-    public List<ProductPrice> saveOrUpdateBulk(List<ProductPriceRecord> records){
+    public List<ProductPrice> saveOrUpdateBulk(List<ProductPriceRecord> records, Product product){
         List<ProductPrice> models = records.stream()
-            .map(record -> saveOrUpdateReference(record))
+            .map(record -> saveOrUpdateReference(record, product))
             .collect(Collectors.toList());
-        productPriceRepository.saveAll(models);
+        // productPriceRepository.saveAll(models);
         return models;
     }
 
-    private ProductPrice saveOrUpdateReference(ProductPriceRecord productPriceRecord){
+    private ProductPrice saveOrUpdateReference(ProductPriceRecord productPriceRecord, Product product){
         ProductPrice productPrice = productPriceRepository.findByGlobalId(productPriceRecord.getGlobalId())
             .orElse(new ProductPrice());
         Price price = priceService.saveOrUpdate(productPriceRecord.getPriceRecord());
         UnitItem unitItem = unitItemService.saveOrUpdate(productPriceRecord.getUnitItemRecord());
-        productPrice.toBuilder()
-            .globalId(productPrice.getGlobalId())
+        productPrice = productPrice.toBuilder()
+            .globalId(productPriceRecord.getGlobalId())
             .priceUnit(unitItem)
             .priceId(price)
-            .price(productPrice.getPrice())
+            .price(productPriceRecord.getPrice())
+            .productId(product)
             .build();
         return productPrice;
     }

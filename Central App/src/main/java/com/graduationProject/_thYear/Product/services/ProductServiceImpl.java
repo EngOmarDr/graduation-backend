@@ -405,10 +405,10 @@ public class ProductServiceImpl implements ProductService{
             .orElse(new Product());
         Group group = groupService.saveOrUpdate(productRecord.getGroup());
         Unit unit = unitService.saveOrUpdate(productRecord.getDefaultUnit());
-        List<ProductPrice> productPrices = productPriceService.saveOrUpdateBulk(productRecord.getPrices());
-        List<ProductBarcode> barcodes = productBarcodeService.saveOrUpdateBulk(productRecord.getBarcodes());
+        List<ProductPrice> productPrices = productPriceService.saveOrUpdateBulk(productRecord.getPrices(),product);
+        List<ProductBarcode> barcodes = productBarcodeService.saveOrUpdateBulk(productRecord.getBarcodes(),product);
 
-        product.toBuilder()
+        product = product.toBuilder()
             .globalId(productRecord.getGlobalId())
             .code(productRecord.getCode())
             .name(productRecord.getName())
@@ -423,6 +423,7 @@ public class ProductServiceImpl implements ProductService{
             .build();        
         product.resetPrices(productPrices);
         product.resetBarcodes(barcodes);
+        System.out.println("hi there product service");
         return product;
     }
 }

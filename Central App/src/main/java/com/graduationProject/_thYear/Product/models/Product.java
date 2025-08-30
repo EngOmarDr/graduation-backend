@@ -117,7 +117,10 @@ public class Product {
 
     public void resetPrices(List<ProductPrice> prices){
         this.getPrices().clear();
-        this.getPrices().addAll(prices);
+        // this.getPrices().addAll(prices);
+        for(ProductPrice price: prices){
+            addPrice(price);
+        }
     }
 
     public void resetBarcodes(List<ProductBarcode> barcodes){

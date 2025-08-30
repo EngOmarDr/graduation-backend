@@ -16,4 +16,6 @@ public interface UnitService {
     UnitResponse updateUnit(Integer id, UpdateUnitRequest request);
     void deleteUnit(Integer id);
     Unit saveOrUpdate(UnitRecord groupRecord);
+    Unit saveOrUpdateReference(UnitRecord unitRecord);
+    Unit saveOrUpdateWithChildren(UnitRecord unitRecord);
 }

@@ -110,6 +110,13 @@ public class ProductRecord {
                 )
                 .build();
         }
+
+        public static UnitRecord fromUnitEntitySliced(Unit unit){
+            return UnitRecord.builder()
+                .globalId(unit.getGlobalId())
+                .name(unit.getName())
+                .build();
+        }
     }
 
     @Data
@@ -178,6 +185,7 @@ public class ProductRecord {
         private String name;
         private Float fact;
         private Boolean isDef;
+        private UnitRecord unit;
 
         public static UnitItemRecord fromUnitItemEntity(UnitItem unitItem){
             return UnitItemRecord.builder()
@@ -185,6 +193,7 @@ public class ProductRecord {
                 .name(unitItem.getName())
                 .fact(unitItem.getFact())
                 .isDef(unitItem.getIsDef())
+                .unit(UnitRecord.fromUnitEntitySliced(unitItem.getUnit()))
                 .build();
         }
     }

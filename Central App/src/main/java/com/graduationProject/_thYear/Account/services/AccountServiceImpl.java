@@ -6,6 +6,7 @@ import com.graduationProject._thYear.Account.dtos.response.AccountResponse;
 import com.graduationProject._thYear.Account.dtos.response.AccountTreeResponse;
 import com.graduationProject._thYear.Account.models.Account;
 import com.graduationProject._thYear.Account.repositories.AccountRepository;
+import com.graduationProject._thYear.EventSyncronization.Records.AccountRecord;
 import com.graduationProject._thYear.Journal.repositories.JournalItemRepository;
 import com.graduationProject._thYear.exceptionHandler.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -141,6 +142,29 @@ public class AccountServiceImpl implements AccountService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public Account saveOrUpdate(AccountRecord accountRecord){
+        if (accountRecord == null){
+            return null;
+        }
+        Account account = accountRepository.findByGlobalId(accountRecord.getGlobalId())
+            .orElse(new Account());
+
+        Account parent = saveOrUpdate(accountRecord.getParent());
+
+        Account finalAccount = saveOrUpdate(accountRecord.getFinalAccount());
+        
+        account = account.toBuilder()
+            .globalId(accountRecord.getGlobalId())
+            .code(accountRecord.getCode())
+            .name(accountRecord.getName())
+            .parent(parent)
+            .finalAccount(finalAccount)
+            .build();
+
+        accountRepository.save(account);
+        return account;
+    }
     private AccountResponse convertToResponse(Account account) {
         Integer finalAccountId = null;
         String finalAccountNmae = null;

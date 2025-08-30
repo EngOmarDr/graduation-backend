@@ -1,5 +1,6 @@
 package com.graduationProject._thYear.Unit.services;
 
+import com.graduationProject._thYear.EventSyncronization.Records.ProductRecord.UnitItemRecord;
 import com.graduationProject._thYear.EventSyncronization.Records.ProductRecord.UnitRecord;
 import com.graduationProject._thYear.Unit.dtos.requests.CreateUnitItemRequest;
 import com.graduationProject._thYear.Unit.dtos.requests.CreateUnitRequest;
@@ -10,6 +11,7 @@ import com.graduationProject._thYear.Unit.dtos.responses.UnitResponse;
 import com.graduationProject._thYear.exceptionHandler.ResourceNotFoundException;
 import com.graduationProject._thYear.Unit.models.Unit;
 import com.graduationProject._thYear.Unit.models.UnitItem;
+import com.graduationProject._thYear.Unit.repositories.UnitItemRepository;
 import com.graduationProject._thYear.Unit.repositories.UnitRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,9 +26,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UnitServiceImpl implements UnitService {
 
-    private final UnitItemService unitItemService;
+    // private final UnitItemService unitItemService;
 
     private final UnitRepository unitRepository;
+    private final UnitItemRepository unitItemRepository;
 
     @Override
     public UnitResponse createUnit(CreateUnitRequest request) {
@@ -118,22 +121,54 @@ public class UnitServiceImpl implements UnitService {
         unitRepository.delete(unit);
     }
 
+    @Override
     public Unit saveOrUpdate(UnitRecord unitRecord){
+        Unit unit = saveOrUpdateReference(unitRecord);
+        unitRepository.save(unit);
+        return unit;
+    }
+
+     @Override
+    public Unit saveOrUpdateWithChildren(UnitRecord unitRecord){
+
+        Unit unit = saveOrUpdateReference(unitRecord);
+
+        unit.getUnitItems().clear();
+        unit.getUnitItems().addAll(unitRecord.getUnitItems().stream()
+                .map(unitItem -> saveOrUpdateFromUnit(unitItem, unit))
+                .collect(Collectors.toList()));
+        unitRepository.save(unit);
+        return unit;
+    }
+
+
+    
+    private UnitItem saveOrUpdateFromUnit(UnitItemRecord unitItemRecord, Unit unit){
+        UnitItem unitItem = unitItemRepository.findByGlobalId(unitItemRecord.getGlobalId())
+            .orElse(new UnitItem());
+
+        unitItem = unitItem.toBuilder()
+            .globalId(unitItemRecord.getGlobalId())
+            .name(unitItemRecord.getName())
+            .fact(unitItemRecord.getFact())
+            .isDef(unitItemRecord.getIsDef())
+            .unit(unit)
+            .build();
+
+        return unitItem;
+    }
+
+    @Override
+    public Unit saveOrUpdateReference(UnitRecord unitRecord){
 
         Unit unit = unitRepository.findByGlobalId(unitRecord.getGlobalId())
             .orElse(new Unit());
 
-        unit.toBuilder()
+        unit = unit.toBuilder()
             .globalId(unitRecord.getGlobalId())
             .name(unitRecord.getName())
             .build();
         
-
-        unit.getUnitItems().clear();
-        unit.getUnitItems().addAll(unitRecord.getUnitItems().stream()
-                .map(unitItem -> unitItemService.saveOrUpdate(unitItem))
-                .collect(Collectors.toList()));
-        unitRepository.save(unit);
         return unit;
     }
     private void validateUnitItemNames(List<? extends CreateUnitItemRequest> unitItems) {

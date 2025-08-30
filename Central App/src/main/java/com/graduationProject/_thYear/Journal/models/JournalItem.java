@@ -2,6 +2,7 @@ package com.graduationProject._thYear.Journal.models;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import com.graduationProject._thYear.Account.models.Account;
 import com.graduationProject._thYear.Currency.models.Currency;
@@ -10,6 +11,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -28,6 +30,10 @@ public class JournalItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Integer id;
+
+    @Column(name = "globalId", nullable = false, updatable = false)
+    @Default
+    private UUID globalId = UUID.randomUUID();
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)

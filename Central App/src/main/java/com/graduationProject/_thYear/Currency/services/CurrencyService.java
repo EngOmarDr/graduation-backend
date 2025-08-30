@@ -3,6 +3,8 @@ package com.graduationProject._thYear.Currency.services;
 import com.graduationProject._thYear.Currency.dtos.requests.CreateCurrencyRequest;
 import com.graduationProject._thYear.Currency.dtos.requests.UpdateCurrencyRequest;
 import com.graduationProject._thYear.Currency.dtos.responses.CurrencyResponse;
+import com.graduationProject._thYear.Currency.models.Currency;
+import com.graduationProject._thYear.EventSyncronization.Records.CurrencyRecord;
 
 import java.util.List;
 
@@ -12,4 +14,5 @@ public interface CurrencyService {
     List<CurrencyResponse> getAllCurrencies();
     CurrencyResponse updateCurrency(Integer id, UpdateCurrencyRequest request);
     void deleteCurrency(Integer id);
+    Currency saveOrUpdate(CurrencyRecord currencyRecord);
 }

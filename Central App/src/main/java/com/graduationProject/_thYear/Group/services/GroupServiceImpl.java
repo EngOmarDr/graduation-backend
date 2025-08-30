@@ -148,14 +148,13 @@ public class GroupServiceImpl implements GroupService {
         Group parent = saveOrUpdate(groupRecord.getParent()); 
         Group group = groupRepository.findByGlobalId(groupRecord.getGlobalId()).orElse(new Group());
 
-        group.toBuilder()
+        group = group.toBuilder()
             .globalId(groupRecord.getGlobalId())
             .code(groupRecord.getCode())
             .name(groupRecord.getName())
             .notes(groupRecord.getNotes())
             .parent(parent)
             .build();
-            
         groupRepository.save(group);
         return group;
     }

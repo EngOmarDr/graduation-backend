@@ -1,10 +1,13 @@
 package com.graduationProject._thYear.Currency.services;
 
+import com.graduationProject._thYear.Account.models.Account;
 import com.graduationProject._thYear.Currency.dtos.requests.CreateCurrencyRequest;
 import com.graduationProject._thYear.Currency.dtos.requests.UpdateCurrencyRequest;
 import com.graduationProject._thYear.Currency.dtos.responses.CurrencyResponse;
 import com.graduationProject._thYear.exceptionHandler.ResourceNotFoundException;
 import com.graduationProject._thYear.Currency.repositories.CurrencyRepository;
+import com.graduationProject._thYear.EventSyncronization.Records.AccountRecord;
+import com.graduationProject._thYear.EventSyncronization.Records.CurrencyRecord;
 import com.graduationProject._thYear.Currency.models.Currency;
 import lombok.RequiredArgsConstructor;
 
@@ -113,6 +116,28 @@ public class CurrencyServiceImpl implements CurrencyService {
         currencyRepository.delete(currency);
     }
 
+
+    @Override
+    public Currency saveOrUpdate(CurrencyRecord currencyRecord){
+        if (currencyRecord == null){
+            return null;
+        }
+    
+        Currency currency = currencyRepository.findByGlobalId(currencyRecord.getGlobalId())
+            .orElse(new Currency());
+
+        currency = currency.toBuilder()
+            .globalId(currencyRecord.getGlobalId())
+            .code(currencyRecord.getCode())
+            .name(currencyRecord.getName())
+            .currencyValue(currencyRecord.getCurrencyValue())
+            .partPrecision(currencyRecord.getPartPrecision())
+            .partName(currencyRecord.getPartName())
+            .build();
+
+        currencyRepository.save(currency);
+        return currency;
+    }
     private CurrencyResponse convertToResponse(Currency currency) {
         return CurrencyResponse.builder()
                 .id(currency.getId())

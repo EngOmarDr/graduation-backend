@@ -120,30 +120,30 @@ public class ProductBarcodeServiceImpl implements ProductBarcodeService{
         productBarcodeRepository.delete(productBarcode);
     }
 
-    @Override
-    public ProductBarcode saveOrUpdate(ProductBarcodRecord productBarcodRecord){
-        ProductBarcode productBarcode = saveOrUpdateReference(productBarcodRecord);
-        productBarcodeRepository.save(productBarcode);
-        return productBarcode;
-    }
+    // @Override
+    // public ProductBarcode saveOrUpdate(ProductBarcodRecord productBarcodRecord){
+    //     ProductBarcode productBarcode = saveOrUpdateReference(productBarcodRecord);
+    //     productBarcodeRepository.save(productBarcode);
+    //     return productBarcode;
+    // }
 
     @Override
-    public List<ProductBarcode> saveOrUpdateBulk(List<ProductBarcodRecord> records){
+    public List<ProductBarcode> saveOrUpdateBulk(List<ProductBarcodRecord> records, Product product){
         List<ProductBarcode> models = records.stream()
-            .map(record -> saveOrUpdateReference(record))
+            .map(record -> saveOrUpdateReference(record, product))
             .collect(Collectors.toList());
-        productBarcodeRepository.saveAll(models);
         return models;
     }
 
-    private ProductBarcode saveOrUpdateReference(ProductBarcodRecord productBarcodRecord){
+    private ProductBarcode saveOrUpdateReference(ProductBarcodRecord productBarcodRecord, Product product){
         ProductBarcode productBarcode = productBarcodeRepository.findByGlobalId(productBarcodRecord.getGlobalId())
             .orElse(new ProductBarcode());
         UnitItem unitItem = unitItemService.saveOrUpdate(productBarcodRecord.getUnitItemRecord());
-        productBarcode.toBuilder()
-            .globalId(productBarcode.getGlobalId())
-            .barcode(productBarcode.getBarcode())
+        productBarcode = productBarcode.toBuilder()
+            .globalId(productBarcodRecord.getGlobalId())
+            .barcode(productBarcodRecord.getBarcode())
             .unitItem(unitItem)
+            .product(product)
             .build();
         return productBarcode;
     }

@@ -87,7 +87,7 @@ public class PriceServiceImpl implements PriceService{
     public Price saveOrUpdate(PriceRecord priceRecord){
         Price price = priceRepository.findByGlobalId(priceRecord.getGlobalId())
             .orElse(new Price());
-        price.toBuilder()
+        price = price.toBuilder()
             .globalId(priceRecord.getGlobalId())
             .name(priceRecord.getName())
             .build();

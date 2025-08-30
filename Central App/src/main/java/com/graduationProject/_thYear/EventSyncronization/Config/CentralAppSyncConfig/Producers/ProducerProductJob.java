@@ -1,8 +1,8 @@
 package com.graduationProject._thYear.EventSyncronization.Config.CentralAppSyncConfig.Producers;
 
 import java.time.LocalDateTime;
+
 import java.util.Collections;
-import java.util.List;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -12,7 +12,6 @@ import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.data.RepositoryItemReader;
 import org.springframework.batch.item.data.builder.RepositoryItemReaderBuilder;
-import org.springframework.batch.item.support.ListItemReader;
 import org.springframework.batch.item.support.ListItemWriter;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,23 +30,23 @@ import com.graduationProject._thYear.Product.repositories.ProductRepository;
 
 @Configuration
 @Profile("central-app")
-public class ProduceProductJob {
+public class ProducerProductJob {
 
     @Autowired
     private SyncJobRepository syncJobRepository;
     
     @Autowired
-    private KafkaTemplate<String,SyncMessage<ProductRecord>> template;
+    private KafkaTemplate<String,ProductRecord> template;
 
     private SyncMessage<ProductRecord> result = new SyncMessage<>();
     
-    @Bean
-    public Job syncProduct(JobRepository jobRepository, Step getCreatedProductsStep, Step stepTasklet) {
-    return new JobBuilder("SyncDataJob", jobRepository)
-        .start(getCreatedProductsStep)
-        .next(stepTasklet)
-        .build();
-    }
+    // @Bean
+    // public Job SyncProductJob(JobRepository jobRepository, Step getCreatedProductsStep, Step stepTasklet) {
+    // return new JobBuilder("SyncProductJob", jobRepository)
+    //     .start(getCreatedProductsStep)
+    //     .next(stepTasklet)
+    //     .build();
+    // }
 
 
 
@@ -68,26 +67,16 @@ public class ProduceProductJob {
     public Step stepTasklet(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
         return new StepBuilder("stepTasklet", jobRepository)
                 .tasklet((contribution, chunkContext) -> {
-                    System.out.println("👉 Hello from Spring Batch 5!");
-                    System.out.println("👉 This job prints simple statements.");
                     System.out.println("result array size: " + result.getCreatedRecords().size());
                     for(ProductRecord record : result.getCreatedRecords()){
                         System.out.println(record.getGlobalId());                   
-                        System.out.println(record.getGroup());                   
+                        template.send("product-topic",record);
                     }
-                    template.send("product-topic",result);
                     return RepeatStatus.FINISHED;
                 }, transactionManager)
                 .allowStartIfComplete(true)
                 .build();
     }
-
-
-    @Bean 
-    public ListItemReader<String> productReader(){
-        return new ListItemReader<>(List.of("thing1", "thing2", "thing2"));
-    }
-
 
     @Bean 
     public RepositoryItemReader<Product> productReader1(ProductRepository productRepository){
@@ -101,7 +90,7 @@ public class ProduceProductJob {
             .repository(productRepository)
             .methodName("findCreatedAfterDateTime")
             .arguments(dateTime)
-            .sorts(Collections.singletonMap("createdAt", Sort.Direction.DESC))
+            .sorts(Collections.singletonMap("id", Sort.Direction.ASC))
             .build();
     
     }

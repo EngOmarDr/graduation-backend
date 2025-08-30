@@ -13,7 +13,7 @@ import lombok.Builder.Default;
 
 @Entity
 @Table(name = "currency")
-@Builder
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Data

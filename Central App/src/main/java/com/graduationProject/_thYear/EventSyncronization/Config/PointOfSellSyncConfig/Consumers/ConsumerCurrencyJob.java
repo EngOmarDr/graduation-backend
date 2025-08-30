@@ -5,36 +5,35 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.annotation.KafkaListener;
 
-import com.graduationProject._thYear.EventSyncronization.Records.ProductRecord;
-import com.graduationProject._thYear.Product.services.ProductService;
+import com.graduationProject._thYear.Currency.services.CurrencyService;
+import com.graduationProject._thYear.EventSyncronization.Records.CurrencyRecord;
+
 
 @Configuration
 @Profile("pos-app")
-public class ConsumerProductJob {
-
+public class ConsumerCurrencyJob {
     @Autowired
-    ProductService productService;
+    CurrencyService currencyService;
 
 
 
-    @KafkaListener(topics = "product-topic", groupId = "my-group")
-    public void listen2(ProductRecord message) {
+    @KafkaListener(topics = "currency-topic", groupId = "my-group")
+    public void listenAccount(CurrencyRecord message) {
         if(message == null){
             System.out.println("config is null");
             return ;
         }
-        System.out.println("config consumer:  " + message.getClass());
-
-        System.out.println(message);
+        System.out.println("account consumer:  " + message);
         try{
-            productService.saveOrUpdate(message);
+            if (message.getIsDeleted()){
+                currencyService.deleteCurrency(null);
+                return;
+            }
+            currencyService.saveOrUpdate(message);
         }catch(Exception e){
             System.out.println(e.getMessage());
         }
     }
 
-    public void printSomthing(){
-        System.out.println("hit here");
-    }
      
 }

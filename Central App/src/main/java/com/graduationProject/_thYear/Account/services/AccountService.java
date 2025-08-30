@@ -4,6 +4,8 @@ import com.graduationProject._thYear.Account.dtos.request.CreateAccountRequest;
 import com.graduationProject._thYear.Account.dtos.request.UpdateAccountRequest;
 import com.graduationProject._thYear.Account.dtos.response.AccountResponse;
 import com.graduationProject._thYear.Account.dtos.response.AccountTreeResponse;
+import com.graduationProject._thYear.Account.models.Account;
+import com.graduationProject._thYear.EventSyncronization.Records.AccountRecord;
 
 import java.util.List;
 
@@ -23,4 +25,6 @@ public interface AccountService {
     void deleteAccount(Integer id);
 
     List<AccountResponse> searchAccounts(String searchTerm);
+
+    Account saveOrUpdate(AccountRecord accountRecord);
 }

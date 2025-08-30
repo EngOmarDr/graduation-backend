@@ -27,7 +27,7 @@ public class Unit {
     @Column(name = "id")
     private Integer id;
 
-     @Column(name = "globalId", nullable = false, updatable = false)
+    @Column(name = "globalId", nullable = false, updatable = false)
     @Default
     private UUID globalId = UUID.randomUUID();
 

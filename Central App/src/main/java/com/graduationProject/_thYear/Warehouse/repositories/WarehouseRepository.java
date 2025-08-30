@@ -4,12 +4,16 @@ import com.graduationProject._thYear.Warehouse.models.Warehouse;
 
 import jakarta.persistence.Tuple;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface  WarehouseRepository extends JpaRepository<Warehouse, Integer> {
     Optional<Warehouse> findByName(String name);
@@ -42,4 +46,20 @@ public interface  WarehouseRepository extends JpaRepository<Warehouse, Integer> 
     )
     List<Tuple> getStock(Integer warehouseId, Integer productId, Integer groupId);
 
+
+    Optional<Warehouse> findByGlobalId(UUID globalId);
+
+    @Query(value = """
+                SELECT w FROM Warehouse w
+                WHERE :date IS null OR w.createdAt > :date OR w.updatedAt > :date
+           """)
+     Slice<Warehouse> findAllByUpsertedAtAfter(LocalDateTime date, PageRequest pageRequest);
+
+   
+
+     @Query(value = """
+                SELECT w FROM Warehouse w
+                WHERE (:date IS null AND w.deletedAt IS NOT null) OR w.deletedAt > :date
+           """)
+     Slice<Warehouse> findAllByDeletetedAtAfter(LocalDateTime date);
 }

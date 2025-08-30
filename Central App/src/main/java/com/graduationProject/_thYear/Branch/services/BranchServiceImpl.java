@@ -5,6 +5,7 @@ import com.graduationProject._thYear.Branch.dtos.request.UpdateBranchRequest;
 import com.graduationProject._thYear.Branch.dtos.response.BranchResponse;
 import com.graduationProject._thYear.Branch.models.Branch;
 import com.graduationProject._thYear.Branch.repositories.BranchRepository;
+import com.graduationProject._thYear.EventSyncronization.Records.WarehouseRecord.BranchRecord;
 import com.graduationProject._thYear.exceptionHandler.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -92,6 +93,26 @@ public class BranchServiceImpl implements BranchService {
         repository.delete(res);
     }
 
+    @Override
+    public Branch saveOrUpdate(BranchRecord branchRecord){
+        if (branchRecord == null){
+            return null;
+        }
+    
+        Branch branch = repository.findByGlobalId(branchRecord.getGlobalId())
+            .orElse(new Branch());
+
+        branch = branch.toBuilder()
+            .globalId(branchRecord.getGlobalId())
+            .name(branchRecord.getName())
+            .phone(branchRecord.getPhone())
+            .address(branchRecord.getAddress())
+            .notes(branchRecord.getNotes())
+            .build();
+
+        repository.save(branch);
+        return branch;
+    }
     private BranchResponse convertToResponse(Branch object) {
         return BranchResponse.builder()
                 .id(object.getId())

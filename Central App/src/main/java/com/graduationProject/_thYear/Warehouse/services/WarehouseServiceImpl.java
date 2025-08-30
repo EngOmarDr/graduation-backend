@@ -2,6 +2,8 @@ package com.graduationProject._thYear.Warehouse.services;
 
 import com.graduationProject._thYear.Branch.models.Branch;
 import com.graduationProject._thYear.Branch.repositories.BranchRepository;
+import com.graduationProject._thYear.Branch.services.BranchService;
+import com.graduationProject._thYear.EventSyncronization.Records.WarehouseRecord;
 import com.graduationProject._thYear.Warehouse.dtos.requests.CreateWarehouseRequest;
 import com.graduationProject._thYear.Warehouse.dtos.requests.UpdateWarehouseRequest;
 import com.graduationProject._thYear.Warehouse.dtos.responses.WarehouseResponse;
@@ -27,6 +29,7 @@ public class WarehouseServiceImpl implements WarehouseService{
 
     private final WarehouseRepository warehouseRepository;
     private final BranchRepository branchRepository;
+    private final BranchService branchService;
 
     @Override
     @Transactional
@@ -197,6 +200,34 @@ public class WarehouseServiceImpl implements WarehouseService{
         return response;
     }
 
+    @Override
+    public Warehouse saveOrUpdate(WarehouseRecord warehouseRecord){
+        if (warehouseRecord == null){
+            return null;
+        }
+        Warehouse warehouse = warehouseRepository.findByGlobalId(warehouseRecord.getGlobalId())
+            .orElse(new Warehouse());
+
+        Warehouse parent = saveOrUpdate(warehouseRecord.getParent());
+
+        Branch branch = branchService.saveOrUpdate(warehouseRecord.getBranch());
+        
+        warehouse = warehouse.toBuilder()
+            .globalId(warehouseRecord.getGlobalId())
+            .name(warehouseRecord.getName())
+            .code(warehouseRecord.getCode())
+            .phone(warehouseRecord.getPhone())
+            .type(warehouseRecord.getType())
+            .isActive(warehouseRecord.isActive())
+            .address(warehouseRecord.getAddress())
+            .notes(warehouseRecord.getNotes())
+            .parent(parent)
+            .branch(branch)
+            .build();
+            
+        warehouseRepository.save(warehouse);
+        return warehouse;
+    }
     private WarehouseResponse mapToDTO(Warehouse warehouse) {
         return WarehouseResponse.builder()
                 .id(warehouse.getId())
