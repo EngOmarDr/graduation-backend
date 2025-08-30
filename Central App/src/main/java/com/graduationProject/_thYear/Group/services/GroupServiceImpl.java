@@ -140,7 +140,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
 
-    Group saveOrUpdate(GroupRecord groupRecord){
+    public Group saveOrUpdate(GroupRecord groupRecord){
 
         if (groupRecord == null){
             return null;
