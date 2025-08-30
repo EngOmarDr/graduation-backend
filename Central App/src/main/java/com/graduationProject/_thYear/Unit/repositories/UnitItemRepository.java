@@ -5,8 +5,13 @@ import com.graduationProject._thYear.Unit.models.UnitItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 public interface UnitItemRepository extends JpaRepository<UnitItem,Integer> {
     boolean existsByName(String name);
     List<UnitItem> findByUnitId(Integer unitId);
+
+    Optional<UnitItem> findByGlobalId(UUID globalId);
+
 }

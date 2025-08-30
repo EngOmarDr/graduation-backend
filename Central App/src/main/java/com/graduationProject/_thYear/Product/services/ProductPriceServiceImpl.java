@@ -1,5 +1,6 @@
 package com.graduationProject._thYear.Product.services;
 
+import com.graduationProject._thYear.EventSyncronization.Records.ProductRecord.ProductPriceRecord;
 import com.graduationProject._thYear.Product.dtos.request.CreateProductPriceRequest;
 import com.graduationProject._thYear.Product.dtos.request.UpdateProductPriceRequest;
 import com.graduationProject._thYear.Product.dtos.response.ProductPriceResponse;
@@ -11,6 +12,7 @@ import com.graduationProject._thYear.Product.repositories.ProductPriceRepository
 import com.graduationProject._thYear.Product.repositories.ProductRepository;
 import com.graduationProject._thYear.Unit.models.UnitItem;
 import com.graduationProject._thYear.Unit.repositories.UnitItemRepository;
+import com.graduationProject._thYear.Unit.services.UnitItemService;
 import com.graduationProject._thYear.exceptionHandler.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +30,9 @@ public class ProductPriceServiceImpl implements ProductPriceService{
     private final ProductPriceRepository productPriceRepository;
     private final ProductRepository productRepository;
     private final PriceRepository priceRepository;
+    private final PriceService priceService;
+    private final UnitItemService unitItemService;
+
     private final UnitItemRepository unitItemRepository;
 
     @Override
@@ -136,6 +141,34 @@ public class ProductPriceServiceImpl implements ProductPriceService{
         productPriceRepository.delete(productPrice);
     }
 
+    @Override
+    public ProductPrice saveOrUpdate(ProductPriceRecord productPriceRecord){
+        ProductPrice productPrice = saveOrUpdateReference(productPriceRecord);
+        productPriceRepository.save(productPrice);
+        return productPrice;
+    }
+     @Override
+    public List<ProductPrice> saveOrUpdateBulk(List<ProductPriceRecord> records){
+        List<ProductPrice> models = records.stream()
+            .map(record -> saveOrUpdateReference(record))
+            .collect(Collectors.toList());
+        productPriceRepository.saveAll(models);
+        return models;
+    }
+
+    private ProductPrice saveOrUpdateReference(ProductPriceRecord productPriceRecord){
+        ProductPrice productPrice = productPriceRepository.findByGlobalId(productPriceRecord.getGlobalId())
+            .orElse(new ProductPrice());
+        Price price = priceService.saveOrUpdate(productPriceRecord.getPriceRecord());
+        UnitItem unitItem = unitItemService.saveOrUpdate(productPriceRecord.getUnitItemRecord());
+        productPrice.toBuilder()
+            .globalId(productPrice.getGlobalId())
+            .priceUnit(unitItem)
+            .priceId(price)
+            .price(productPrice.getPrice())
+            .build();
+        return productPrice;
+    }
     private ProductPriceResponse convertToResponse(ProductPrice productPrice) {
         return ProductPriceResponse.builder()
                 .id(productPrice.getId())

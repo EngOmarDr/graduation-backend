@@ -6,9 +6,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface ProductBarcodeRepository extends JpaRepository<ProductBarcode,Integer> {
     boolean existsByBarcode(String barcode);
     List<ProductBarcode> findByProductId(Integer productId);
     List<ProductBarcode> findAllByBarcode(String barcode);
+    Optional<ProductBarcode> findByGlobalId(UUID globalId);
+    
 }

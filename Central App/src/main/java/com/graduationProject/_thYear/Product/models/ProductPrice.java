@@ -2,8 +2,6 @@ package com.graduationProject._thYear.Product.models;
 
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.graduationProject._thYear.Unit.models.Unit;
 import com.graduationProject._thYear.Unit.models.UnitItem;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
@@ -20,7 +18,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "productPrice")
-@Builder
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -46,18 +44,18 @@ public class ProductPrice {
     
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id", nullable = false)
     @JsonBackReference
     private Product productId;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "price_id", nullable = false)
     private Price priceId;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "unit_id", nullable = false)
     private UnitItem priceUnit;
 

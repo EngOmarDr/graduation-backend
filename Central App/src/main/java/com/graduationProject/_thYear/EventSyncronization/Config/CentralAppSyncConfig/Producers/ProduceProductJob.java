@@ -64,7 +64,7 @@ public class ProduceProductJob {
     }
 
 
-  @Bean
+    @Bean
     public Step stepTasklet(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
         return new StepBuilder("stepTasklet", jobRepository)
                 .tasklet((contribution, chunkContext) -> {
@@ -72,7 +72,8 @@ public class ProduceProductJob {
                     System.out.println("👉 This job prints simple statements.");
                     System.out.println("result array size: " + result.getCreatedRecords().size());
                     for(ProductRecord record : result.getCreatedRecords()){
-                        System.out.println(record);                   
+                        System.out.println(record.getGlobalId());                   
+                        System.out.println(record.getGroup());                   
                     }
                     template.send("product-topic",result);
                     return RepeatStatus.FINISHED;
@@ -93,6 +94,7 @@ public class ProduceProductJob {
         LocalDateTime dateTime = syncJobRepository.findLastByTopic("product")
             .map(job -> job.getExecutedAt())
             .orElse(null);
+        // System.out.println(productRepository.findAll().size());
 
         return new RepositoryItemReaderBuilder<Product>()
             .name("productReader1")
@@ -107,9 +109,8 @@ public class ProduceProductJob {
     @Bean 
     public ItemProcessor<Product,ProductRecord> productProccessor(){
         return item -> {
-            return ProductRecord.builder()
-                
-                .build();
+            System.out.println(item.getGroupId().getId());
+            return ProductRecord.fromProductEntity(item);
         };
     }
 

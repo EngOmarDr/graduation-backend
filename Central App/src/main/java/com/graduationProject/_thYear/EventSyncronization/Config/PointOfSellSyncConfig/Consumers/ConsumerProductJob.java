@@ -10,13 +10,19 @@ import com.graduationProject._thYear.EventSyncronization.Records.SyncMessage;
 @Configuration
 @Profile("pos-app")
 public class ConsumerProductJob {
+
+
     
 
     @KafkaListener(topics = "product-topic", groupId = "my-group")
     public void listen2(SyncMessage<ProductRecord> message) {
         if(message == null){
             System.out.println("config is null");
+            return ;
         }
         System.out.println("config consumer:  " + message);
+
     }
+
+     
 }

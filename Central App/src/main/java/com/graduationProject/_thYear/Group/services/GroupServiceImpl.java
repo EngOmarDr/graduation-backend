@@ -1,6 +1,7 @@
 package com.graduationProject._thYear.Group.services;
 
 
+import com.graduationProject._thYear.EventSyncronization.Records.ProductRecord.GroupRecord;
 import com.graduationProject._thYear.Group.dtos.request.CreateGroupRequest;
 import com.graduationProject._thYear.Group.dtos.request.UpdateGroupRequest;
 import com.graduationProject._thYear.Group.dtos.response.GroupResponse;
@@ -136,6 +137,27 @@ public class GroupServiceImpl implements GroupService {
 
 
         groupRepository.delete(group);
+    }
+
+
+    Group saveOrUpdate(GroupRecord groupRecord){
+
+        if (groupRecord == null){
+            return null;
+        }
+        Group parent = saveOrUpdate(groupRecord.getParent()); 
+        Group group = groupRepository.findByGlobalId(groupRecord.getGlobalId()).orElse(new Group());
+
+        group.toBuilder()
+            .globalId(groupRecord.getGlobalId())
+            .code(groupRecord.getCode())
+            .name(groupRecord.getName())
+            .notes(groupRecord.getNotes())
+            .parent(parent)
+            .build();
+            
+        groupRepository.save(group);
+        return group;
     }
 
     public List<GroupResponse> searchGroups(String searchTerm) {

@@ -1,5 +1,7 @@
 package com.graduationProject._thYear.Product.services;
 
+import com.graduationProject._thYear.EventSyncronization.Records.ProductRecord.ProductPriceRecord;
+import com.graduationProject._thYear.EventSyncronization.Records.ProductRecord.ProductPriceRecord.PriceRecord;
 import com.graduationProject._thYear.Product.dtos.request.CreatePriceRequest;
 import com.graduationProject._thYear.Product.dtos.request.UpdatePriceRequest;
 import com.graduationProject._thYear.Product.dtos.response.PriceResponse;
@@ -81,6 +83,17 @@ public class PriceServiceImpl implements PriceService{
         priceRepository.delete(price);
     }
 
+    @Override
+    public Price saveOrUpdate(PriceRecord priceRecord){
+        Price price = priceRepository.findByGlobalId(priceRecord.getGlobalId())
+            .orElse(new Price());
+        price.toBuilder()
+            .globalId(priceRecord.getGlobalId())
+            .name(priceRecord.getName())
+            .build();
+        priceRepository.save(price);
+        return price;
+    }
     private PriceResponse convertToResponse(Price price) {
         return PriceResponse.builder()
                 .id(price.getId())

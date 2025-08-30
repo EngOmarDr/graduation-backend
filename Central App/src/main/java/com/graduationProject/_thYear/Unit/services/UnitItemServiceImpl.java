@@ -1,5 +1,8 @@
 package com.graduationProject._thYear.Unit.services;
 
+import com.graduationProject._thYear.EventSyncronization.Records.ProductRecord.GroupRecord;
+import com.graduationProject._thYear.EventSyncronization.Records.ProductRecord.UnitItemRecord;
+import com.graduationProject._thYear.Group.models.Group;
 import com.graduationProject._thYear.Product.dtos.response.ProductBarcodeResponse;
 import com.graduationProject._thYear.Product.models.ProductBarcode;
 import com.graduationProject._thYear.Unit.dtos.requests.CreateUnitItemRequest;
@@ -108,6 +111,23 @@ public class UnitItemServiceImpl implements UnitItemService{
         }
 
         unitItemRepository.delete(unitItem);
+    }
+
+    @Override
+    public UnitItem saveOrUpdate(UnitItemRecord unitItemRecord){
+
+        UnitItem unitItem = unitItemRepository.findByGlobalId(unitItemRecord.getGlobalId())
+            .orElse(new UnitItem());
+
+        unitItem.toBuilder()
+            .globalId(unitItemRecord.getGlobalId())
+            .name(unitItemRecord.getName())
+            .fact(unitItemRecord.getFact())
+            .isDef(unitItemRecord.getIsDef())
+            .build();
+            
+        unitItemRepository.save(unitItem);
+        return unitItem;
     }
 
     private UnitItemResponse convertToResponse(UnitItem unitItem) {

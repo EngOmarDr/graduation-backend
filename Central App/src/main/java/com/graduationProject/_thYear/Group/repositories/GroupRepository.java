@@ -7,12 +7,16 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 public interface GroupRepository extends JpaRepository<Group,Integer> {
     boolean existsByCode(String code);
     boolean existsByName(String name);
 
     List<Group> findByParentIsNull(); // For getting root categories
+
+    Optional<Group> findByGlobalId(UUID globalId);
 
     List<Group> findByParentId(Integer parentId); // For getting children of a specific category
 

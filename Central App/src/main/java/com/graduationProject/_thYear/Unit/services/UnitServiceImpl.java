@@ -1,5 +1,6 @@
 package com.graduationProject._thYear.Unit.services;
 
+import com.graduationProject._thYear.EventSyncronization.Records.ProductRecord.UnitRecord;
 import com.graduationProject._thYear.Unit.dtos.requests.CreateUnitItemRequest;
 import com.graduationProject._thYear.Unit.dtos.requests.CreateUnitRequest;
 import com.graduationProject._thYear.Unit.dtos.requests.UpdateUnitItemRequest;
@@ -22,6 +23,8 @@ import java.util.stream.Collectors;
 @Transactional
 @RequiredArgsConstructor
 public class UnitServiceImpl implements UnitService {
+
+    private final UnitItemService unitItemService;
 
     private final UnitRepository unitRepository;
 
@@ -115,7 +118,24 @@ public class UnitServiceImpl implements UnitService {
         unitRepository.delete(unit);
     }
 
+    public Unit saveOrUpdate(UnitRecord unitRecord){
 
+        Unit unit = unitRepository.findByGlobalId(unitRecord.getGlobalId())
+            .orElse(new Unit());
+
+        unit.toBuilder()
+            .globalId(unitRecord.getGlobalId())
+            .name(unitRecord.getName())
+            .build();
+        
+
+        unit.getUnitItems().clear();
+        unit.getUnitItems().addAll(unitRecord.getUnitItems().stream()
+                .map(unitItem -> unitItemService.saveOrUpdate(unitItem))
+                .collect(Collectors.toList()));
+        unitRepository.save(unit);
+        return unit;
+    }
     private void validateUnitItemNames(List<? extends CreateUnitItemRequest> unitItems) {
         List<String> itemNames = unitItems.stream()
                 .map(CreateUnitItemRequest::getName)

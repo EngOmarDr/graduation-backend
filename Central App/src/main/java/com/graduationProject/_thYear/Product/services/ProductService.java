@@ -1,11 +1,13 @@
 package com.graduationProject._thYear.Product.services;
 
+import com.graduationProject._thYear.EventSyncronization.Records.ProductRecord;
 import com.graduationProject._thYear.Product.dtos.request.CreateProductRequest;
 import com.graduationProject._thYear.Product.dtos.request.UpdateProductRequest;
 import com.graduationProject._thYear.Product.dtos.response.ProductResponse;
+import com.graduationProject._thYear.Product.models.Product;
+
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 public interface ProductService {
@@ -22,5 +24,7 @@ public interface ProductService {
     void importFromExcel(MultipartFile file);
 
 //    List<ProductResponse> getProductsByWarehouse(Integer warehouseId);
+    Product saveOrUpdate(ProductRecord productRecord);
+    List<Product> saveOrUpdateBulk(List<ProductRecord> records);
 
 }

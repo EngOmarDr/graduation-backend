@@ -18,7 +18,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "product")
-@Builder
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -55,7 +55,7 @@ public class Product {
     private String name;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "group_id", nullable = false)
     private Group groupId;
 
@@ -67,7 +67,7 @@ public class Product {
     private Byte type;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "unit_id", nullable = false)
     private Unit defaultUnit;
 
@@ -84,12 +84,12 @@ public class Product {
     @Column(name = "notes" )
     private String notes;
 
-    @OneToMany(mappedBy = "productId", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "productId", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @Builder.Default
     @JsonManagedReference
     private List<ProductPrice> prices = new ArrayList<>();
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @Builder.Default
     @JsonManagedReference
     private List<ProductBarcode> barcodes = new ArrayList<>();
@@ -115,6 +115,15 @@ public class Product {
         price.setProductId(null);
     }
 
+    public void resetPrices(List<ProductPrice> prices){
+        this.getPrices().clear();
+        this.getPrices().addAll(prices);
+    }
+
+    public void resetBarcodes(List<ProductBarcode> barcodes){
+        this.getBarcodes().clear();
+        this.getBarcodes().addAll(barcodes);
+    }
 
 
 }

@@ -14,7 +14,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "`group`")
-@Builder
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Data

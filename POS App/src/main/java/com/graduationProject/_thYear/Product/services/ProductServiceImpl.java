@@ -1,6 +1,5 @@
 package com.graduationProject._thYear.Product.services;
 
-import com.graduationProject._thYear.Account.dtos.response.AccountResponse;
 import com.graduationProject._thYear.Group.models.Group;
 import com.graduationProject._thYear.Group.repositories.GroupRepository;
 import com.graduationProject._thYear.Product.dtos.request.*;
@@ -22,14 +21,8 @@ import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service

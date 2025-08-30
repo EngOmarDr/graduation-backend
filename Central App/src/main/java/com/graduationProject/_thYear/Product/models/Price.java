@@ -15,7 +15,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "price")
-@Builder
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Data

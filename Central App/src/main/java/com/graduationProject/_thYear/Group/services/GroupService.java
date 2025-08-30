@@ -4,10 +4,12 @@ package com.graduationProject._thYear.Group.services;
 
 import java.util.List;
 
+import com.graduationProject._thYear.EventSyncronization.Records.ProductRecord.GroupRecord;
 import com.graduationProject._thYear.Group.dtos.request.CreateGroupRequest;
 import com.graduationProject._thYear.Group.dtos.request.UpdateGroupRequest;
 import com.graduationProject._thYear.Group.dtos.response.GroupResponse;
 import com.graduationProject._thYear.Group.dtos.response.GroupTreeResponse;
+import com.graduationProject._thYear.Group.models.Group;
 
 public interface GroupService {
     GroupResponse createGroup(CreateGroupRequest request);
@@ -19,4 +21,5 @@ public interface GroupService {
     void deleteGroup(Integer id);
 
     List<GroupResponse> searchGroups(String searchTerm);
+    Group saveOrUpdate(GroupRecord groupRecord);
 }

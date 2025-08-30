@@ -16,7 +16,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "unit")
-@Builder
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -44,7 +44,7 @@ public class Unit {
     @Column(name = "name" , unique = true , nullable = false)
     private String name;
 
-    @OneToMany(mappedBy = "unit", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "unit", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @Builder.Default
     private List<UnitItem> unitItems = new ArrayList<>();
 

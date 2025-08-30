@@ -13,10 +13,11 @@ import lombok.Builder.Default;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "unitItem")
-@Builder
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -25,6 +26,11 @@ public class UnitItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Integer id ;
+
+    
+    @Column(name = "globalId", nullable = false, updatable = false)
+    @Default
+    private UUID globalId = UUID.randomUUID();
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)

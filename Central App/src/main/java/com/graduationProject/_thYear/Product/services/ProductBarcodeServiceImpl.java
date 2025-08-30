@@ -1,4 +1,5 @@
 package com.graduationProject._thYear.Product.services;
+import com.graduationProject._thYear.EventSyncronization.Records.ProductRecord.ProductBarcodRecord;
 import com.graduationProject._thYear.Product.dtos.request.CreateProductBarcodeRequest;
 import com.graduationProject._thYear.Product.dtos.request.UpdateProductBarcodeRequest;
 import com.graduationProject._thYear.Product.dtos.response.ProductBarcodeResponse;
@@ -8,6 +9,7 @@ import com.graduationProject._thYear.Product.repositories.ProductBarcodeReposito
 import com.graduationProject._thYear.Product.repositories.ProductRepository;
 import com.graduationProject._thYear.Unit.models.UnitItem;
 import com.graduationProject._thYear.Unit.repositories.UnitItemRepository;
+import com.graduationProject._thYear.Unit.services.UnitItemService;
 import com.graduationProject._thYear.exceptionHandler.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,7 @@ public class ProductBarcodeServiceImpl implements ProductBarcodeService{
     private final ProductBarcodeRepository productBarcodeRepository;
     private final ProductRepository productRepository;
     private final UnitItemRepository unitItemRepository;
+    private final UnitItemService unitItemService;
 
     @Override
     public ProductBarcodeResponse createProductBarcode(CreateProductBarcodeRequest request) {
@@ -117,6 +120,33 @@ public class ProductBarcodeServiceImpl implements ProductBarcodeService{
         productBarcodeRepository.delete(productBarcode);
     }
 
+    @Override
+    public ProductBarcode saveOrUpdate(ProductBarcodRecord productBarcodRecord){
+        ProductBarcode productBarcode = saveOrUpdateReference(productBarcodRecord);
+        productBarcodeRepository.save(productBarcode);
+        return productBarcode;
+    }
+
+    @Override
+    public List<ProductBarcode> saveOrUpdateBulk(List<ProductBarcodRecord> records){
+        List<ProductBarcode> models = records.stream()
+            .map(record -> saveOrUpdateReference(record))
+            .collect(Collectors.toList());
+        productBarcodeRepository.saveAll(models);
+        return models;
+    }
+
+    private ProductBarcode saveOrUpdateReference(ProductBarcodRecord productBarcodRecord){
+        ProductBarcode productBarcode = productBarcodeRepository.findByGlobalId(productBarcodRecord.getGlobalId())
+            .orElse(new ProductBarcode());
+        UnitItem unitItem = unitItemService.saveOrUpdate(productBarcodRecord.getUnitItemRecord());
+        productBarcode.toBuilder()
+            .globalId(productBarcode.getGlobalId())
+            .barcode(productBarcode.getBarcode())
+            .unitItem(unitItem)
+            .build();
+        return productBarcode;
+    }
     private ProductBarcodeResponse convertToResponse(ProductBarcode productBarcode) {
         return ProductBarcodeResponse.builder()
                 .id(productBarcode.getId())
