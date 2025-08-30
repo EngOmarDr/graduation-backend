@@ -153,18 +153,39 @@ public interface InvoiceHeaderRepository extends JpaRepository<InvoiceHeader,Int
     /**
      * Total sales for different time periods with comparison to previous periods
      */
+//    @Query(value = """
+//        SELECT
+//            SUM(CASE WHEN ty.type = 'sale' THEN item.price * ih.currencyValue * item.qty  ELSE 0 END) as total_sales,
+//            COUNT(CASE WHEN ty.type = 'sale' THEN ih.id END) as total_invoices,
+//            :startDate as period_start,
+//            :endDate as period_end
+//        FROM InvoiceHeader ih
+//        JOIN ih.invoiceItems item
+//        JOIN ih.invoiceType ty
+//        WHERE ih.date BETWEEN :startDate AND :endDate
+//        AND ih.isPosted = true AND ih.isSuspended = false
+//        """)
+//    Tuple getTotalSales(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+
+
+
+    /**
+     * Total purchases for different time periods
+     */
+
+    /**
+     * Total sales for different time periods with comparison to previous periods
+     */
     @Query(value = """
         SELECT
-            SUM(CASE WHEN ty.type = 'sale' THEN item.price * ih.currencyValue * item.qty  ELSE 0 END) as total_sales,
-            COUNT(CASE WHEN ty.type = 'sale' THEN ih.id END) as total_invoices,
-            :startDate as period_start,
-            :endDate as period_end
-        FROM InvoiceHeader ih
-        JOIN ih.invoiceItems item
-        JOIN ih.invoiceType ty
-        WHERE ih.date BETWEEN :startDate AND :endDate
-        AND ih.isPosted = true AND ih.isSuspended = false
-        """)
+            SUM(CASE WHEN ty.type = 'sale' THEN item.price * ih.currency_value * item.qty  ELSE 0 END) as total_sales,
+            COUNT(DISTINCT CASE WHEN ty.type = 'sale' THEN ih.id END) as total_invoices
+        FROM invoice_header ih
+        JOIN invoice_item item ON item.invoice_header_id = ih.id
+        JOIN invoice_type ty ON ty.id = ih.invoice_type_id
+        WHERE ih.date BETWEEN ?1 AND ?2
+          AND ih.is_posted = true AND ih.is_suspended = false
+        """, nativeQuery = true)
     Tuple getTotalSales(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 
 
@@ -174,16 +195,14 @@ public interface InvoiceHeaderRepository extends JpaRepository<InvoiceHeader,Int
      */
     @Query(value = """
         SELECT
-            SUM(CASE WHEN ty.type = 'buy' THEN item.price * ih.currencyValue * item.qty  ELSE 0 END) as total_purchases,
-            COUNT(CASE WHEN ty.type = 'buy' THEN ih.id END) as total_purchase_invoices,
-            :startDate as period_start,
-            :endDate as period_end
-        FROM InvoiceHeader ih
-        JOIN ih.invoiceItems item
-        JOIN ih.invoiceType ty
-        WHERE ih.date BETWEEN :startDate AND :endDate
-        AND ih.isPosted = true AND ih.isSuspended = false
-        """)
+            SUM(CASE WHEN ty.type = 'buy' THEN item.price * ih.currency_value * item.qty  ELSE 0 END) as total_purchases,
+            COUNT(DISTINCT CASE WHEN ty.type like 'buy' THEN ih.id END) as total_purchase_invoices
+        FROM invoice_header ih
+        JOIN invoice_item item ON item.invoice_header_id = ih.id
+        JOIN invoice_type ty ON ty.id = ih.invoice_type_id
+        WHERE ih.date BETWEEN ?1 AND ?2
+          AND ih.is_posted = true AND ih.is_suspended = false
+        """, nativeQuery = true)
     Tuple getTotalPurchases(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 
     /**
