@@ -1,5 +1,6 @@
 package com.graduationProject._thYear.Invoice.services;
 
+import com.graduationProject._thYear.EventSyncronization.Records.InvoiceRecord.InvoiceItemRecord;
 import com.graduationProject._thYear.Invoice.dtos.requests.CreateInvoiceItemRequest;
 import com.graduationProject._thYear.Invoice.dtos.responses.InvoiceItemResponse;
 import com.graduationProject._thYear.Invoice.dtos.requests.UpdateInvoiceItemRequest;
@@ -10,6 +11,7 @@ import com.graduationProject._thYear.Product.models.Product;
 import com.graduationProject._thYear.Product.repositories.ProductRepository;
 import com.graduationProject._thYear.Unit.models.UnitItem;
 import com.graduationProject._thYear.Unit.repositories.UnitItemRepository;
+import com.graduationProject._thYear.exceptionHandler.ResourceNotFoundException;
 import com.graduationProject._thYear.Invoice.repositories.InvoiceHeaderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -122,6 +124,30 @@ public class InvoiceItemService {
 
     public void delete(Integer id) {
         invoiceItemRepository.deleteById(id);
+    }
+
+    public List<InvoiceItem> saveOrUpdateBulk(List<InvoiceItemRecord> records, InvoiceHeader invoiceHeader){
+        return records.stream()
+            .map(record -> saveOrUpdate(record, invoiceHeader))
+            .collect(Collectors.toList());
+    }
+    
+    public InvoiceItem saveOrUpdate(InvoiceItemRecord invoiceItemRecord, InvoiceHeader invoiceHeader){
+        Product product = productRepository.findByGlobalId(invoiceItemRecord.getProductId())
+            .orElseThrow(() -> new ResourceNotFoundException("product id not found for invoice item sync"));
+        UnitItem unitItem = unitItemRepository.findByGlobalId(invoiceItemRecord.getUnitItemId())
+            .orElseThrow(() -> new ResourceNotFoundException("unit item id not found for invoice item sync"));
+
+        return InvoiceItem.builder()
+            .product(product)
+            .unitItem(unitItem)
+            .invoiceHeader(invoiceHeader)
+            .unitFact(invoiceItemRecord.getUnitFact())
+            .bonusQty(invoiceItemRecord.getBonusQty())
+            .qty(invoiceItemRecord.getQty())
+            .price(invoiceItemRecord.getPrice())
+            .notes(invoiceItemRecord.getNotes())
+            .build();
     }
 
     private InvoiceItemResponse toResponse(InvoiceItem item) {

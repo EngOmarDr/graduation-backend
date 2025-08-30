@@ -21,13 +21,13 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@Builder(toBuilder = true)
 public class User implements UserDetails {
 
-@Id
-@GeneratedValue(strategy = GenerationType.IDENTITY)
-@Column(name = "id")
-private Integer id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Integer id;
 
     @Column(name = "globalId", nullable = false, updatable = false)
     @Default
@@ -42,24 +42,24 @@ private Integer id;
     @Column(name = "deletedAt")
     private LocalDateTime deletedAt;
     
-@Column(name = "first_name")
-private String firstName;
+    @Column(name = "first_name")
+    private String firstName;
 
 
-@Column(name = "last_name")
-private String lastName;
+    @Column(name = "last_name")
+    private String lastName;
 
-@Column(name = "username" , unique = true)
-private String username;
+    @Column(name = "username" , unique = true)
+    private String username;
 
 
-@Column(name = "password")
-private String password;
+    @Column(name = "password")
+    private String password;
 
-@Enumerated(EnumType.STRING)
-private Role role;
-//@OneToMany(mappedBy = "user")
-//private List<Token> tokens;
+    @Enumerated(EnumType.STRING)
+    private Role role;
+    //@OneToMany(mappedBy = "user")
+    //private List<Token> tokens;
 
     @ManyToOne
     @JoinColumn(name = "warehouse_id")

@@ -28,10 +28,13 @@ import com.graduationProject._thYear.Unit.models.UnitItem;
 import com.graduationProject._thYear.Unit.repositories.UnitItemRepository;
 import com.graduationProject._thYear.Account.repositories.AccountRepository;
 import com.graduationProject._thYear.Auth.models.Role;
+import com.graduationProject._thYear.Auth.models.User;
+import com.graduationProject._thYear.Auth.services.AuthenticationService;
 import com.graduationProject._thYear.InvoiceType.repositories.InvoiceTypeRepository;
 import com.graduationProject._thYear.Warehouse.models.Warehouse;
 import com.graduationProject._thYear.Warehouse.repositories.WarehouseRepository;
 import com.graduationProject._thYear.Currency.repositories.CurrencyRepository;
+import com.graduationProject._thYear.EventSyncronization.Records.InvoiceRecord;
 import com.graduationProject._thYear.exceptionHandler.ResourceNotFoundException;
 
 import jakarta.persistence.Tuple;
@@ -66,6 +69,10 @@ public class InvoiceService {
     private final JournalHeaderRepository journalHeaderRepository;
     private final JournalItemRepository journalItemRepository;
     private final ShiftRepository shiftRepository;
+
+    private final AuthenticationService authenticationService;
+    private final InvoiceItemService invoiceItemService;
+    private final InvoiceDiscountService invoiceDiscountService;
 
     @Transactional
     public InvoiceResponse create(CreateInvoiceRequest req) {
@@ -438,6 +445,49 @@ public class InvoiceService {
         return response;
     }
 
+    public InvoiceHeader saveOrUpdate(InvoiceRecord invoiceRecord){
+
+        InvoiceHeader invoice = headerRepo.findByGlobalId(invoiceRecord.getGlobalId())
+            .orElse(new InvoiceHeader());
+
+        Warehouse warehouse = warehouseRepo.findByGlobalId(invoiceRecord.getWarehouseId())
+            .orElseThrow(() -> new ResourceNotFoundException("warehouse id not found while syncronizing"));
+        
+        InvoiceType invoiceType = invoiceTypeRepo.findByGlobalId(invoiceRecord.getInvoiceTypeId())
+            .orElseThrow(() -> new ResourceNotFoundException("invoice type id not found while syncronizing"));
+        
+        Account account = accountRepo.findByGlobalId(invoiceRecord.getAccountId())
+            .orElseThrow(() -> new ResourceNotFoundException("account id not found while syncronizing"));
+    
+        Currency currency = currencyRepo.findByGlobalId(invoiceRecord.getCurrencyId())
+            .orElseThrow(() -> new ResourceNotFoundException("currency id not found while syncronizing"));
+
+        User user = authenticationService.saveOrUpdate(invoiceRecord.getUser());
+
+        invoice = invoice.toBuilder()
+            .globalId(invoiceRecord.getGlobalId())
+            .warehouse(warehouse)
+            .invoiceType(invoiceType)
+            .account(account)
+            .currency(currency)
+            .user(user)
+            .date(invoiceRecord.getDate())
+            .isSuspended(invoiceRecord.getIsSuspended())
+            .isPosted(invoiceRecord.getIsPosted())
+            .currencyValue(invoiceRecord.getCurrencyValue())
+            .total(invoiceRecord.getTotal())
+            .totalDisc(invoiceRecord.getTotalDisc())
+            .totalExtra(invoiceRecord.getTotalExtra())
+            .notes(invoiceRecord.getNotes())
+            .payType(invoiceRecord.getPayType())
+            .parentType(invoiceRecord.getParentType())
+            .postedDate(invoiceRecord.getPostedDate())
+            .build();
+        invoice.resetItems(invoiceItemService.saveOrUpdateBulk(invoiceRecord.getInvoiceItems(), invoice));
+        invoice.resetDiscounts(invoiceDiscountService.saveOrUpdateBulk(invoiceRecord.getInvoiceDiscounts(), invoice));
+        headerRepo.save(invoice);
+        return invoice;
+    }
     private void adjustStock(List<InvoiceItem> items, Integer warehouseId, InvoiceType type, boolean reverse) {
         for (InvoiceItem item : items) {
             int productId = item.getProduct().getId();

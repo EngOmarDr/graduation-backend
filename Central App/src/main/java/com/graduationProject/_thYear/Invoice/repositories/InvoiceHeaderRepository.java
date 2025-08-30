@@ -7,10 +7,13 @@ import com.graduationProject._thYear.Invoice.models.InvoiceKind;
 import com.graduationProject._thYear.InvoiceType.models.Type;
 import jakarta.persistence.Tuple;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -124,24 +127,21 @@ public interface InvoiceHeaderRepository extends JpaRepository<InvoiceHeader,Int
     )
     Tuple getProductStockSideItems(LocalDateTime startDate, LocalDateTime endDate,Integer productId, Integer groupId, Integer warehouseId);
 
-   @Query(value = """
-                SELECT ih FROM InvoiceHeader ih
-                WHERE ih.createdAt > :date
-           """)
-    List<InvoiceHeader> findCreatedAfterDateTime(LocalDateTime date);
+    Optional<InvoiceHeader> findByGlobalId(UUID globalId);
 
     @Query(value = """
                 SELECT ih FROM InvoiceHeader ih
-                WHERE ih.updatedAt > :date
+                WHERE :date IS null OR ih.createdAt > :date OR ih.updatedAt > :date
            """)
-    List<InvoiceHeader> findUpdatedAfterDateTime(LocalDateTime date);
+     Slice<InvoiceHeader> findAllByUpsertedAtAfter(LocalDateTime date, PageRequest pageRequest);
 
+   
 
-    @Query(value = """
+     @Query(value = """
                 SELECT ih FROM InvoiceHeader ih
-                WHERE ih.deletedAt > :date
+                WHERE (:date IS null AND ih.deletedAt IS NOT NULL) OR ih.deletedAt > :date
            """)
-    List<InvoiceHeader> findDeletedAfterDateTime(LocalDateTime date);
+     Slice<InvoiceHeader> findAllByDeletetedAtAfter(LocalDateTime date);
 
 
     List<InvoiceHeader> findByInvoiceType_Type(Type type);

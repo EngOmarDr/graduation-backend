@@ -22,7 +22,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "invoiceHeader")
-@Builder
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -39,12 +39,12 @@ public class InvoiceHeader {
 
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "warehouseId", nullable = false)
     private Warehouse warehouse;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "invoiceTypeId", nullable = false)
     private InvoiceType invoiceType;
 
@@ -59,12 +59,12 @@ public class InvoiceHeader {
     private Boolean isSuspended = false ;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "accountId", nullable = false)
     private Account account;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "currencyId",nullable = false)
     private Currency currency;
 
@@ -110,11 +110,11 @@ public class InvoiceHeader {
     private LocalDateTime postedDate;
 
     @NotNull
-    @OneToMany(mappedBy = "invoiceHeader", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "invoiceHeader", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @Builder.Default
     private List<InvoiceItem> invoiceItems = new ArrayList<>();
 
-    @OneToMany(mappedBy = "invoiceHeader", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "invoiceHeader", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @Builder.Default
     private List<InvoiceDiscount> invoiceDiscounts = new ArrayList<>();
 
@@ -134,4 +134,14 @@ public class InvoiceHeader {
       @Column(name = "deletedAt")
     private LocalDateTime deletedAt;
 
+    public void resetItems(List<InvoiceItem> items){
+      this.getInvoiceItems().clear();
+      this.getInvoiceItems().addAll(items);
+    }
+
+    
+    public void resetDiscounts(List<InvoiceDiscount> discounts){
+      this.getInvoiceDiscounts().clear();
+      this.getInvoiceDiscounts().addAll(discounts);
+    }
 }

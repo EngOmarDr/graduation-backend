@@ -2,9 +2,13 @@ package com.graduationProject._thYear.EventSyncronization.Records;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+import com.graduationProject._thYear.Auth.models.Role;
+import com.graduationProject._thYear.Auth.models.User;
 import com.graduationProject._thYear.Invoice.models.InvoiceDiscount;
 import com.graduationProject._thYear.Invoice.models.InvoiceHeader;
 import com.graduationProject._thYear.Invoice.models.InvoiceItem;
@@ -14,6 +18,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Builder.Default;
 
 
 @Data
@@ -38,9 +43,12 @@ public class InvoiceRecord {
     private Object parent;
     private LocalDateTime postedDate;
     private String notes;
+    private UserRecord user;
 
-    private List<InvoiceItemRecord> invoiceItems;
-    private List<InvoiceDiscountRecord> invoiceDiscounts;   
+    @Default
+    private List<InvoiceItemRecord> invoiceItems = new ArrayList<>();
+    @Default
+    private List<InvoiceDiscountRecord> invoiceDiscounts = new ArrayList<>();   
 
     public static InvoiceRecord fromInvoiceEntity(InvoiceHeader invoiceHeader){
         return InvoiceRecord.builder()
@@ -56,7 +64,17 @@ public class InvoiceRecord {
             .isPosted(invoiceHeader.getIsPosted())
             .isSuspended(invoiceHeader.getIsSuspended())
             .notes(invoiceHeader.getNotes())
+            .date(invoiceHeader.getDate())
             .postedDate(invoiceHeader.getPostedDate())
+            .user(UserRecord.fromUserEntity(invoiceHeader.getUser()))
+            .invoiceItems(invoiceHeader.getInvoiceItems().stream()
+                .map(item -> InvoiceItemRecord.fromInvoiceItemEntitgy(item))
+                .collect(Collectors.toList())
+            )
+            .invoiceDiscounts(invoiceHeader.getInvoiceDiscounts().stream()
+                .map(item -> InvoiceDiscountRecord.fromInvoiceDiscountEntity(item))
+                .collect(Collectors.toList())
+            )
             .build();
     }
     
@@ -108,6 +126,31 @@ public class InvoiceRecord {
                 .discount(invoiceDiscount.getDiscount())
                 .extra(invoiceDiscount.getExtra())
                 .notes(invoiceDiscount.getNotes())
+                .build();
+        }
+    }
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class UserRecord{
+        private UUID globalId;
+        private String firstName;
+        private String lastName;
+        private String username;
+        private String password;
+        private Role role;
+        private UUID warehouseId;
+
+        public static UserRecord fromUserEntity(User user){
+            return UserRecord.builder()
+                .globalId(user.getGlobalId())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .username(user.getUsername())
+                .password(user.getPassword())
+                .role(user.getRole())
+                .warehouseId(user.getWarehouse().getGlobalId())
                 .build();
         }
     }

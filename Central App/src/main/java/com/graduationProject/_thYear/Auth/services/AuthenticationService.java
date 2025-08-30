@@ -7,14 +7,15 @@ import com.graduationProject._thYear.Auth.dtos.request.UpdateUserRequest;
 import com.graduationProject._thYear.Auth.dtos.response.AuthenticationResponse;
 import com.graduationProject._thYear.Auth.dtos.request.RegisterRequest;
 import com.graduationProject._thYear.Auth.dtos.response.UserResponse;
-import com.graduationProject._thYear.Branch.models.Branch;
-import com.graduationProject._thYear.Branch.repositories.BranchRepository;
 import com.graduationProject._thYear.Warehouse.models.Warehouse;
 import com.graduationProject._thYear.Warehouse.repositories.WarehouseRepository;
 import com.graduationProject._thYear.exceptionHandler.LoginUnauthorizedException;
+import com.graduationProject._thYear.exceptionHandler.ResourceNotFoundException;
 import com.graduationProject._thYear.Auth.models.Role;
 import com.graduationProject._thYear.Auth.models.User;
 import com.graduationProject._thYear.Auth.repositories.UserRepository;
+import com.graduationProject._thYear.EventSyncronization.Records.InvoiceRecord.UserRecord;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -200,6 +201,24 @@ public class AuthenticationService {
         repository.save(user);
     }
 
+    public User saveOrUpdate(UserRecord userRecord){
+        User user = repository.findByGlobalId(userRecord.getGlobalId())
+            .orElse(new User());
+        Warehouse warehouse = warehouseRepository.findByGlobalId(userRecord.getWarehouseId())
+            .orElseThrow(() -> new ResourceNotFoundException("warehouse id not found to sync user"));
+        
+        user = user.toBuilder()
+            .globalId(userRecord.getGlobalId())
+            .firstName(userRecord.getFirstName())
+            .lastName(userRecord.getLastName())
+            .username(userRecord.getUsername())
+            .password(userRecord.getPassword())
+            .role(userRecord.getRole())
+            .warehouse(warehouse)
+            .build();
+        repository.save(user);
+        return user;
+    }
     private UserResponse mapToUserResponse(User user) {
         return UserResponse.builder()
                 .id(user.getId())
