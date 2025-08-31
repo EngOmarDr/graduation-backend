@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Builder.Default;
 
 @Data
 @AllArgsConstructor
@@ -26,12 +27,18 @@ public class WarehouseRecord {
     private boolean isActive;
     private String notes;
     private WarehouseRecord parent;
-    private Boolean isDeleted;
+
+    @Default
+    private Boolean isDeleted = false;
 
     public static WarehouseRecord fromWarehouseEntity(Warehouse warehouse) {
+        if(warehouse == null){
+            return null;
+        }
         return WarehouseRecord.builder()
             .globalId(warehouse.getGlobalId())
             .name(warehouse.getName())
+            .code(warehouse.getCode())
             .address(warehouse.getAddress())
             .branch(BranchRecord.fromWarehouseEntity(warehouse.getBranch()))
             .type(warehouse.getType())

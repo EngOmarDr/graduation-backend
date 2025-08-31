@@ -39,14 +39,14 @@ public class ProducerAccountJob {
 
     private List<AccountRecord> result = new ArrayList<>();
     
-    // @Bean
-    // public Job syncAccountJob(JobRepository jobRepository, Step getUpsertedAccountsStep, Step getDeletedAccountsStep, Step accountTasklet) {
-    // return new JobBuilder("syncAccountJob", jobRepository)
-    //     .start(getUpsertedAccountsStep)
-    //     .next(getDeletedAccountsStep)
-    //     .next(accountTasklet)
-    //     .build();
-    // }
+    @Bean
+    public Job syncAccountJob(JobRepository jobRepository, Step getUpsertedAccountsStep, Step getDeletedAccountsStep, Step accountTasklet) {
+    return new JobBuilder("syncAccountJob", jobRepository)
+        .start(getUpsertedAccountsStep)
+        .next(getDeletedAccountsStep)
+        .next(accountTasklet)
+        .build();
+    }
 
 
 

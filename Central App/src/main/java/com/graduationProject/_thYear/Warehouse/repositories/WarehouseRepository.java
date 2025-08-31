@@ -59,7 +59,8 @@ public interface  WarehouseRepository extends JpaRepository<Warehouse, Integer> 
 
      @Query(value = """
                 SELECT w FROM Warehouse w
-                WHERE (:date IS null AND w.deletedAt IS NOT null) OR w.deletedAt > :date
+                WHERE w.deletedAt IS NOT null 
+                AND (:date IS null ) OR ( w.deletedAt > :date)
            """)
-     Slice<Warehouse> findAllByDeletetedAtAfter(LocalDateTime date);
+     Slice<Warehouse> findAllByDeletedAtAfter(LocalDateTime date, PageRequest pageRequest);
 }

@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
@@ -39,11 +41,11 @@ public class ProducerWarehouseJob {
     
     // @Bean
     // public Job syncWarehouseJob(JobRepository jobRepository, Step getUpsertedWarehousesStep, Step getDeletedWarehousesStep, Step warehouseTasklet) {
-    // return new JobBuilder("syncWarehouseJob", jobRepository)
-    //     .start(getUpsertedWarehousesStep)
-    //     .next(getDeletedWarehousesStep)
-    //     .next(warehouseTasklet)
-    //     .build();
+    //     return new JobBuilder("syncWarehouseJob", jobRepository)
+    //         .start(getUpsertedWarehousesStep)
+    //         .next(getDeletedWarehousesStep)
+    //         .next(warehouseTasklet)
+    //         .build();
     // }
 
 
@@ -119,7 +121,7 @@ public class ProducerWarehouseJob {
         return new RepositoryItemReaderBuilder<Warehouse>()
             .name("warehouseDeleteReader")
             .repository(warehouseRepository)
-            .methodName("findAllByUpsertedAtAfter")
+            .methodName("findAllByDeletedAtAfter")
             .arguments(dateTime)
             .sorts(Collections.singletonMap("id", Sort.Direction.ASC))
             .build();

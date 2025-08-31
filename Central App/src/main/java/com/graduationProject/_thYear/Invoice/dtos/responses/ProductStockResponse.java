@@ -39,7 +39,7 @@ public class ProductStockResponse {
 
    
         public static ProductStockMainItems fromTuple(Tuple tuple){
-            return ProductStockMainItems.builder()
+            ProductStockMainItems productStockMainItems = ProductStockMainItems.builder()
                 .productId((Integer) tuple.get("product_id"))
                 .productName((String) tuple.get("product_name"))
                 .warehouseId((Integer) tuple.get("warehouse_id"))
@@ -48,6 +48,7 @@ public class ProductStockResponse {
                 .unitId((Integer) tuple.get("unit_id"))
                 .unitName((String) tuple.get("unit_name"))
                 .build();
+            return productStockMainItems;
         }
     }
 

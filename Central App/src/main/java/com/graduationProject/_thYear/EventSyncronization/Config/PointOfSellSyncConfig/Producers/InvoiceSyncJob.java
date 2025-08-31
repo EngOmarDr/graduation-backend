@@ -40,14 +40,14 @@ public class InvoiceSyncJob {
 
     private List<InvoiceRecord> result = new ArrayList<>();
     
-    @Bean
-    public Job syncInvoiceJob(JobRepository jobRepository, Step getUpsertedInvoicesStep, Step getDeletedInvoicesStep, Step invoiceTasklet) {
-    return new JobBuilder("syncInvoiceJob", jobRepository)
-        .start(getUpsertedInvoicesStep)
-        .next(getDeletedInvoicesStep)
-        .next(invoiceTasklet)
-        .build();
-    }
+    // @Bean
+    // public Job syncInvoiceJob(JobRepository jobRepository, Step getUpsertedInvoicesStep, Step getDeletedInvoicesStep, Step invoiceTasklet) {
+    // return new JobBuilder("syncInvoiceJob", jobRepository)
+    //     .start(getUpsertedInvoicesStep)
+    //     .next(getDeletedInvoicesStep)
+    //     .next(invoiceTasklet)
+    //     .build();
+    // }
 
 
 

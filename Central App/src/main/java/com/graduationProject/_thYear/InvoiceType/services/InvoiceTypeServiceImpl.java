@@ -2,8 +2,10 @@ package com.graduationProject._thYear.InvoiceType.services;
 
 import com.graduationProject._thYear.Account.models.Account;
 import com.graduationProject._thYear.Account.repositories.AccountRepository;
+import com.graduationProject._thYear.Branch.models.Branch;
 import com.graduationProject._thYear.Currency.models.Currency;
 import com.graduationProject._thYear.Currency.repositories.CurrencyRepository;
+import com.graduationProject._thYear.EventSyncronization.Records.InvoiceTypeRecord;
 import com.graduationProject._thYear.InvoiceType.dtos.requests.CreateInvoiceTypeRequest;
 import com.graduationProject._thYear.InvoiceType.dtos.requests.UpdateInvoiceTypeRequest;
 import com.graduationProject._thYear.InvoiceType.dtos.responses.InvoiceTypeResponse;
@@ -14,6 +16,8 @@ import com.graduationProject._thYear.Product.models.Price;
 import com.graduationProject._thYear.Product.repositories.PriceRepository;
 import com.graduationProject._thYear.Warehouse.models.Warehouse;
 import com.graduationProject._thYear.Warehouse.repositories.WarehouseRepository;
+import com.graduationProject._thYear.exceptionHandler.ResourceNotFoundException;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -75,6 +80,75 @@ public class InvoiceTypeServiceImpl implements InvoiceTypeService{
         invoiceTypeRepository.deleteById(id);
     }
 
+    @Override 
+    public InvoiceType saveOrUpdate(InvoiceTypeRecord invoiceTypeRecord){
+        InvoiceType invoiceType = invoiceTypeRepository.findByGlobalId(invoiceTypeRecord.getGlobalId())
+            .orElse(new InvoiceType());
+
+        Warehouse defaultWarehouse = warehouseRepository.findByGlobalId(invoiceTypeRecord.getDefaultWarehouseId())
+            .orElseThrow(() -> new ResourceNotFoundException("No Warehouse With Id given for invoice type sync"));
+        Price defaultPriceId = null;
+        if (invoiceTypeRecord.getDefaultPriceId() != null){
+            defaultPriceId = priceRepository.findByGlobalId(invoiceTypeRecord.getDefaultPriceId())
+                .orElseThrow(() -> new ResourceNotFoundException("No Price With Id given for invoice type sync"));
+        }
+
+        Price minDefaultPriceId = null;
+        if (invoiceTypeRecord.getMinDefaultPriceId() != null){
+            minDefaultPriceId = priceRepository.findByGlobalId(invoiceTypeRecord.getMinDefaultPriceId())
+                .orElseThrow(() -> new ResourceNotFoundException("No Price With Id given for invoice type sync"));
+        }
+        Account defaultBillAccId = accountRepository.findByGlobalId(invoiceTypeRecord.getDefaultBillAccId())
+            .orElseThrow(() -> new ResourceNotFoundException("No Account 1 With Id given for invoice type sync"));
+        Account defaultCashAccId = accountRepository.findByGlobalId(invoiceTypeRecord.getDefaultCashAccId())
+            .orElseThrow(() -> new ResourceNotFoundException("No Account 2 With Id given for invoice type sync"));
+        Account defaultDiscAccId = accountRepository.findByGlobalId(invoiceTypeRecord.getDefaultDiscAccId())
+            .orElseThrow(() -> new ResourceNotFoundException("No Account 3 With Id given for invoice type sync"));
+        Account defaultExtraAccId = accountRepository.findByGlobalId(invoiceTypeRecord.getDefaultExtraAccId())
+            .orElseThrow(() -> new ResourceNotFoundException("No Account 4 With Id given for invoice type sync"));
+        Account defaultCostAccId = accountRepository.findByGlobalId(invoiceTypeRecord.getDefaultCostAccId())
+            .orElseThrow(() -> new ResourceNotFoundException("No Account 5 With Id given for invoice type sync"));
+        Account defaultStockAccId = accountRepository.findByGlobalId(invoiceTypeRecord.getDefaultStockAccId())
+            .orElseThrow(() -> new ResourceNotFoundException("No Account 6 With Id given for invoice type sync"));
+
+        Currency defaultCurrency = currencyRepository.findByGlobalId(invoiceTypeRecord.getDefaultCurrencyId())
+            .orElseThrow(() -> new ResourceNotFoundException("No Currency With Id given for invoice type sync"));
+
+        
+        invoiceType = invoiceType.toBuilder()
+            .globalId(invoiceTypeRecord.getGlobalId())
+            .defaultBillAccId(defaultBillAccId)
+            .defaultCashAccId(defaultCashAccId)
+            .defaultDiscAccId(defaultDiscAccId)
+            .defaultExtraAccId(defaultExtraAccId)
+            .defaultCostAccId(defaultCostAccId)
+            .defaultStockAccId(defaultStockAccId)
+            .defaultWarehouseId(defaultWarehouse)
+            .defaultCurrencyId(defaultCurrency)
+            .minDefaultPriceId(defaultPriceId)
+            .defaultPriceId(minDefaultPriceId)
+            .type(invoiceTypeRecord.getType())
+            .name(invoiceTypeRecord.getName())
+            .isAffectCostPrice(invoiceTypeRecord.getIsAffectCostPrice())
+            .isAffectLastPrice(invoiceTypeRecord.getIsAffectLastPrice())
+            .isAffectCustPrice(invoiceTypeRecord.getIsAffectCustPrice())
+            .isAffectProfit(invoiceTypeRecord.getIsAffectProfit())
+            .isDiscAffectCost(invoiceTypeRecord.getIsDiscAffectCost())
+            .isExtraAffectCost(invoiceTypeRecord.getIsExtraAffectCost())
+            .isNoEntry(invoiceTypeRecord.getIsNoEntry())
+            .isAutoEntry(invoiceTypeRecord.getIsAutoEntry())
+            .isAutoEntryPost(invoiceTypeRecord.getIsAutoEntryPost())
+            .isNoPost(invoiceTypeRecord.getIsNoPost())
+            .isAutoPost(invoiceTypeRecord.getIsAutoPost())
+            .isShortEntry(invoiceTypeRecord.getIsShortEntry())
+            .isCashBill(invoiceTypeRecord.getIsCashBill())
+            .printAfterInsert(invoiceTypeRecord.getPrintAfterInsert())
+            .isBarcode(invoiceTypeRecord.getIsBarcode())
+            .build();
+            
+        invoiceTypeRepository.save(invoiceType);
+        return invoiceType;
+    }
 
     private InvoiceType mapToEntity(CreateInvoiceTypeRequest dto) {
         return InvoiceType.builder()
