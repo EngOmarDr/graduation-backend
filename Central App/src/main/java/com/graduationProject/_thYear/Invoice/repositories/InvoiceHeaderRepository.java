@@ -90,18 +90,20 @@ public interface InvoiceHeaderRepository extends JpaRepository<InvoiceHeader,Int
 
 
 
-    @Query(value="SELECT  item.product.id as product_id, item.product.name as product_name, ih.warehouse.id as warehouse_id, item.product.unit.unitItem.id as unit_id, item.product.unit.unitItem.name unit_name, " +
+    @Query(value="SELECT  item.product.id as product_id, item.product.name as product_name, ih.warehouse.id as warehouse_id, unitItem.id as unit_id, unitItem.name unit_name, " +
             "SUM(CASE WHEN ty.type IN ('buy','retrieve_sale','input') THEN item.qty * item.unitFact ELSE 0 END) - SUM(CASE WHEN ty.type IN ('sale','retrieve_buy','ouput') THEN item.qty * item.unitFact ELSE 0 END)  as total_quantity, " +
             "SUM(CASE WHEN ty.type IN ('buy','retrieve_sale','input') THEN item.qty * item.unitFact * item.price * ih.currencyValue ELSE 0 END) - SUM(CASE WHEN ty.type IN ('sale','retrieve_buy','ouput') THEN item.qty * item.unitFact * item.price * ih.currencyValue ELSE 0 END) as total_price " +
             "FROM InvoiceHeader ih " +
             "JOIN ih.invoiceItems item " +
             "JOIN ih.invoiceType ty " +
+            "JOIN item.product.defaultUnit.unitItems unitItem " +
+
             "WHERE ih.date BETWEEN :startDate AND :endDate " +
             "AND ih.isPosted = true AND ih.isSuspended = false " +
             "AND (:productId IS NULL OR item.product.id = (:productId)) " +
             "AND (:groupId IS NULL OR item.product.groupId.id = (:groupId)) " +
             "AND (:warehouseId IS NULL OR ih.warehouse.id = (:warehouseId)) " +
-            "AND (item.product.unit.unitItem.isDef = true) " +
+            "AND (unitItem.isDef = true) " +
             "GROUP BY item.product "
     )
     List<Tuple> getProductStockMainItems(LocalDateTime startDate, LocalDateTime endDate,Integer productId, Integer groupId, Integer warehouseId);
