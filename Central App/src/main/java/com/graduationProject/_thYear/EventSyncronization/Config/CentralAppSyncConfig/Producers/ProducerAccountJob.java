@@ -25,6 +25,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import com.graduationProject._thYear.Account.models.Account;
 import com.graduationProject._thYear.Account.repositories.AccountRepository;
+import com.graduationProject._thYear.EventSyncronization.Entities.SyncJob;
 import com.graduationProject._thYear.EventSyncronization.Records.AccountRecord;
 import com.graduationProject._thYear.EventSyncronization.Repositories.SyncJobRepository;
 
@@ -39,7 +40,7 @@ public class ProducerAccountJob {
 
     private List<AccountRecord> result = new ArrayList<>();
     
-    @Bean
+    @Bean("syncAccountJob")
     public Job syncAccountJob(JobRepository jobRepository, Step getUpsertedAccountsStep, Step getDeletedAccountsStep, Step accountTasklet) {
     return new JobBuilder("syncAccountJob", jobRepository)
         .start(getUpsertedAccountsStep)
@@ -86,7 +87,13 @@ public class ProducerAccountJob {
                         System.out.println(record.getGlobalId());                   
                         template.send("account-topic",record);
                     }
-                    
+                    syncJobRepository.save(
+                        SyncJob.builder()
+                            .batchSize(result.size())
+                            .topic("account")
+                            .status("COMPLETED")
+                            .build()    
+                    );
                     return RepeatStatus.FINISHED;
                 }, transactionManager)
                 .allowStartIfComplete(true)
@@ -118,10 +125,11 @@ public class ProducerAccountJob {
             .map(job -> job.getExecutedAt())
             .orElse(null);
 
+        System.out.println("account repository" + accountRepository.findAllByUpsertedAtAfter(dateTime, null).getSize());
         return new RepositoryItemReaderBuilder<Account>()
             .name("accountDeleteReader")
             .repository(accountRepository)
-            .methodName("findAllByUpsertedAtAfter")
+            .methodName("findAllByDeletedAtAfter")
             .arguments(dateTime)
             .sorts(Collections.singletonMap("id", Sort.Direction.ASC))
             .build();

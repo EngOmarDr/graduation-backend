@@ -45,8 +45,9 @@ public interface AccountRepository extends JpaRepository<Account, Integer> {
 
      @Query(value = """
                 SELECT a FROM Account a
-                WHERE (:date IS null AND a.deletedAt IS NOT NULL) OR a.deletedAt > :date
+                WHERE a.deletedAt IS NOT NULL 
+                AND (:date IS null) OR a.deletedAt > :date
            """)
-     Slice<Account> findAllByDeletetedAtAfter(LocalDateTime date);
+     Slice<Account> findAllByDeletedAtAfter(LocalDateTime date, PageRequest pageRequest);
 
 }

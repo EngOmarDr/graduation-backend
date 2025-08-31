@@ -6,12 +6,13 @@ import com.graduationProject._thYear.Warehouse.models.WarehouseType;
 import lombok.Data;
 import lombok.experimental.SuperBuilder;
 
-import java.util.List;
+import java.util.UUID;
 
 @Data
 @SuperBuilder
 public class WarehouseResponse {
     private Integer id;
+    private UUID globalId;
     private String name;
     private String code;
     private String phone;

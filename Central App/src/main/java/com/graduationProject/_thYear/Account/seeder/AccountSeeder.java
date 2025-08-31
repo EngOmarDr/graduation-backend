@@ -1,12 +1,14 @@
 package com.graduationProject._thYear.Account.seeder;
 
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import com.graduationProject._thYear.Account.models.Account;
 import com.graduationProject._thYear.Account.repositories.AccountRepository;
 
 @Component
+@Profile("!pos-app")
 public class AccountSeeder implements CommandLineRunner {
 
     private final AccountRepository accountRepository;

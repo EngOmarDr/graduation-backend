@@ -231,6 +231,7 @@ public class WarehouseServiceImpl implements WarehouseService{
     private WarehouseResponse mapToDTO(Warehouse warehouse) {
         return WarehouseResponse.builder()
                 .id(warehouse.getId())
+                .globalId(warehouse.getGlobalId())
                 .name(warehouse.getName())
                 .code(warehouse.getCode())
                 .phone(warehouse.getPhone())

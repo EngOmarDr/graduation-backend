@@ -40,7 +40,7 @@ public class WarehouseRecord {
             .name(warehouse.getName())
             .code(warehouse.getCode())
             .address(warehouse.getAddress())
-            .branch(BranchRecord.fromWarehouseEntity(warehouse.getBranch()))
+            .branch(BranchRecord.fromBranchEntity(warehouse.getBranch()))
             .type(warehouse.getType())
             .notes(warehouse.getNotes())
             .parent(fromWarehouseEntity(warehouse.getParent()))
@@ -58,7 +58,7 @@ public class WarehouseRecord {
         private String address;
         private String notes;
 
-        public static BranchRecord fromWarehouseEntity(Branch branch) {
+        public static BranchRecord fromBranchEntity(Branch branch) {
             return BranchRecord.builder()
                 .globalId(branch.getGlobalId())
                 .name(branch.getName())

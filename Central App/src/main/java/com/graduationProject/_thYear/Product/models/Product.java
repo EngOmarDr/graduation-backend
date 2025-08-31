@@ -125,7 +125,9 @@ public class Product {
 
     public void resetBarcodes(List<ProductBarcode> barcodes){
         this.getBarcodes().clear();
-        this.getBarcodes().addAll(barcodes);
+        for(ProductBarcode barcode: barcodes){
+            addBarcode(barcode);
+        }
     }
 
 

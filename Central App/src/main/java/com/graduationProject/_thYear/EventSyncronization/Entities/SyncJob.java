@@ -29,6 +29,16 @@ public class SyncJob {
     @Column(name = "topic")
     private String topic;
 
+    @Column(name = "batchSize")
+    private Integer batchSize;
+
+    @Column(name = "status")
+    private String status;
+
+    @Column(name = "failureMessage")
+    private String failureMessage;
+
+
     @Column(name = "executed_at")
     @Default
     private LocalDateTime executedAt = LocalDateTime.now();

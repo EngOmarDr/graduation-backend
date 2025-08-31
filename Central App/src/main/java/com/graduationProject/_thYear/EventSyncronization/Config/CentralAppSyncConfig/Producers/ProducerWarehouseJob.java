@@ -23,6 +23,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import com.graduationProject._thYear.EventSyncronization.Entities.SyncJob;
 import com.graduationProject._thYear.EventSyncronization.Records.WarehouseRecord;
 import com.graduationProject._thYear.EventSyncronization.Repositories.SyncJobRepository;
 import com.graduationProject._thYear.Warehouse.models.Warehouse;
@@ -39,14 +40,14 @@ public class ProducerWarehouseJob {
 
     private List<WarehouseRecord> result = new ArrayList<>();
     
-    // @Bean
-    // public Job syncWarehouseJob(JobRepository jobRepository, Step getUpsertedWarehousesStep, Step getDeletedWarehousesStep, Step warehouseTasklet) {
-    //     return new JobBuilder("syncWarehouseJob", jobRepository)
-    //         .start(getUpsertedWarehousesStep)
-    //         .next(getDeletedWarehousesStep)
-    //         .next(warehouseTasklet)
-    //         .build();
-    // }
+    @Bean("syncWarehouseJob")
+    public Job syncWarehouseJob(JobRepository jobRepository, Step getUpsertedWarehousesStep, Step getDeletedWarehousesStep, Step warehouseTasklet) {
+        return new JobBuilder("syncWarehouseJob", jobRepository)
+            .start(getUpsertedWarehousesStep)
+            .next(getDeletedWarehousesStep)
+            .next(warehouseTasklet)
+            .build();
+    }
 
 
 
@@ -86,7 +87,13 @@ public class ProducerWarehouseJob {
                         System.out.println(record.getGlobalId());                   
                         template.send("warehouse-topic",record);
                     }
-                    
+                    syncJobRepository.save(
+                        SyncJob.builder()
+                            .batchSize(result.size())
+                            .topic("product")
+                            .status("COMPLETED")
+                            .build()    
+                    );
                     return RepeatStatus.FINISHED;
                 }, transactionManager)
                 .allowStartIfComplete(true)

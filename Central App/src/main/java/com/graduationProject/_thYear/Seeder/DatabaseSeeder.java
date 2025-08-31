@@ -27,6 +27,7 @@
 // import jakarta.transaction.Transactional;
 // import lombok.RequiredArgsConstructor;
 // import org.springframework.boot.CommandLineRunner;
+// import org.springframework.context.annotation.Profile;
 // import org.springframework.stereotype.Component;
 
 // import java.math.BigDecimal;
@@ -35,6 +36,7 @@
 // import java.util.stream.IntStream;
 
 // @Component
+// @Profile("!post-app")
 // @RequiredArgsConstructor
 // public class DatabaseSeeder implements CommandLineRunner {
 
@@ -268,3 +270,4 @@
 
 
 // }
+

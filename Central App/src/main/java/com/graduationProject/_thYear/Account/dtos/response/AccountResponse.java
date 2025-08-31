@@ -1,6 +1,8 @@
 package com.graduationProject._thYear.Account.dtos.response;
 
 
+import java.util.UUID;
+
 import lombok.Data;
 import lombok.experimental.SuperBuilder;
 
@@ -8,6 +10,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class AccountResponse {
     private Integer id;
+    private UUID globalId;
     private String code;
     private String name;
     private Integer parentId;

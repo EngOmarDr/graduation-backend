@@ -23,6 +23,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import com.graduationProject._thYear.EventSyncronization.Entities.SyncJob;
 import com.graduationProject._thYear.EventSyncronization.Records.InvoiceRecord;
 import com.graduationProject._thYear.EventSyncronization.Repositories.SyncJobRepository;
 import com.graduationProject._thYear.Invoice.models.InvoiceHeader;
@@ -30,7 +31,7 @@ import com.graduationProject._thYear.Invoice.repositories.InvoiceHeaderRepositor
 
 @Configuration
 @Profile("pos-app")
-public class InvoiceSyncJob {
+public class ProducerInvocieJob {
 
    @Autowired
     private SyncJobRepository syncJobRepository;
@@ -87,7 +88,13 @@ public class InvoiceSyncJob {
                         System.out.println(record.getGlobalId());                   
                         template.send("invoice-topic",record);
                     }
-                    
+                    syncJobRepository.save(
+                        SyncJob.builder()
+                            .batchSize(result.size())
+                            .topic("invoice")
+                            .status("COMPLETED")
+                            .build()    
+                    );
                     return RepeatStatus.FINISHED;
                 }, transactionManager)
                 .allowStartIfComplete(true)

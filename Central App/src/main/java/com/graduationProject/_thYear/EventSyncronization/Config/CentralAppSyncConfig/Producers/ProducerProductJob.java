@@ -22,6 +22,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import com.graduationProject._thYear.EventSyncronization.Entities.SyncJob;
 import com.graduationProject._thYear.EventSyncronization.Records.ProductRecord;
 import com.graduationProject._thYear.EventSyncronization.Records.SyncMessage;
 import com.graduationProject._thYear.EventSyncronization.Repositories.SyncJobRepository;
@@ -40,13 +41,13 @@ public class ProducerProductJob {
 
     private SyncMessage<ProductRecord> result = new SyncMessage<>();
     
-    // @Bean
-    // public Job SyncProductJob(JobRepository jobRepository, Step getCreatedProductsStep, Step stepTasklet) {
-    // return new JobBuilder("SyncProductJob", jobRepository)
-    //     .start(getCreatedProductsStep)
-    //     .next(stepTasklet)
-    //     .build();
-    // }
+    @Bean("syncProductJob")
+    public Job syncProductJob(JobRepository jobRepository, Step getCreatedProductsStep, Step stepTasklet) {
+    return new JobBuilder("syncProductJob", jobRepository)
+        .start(getCreatedProductsStep)
+        .next(stepTasklet)
+        .build();
+    }
 
 
 
@@ -72,6 +73,13 @@ public class ProducerProductJob {
                         System.out.println(record.getGlobalId());                   
                         template.send("product-topic",record);
                     }
+                    syncJobRepository.save(
+                        SyncJob.builder()
+                            .batchSize(result.getCreatedRecords().size())
+                            .topic("product")
+                            .status("COMPLETED")
+                            .build()    
+                    );
                     return RepeatStatus.FINISHED;
                 }, transactionManager)
                 .allowStartIfComplete(true)

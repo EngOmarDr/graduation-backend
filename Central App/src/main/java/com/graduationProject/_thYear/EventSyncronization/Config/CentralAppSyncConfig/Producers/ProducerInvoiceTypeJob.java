@@ -23,6 +23,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import com.graduationProject._thYear.EventSyncronization.Entities.SyncJob;
 import com.graduationProject._thYear.EventSyncronization.Records.InvoiceTypeRecord;
 import com.graduationProject._thYear.EventSyncronization.Repositories.SyncJobRepository;
 import com.graduationProject._thYear.InvoiceType.models.InvoiceType;
@@ -39,14 +40,14 @@ public class ProducerInvoiceTypeJob {
 
     private List<InvoiceTypeRecord> result = new ArrayList<>();
     
-    // @Bean
-    // public Job syncInvoiceTypeJob(JobRepository jobRepository, Step getUpsertedInvoiceTypesStep, Step getDeletedInvoiceTypesStep, Step invoiceTypeTasklet) {
-    //     return new JobBuilder("syncInvoiceTypeJob", jobRepository)
-    //         .start(getUpsertedInvoiceTypesStep)
-    //         .next(getDeletedInvoiceTypesStep)
-    //         .next(invoiceTypeTasklet)
-    //         .build();
-    // }
+    @Bean("syncInvoiceTypeJob")
+    public Job syncInvoiceTypeJob(JobRepository jobRepository, Step getUpsertedInvoiceTypesStep, Step getDeletedInvoiceTypesStep, Step invoiceTypeTasklet) {
+        return new JobBuilder("syncInvoiceTypeJob", jobRepository)
+            .start(getUpsertedInvoiceTypesStep)
+            .next(getDeletedInvoiceTypesStep)
+            .next(invoiceTypeTasklet)
+            .build();
+    }
 
 
 
@@ -86,6 +87,13 @@ public class ProducerInvoiceTypeJob {
                         System.out.println(record.getGlobalId());                   
                         template.send("invoiceType-topic",record);
                     }
+                    syncJobRepository.save(
+                        SyncJob.builder()
+                            .batchSize(result.size())
+                            .topic("invoiceType")
+                            .status("COMPLETED")
+                            .build()    
+                    );
                     return RepeatStatus.FINISHED;
                 }, transactionManager)
                 .allowStartIfComplete(true)

@@ -25,6 +25,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import com.graduationProject._thYear.Currency.models.Currency;
 import com.graduationProject._thYear.Currency.repositories.CurrencyRepository;
+import com.graduationProject._thYear.EventSyncronization.Entities.SyncJob;
 import com.graduationProject._thYear.EventSyncronization.Records.CurrencyRecord;
 import com.graduationProject._thYear.EventSyncronization.Repositories.SyncJobRepository;
 
@@ -40,14 +41,14 @@ public class ProducerCurrencyJob {
 
     private List<CurrencyRecord> result = new ArrayList<>();
     
-    // @Bean
-    // public Job synCurrencyJob(JobRepository jobRepository, Step getUpsertedCurrencysStep, Step getDeletedCurrencysStep, Step currencyTasklet) {
-    // return new JobBuilder("synCurrencyJob", jobRepository)
-    //     .start(getUpsertedCurrencysStep)
-    //     .next(getDeletedCurrencysStep)
-    //     .next(currencyTasklet)
-    //     .build();
-    // }
+    @Bean("syncCurrencyJob")
+    public Job syncCurrencyJob(JobRepository jobRepository, Step getUpsertedCurrencysStep, Step getDeletedCurrencysStep, Step currencyTasklet) {
+    return new JobBuilder("syncCurrencyJob", jobRepository)
+        .start(getUpsertedCurrencysStep)
+        .next(getDeletedCurrencysStep)
+        .next(currencyTasklet)
+        .build();
+    }
 
 
 
@@ -87,7 +88,13 @@ public class ProducerCurrencyJob {
                         System.out.println(record.getGlobalId());                   
                         template.send("currency-topic",record);
                     }
-                    
+                    syncJobRepository.save(
+                        SyncJob.builder()
+                            .batchSize(result.size())
+                            .topic("currency")
+                            .status("COMPLETED")
+                            .build()    
+                    );
                     return RepeatStatus.FINISHED;
                 }, transactionManager)
                 .allowStartIfComplete(true)

@@ -180,6 +180,7 @@ public class AccountServiceImpl implements AccountService {
         }
         return AccountResponse.builder()
                 .id(account.getId())
+                .globalId(account.getGlobalId())
                 .code(account.getCode())
                 .name(account.getName())
                 .finalAccount(finalAccountId)
