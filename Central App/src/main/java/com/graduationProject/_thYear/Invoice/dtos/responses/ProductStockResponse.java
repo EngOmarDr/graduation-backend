@@ -34,7 +34,7 @@ public class ProductStockResponse {
         private Integer warehouseId;
         private Integer unitId;
         private String unitName;
-        private BigDecimal quantity;
+        private Double quantity;
         private BigDecimal totalPrice;
 
    
@@ -43,7 +43,7 @@ public class ProductStockResponse {
                 .productId((Integer) tuple.get("product_id"))
                 .productName((String) tuple.get("product_name"))
                 .warehouseId((Integer) tuple.get("warehouse_id"))
-                .quantity((BigDecimal) tuple.get("total_quantity"))
+                .quantity((Double) tuple.get("total_quantity"))
                 .totalPrice((BigDecimal) tuple.get("total_price"))
                 .unitId((Integer) tuple.get("unit_id"))
                 .unitName((String) tuple.get("unit_name"))
