@@ -129,7 +129,7 @@ public class InvoiceService {
                     .notes(itemReq.getNotes())
                     .build();
         }).collect(Collectors.toList());
-
+        validateUniqueProductUnitItems(items);
         invoice.setInvoiceItems(items);
 
 
@@ -541,6 +541,22 @@ public class InvoiceService {
                     .filter((UnitItem unitItem) -> unitItem.getIsDef())
                     .findFirst()
                     .orElseThrow(() -> new  ResourceNotFoundException("Default unit item not found"));
+        }
+    }
+
+
+    private void validateUniqueProductUnitItems(List<InvoiceItem> items) {
+        Set<String> seen = new HashSet<>();
+        for (InvoiceItem item : items) {
+            Integer productId = item.getProduct().getId();
+            Integer unitItemId = item.getUnitItem().getId(); // now always resolved
+
+            String key = productId + "-" + unitItemId;
+            if (!seen.add(key)) {
+                throw new IllegalArgumentException(
+                        "Duplicate productId " + productId + " with the same unitItemId " + unitItemId
+                );
+            }
         }
     }
 
