@@ -57,11 +57,11 @@ public class ProductStockResponse {
     @SuperBuilder
     public static class ProductStockSideItems{
         private BigDecimal totalPrice;
-        private BigDecimal totalQuantity;
-        private BigDecimal toatlPricePositive;
-        private BigDecimal totalQuantityPositive;
         private BigDecimal toatlPriceNegative;
-        private BigDecimal totalQuantityNegative;
+        private BigDecimal toatlPricePositive;
+        private Double totalQuantity;
+        private Double totalQuantityPositive;
+        private Double totalQuantityNegative;
 
 
         public static ProductStockSideItems fromTuple(Tuple tuple){
@@ -69,9 +69,9 @@ public class ProductStockResponse {
                 .totalPrice((BigDecimal) tuple.get("total_price"))
                 .toatlPricePositive((BigDecimal) tuple.get("total_price_positive"))
                 .toatlPriceNegative((BigDecimal) tuple.get("total_price_negative"))
-                .totalQuantity((BigDecimal) tuple.get("total_quantity"))
-                .totalQuantityPositive((BigDecimal) tuple.get("total_quantity_positive"))
-                .totalQuantityNegative((BigDecimal) tuple.get("total_quantity_negative"))
+                .totalQuantity((Double) tuple.get("total_quantity"))
+                .totalQuantityPositive((Double) tuple.get("total_quantity_positive"))
+                .totalQuantityNegative((Double) tuple.get("total_quantity_negative"))
                 .build();
 
         }
