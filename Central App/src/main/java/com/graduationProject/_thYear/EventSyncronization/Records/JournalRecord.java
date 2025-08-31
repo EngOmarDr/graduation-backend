@@ -22,6 +22,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class JournalRecord {
+
     
     private UUID globalId;
     private BranchRecord branch;
