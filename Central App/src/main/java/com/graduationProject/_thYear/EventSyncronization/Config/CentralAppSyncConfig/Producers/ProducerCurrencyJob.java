@@ -95,6 +95,7 @@ public class ProducerCurrencyJob {
                             .status("COMPLETED")
                             .build()    
                     );
+                    result.clear();
                     return RepeatStatus.FINISHED;
                 }, transactionManager)
                 .allowStartIfComplete(true)
@@ -108,7 +109,7 @@ public class ProducerCurrencyJob {
         LocalDateTime dateTime = syncJobRepository.findLastByTopic("currency")
             .map(job -> job.getExecutedAt())
             .orElse(null);
-
+        dateTime = null;
         return new RepositoryItemReaderBuilder<Currency>()
             .name("currencyUpsertReader")
             .repository(currencyRepository)
@@ -129,7 +130,7 @@ public class ProducerCurrencyJob {
         return new RepositoryItemReaderBuilder<Currency>()
             .name("currencyDeleteReader")
             .repository(currencyRepository)
-            .methodName("findAllByUpsertedAtAfter")
+            .methodName("findAllByDeletedAtAfter")
             .arguments(dateTime)
             .sorts(Collections.singletonMap("id", Sort.Direction.ASC))
             .build();

@@ -28,7 +28,8 @@ public interface CurrencyRepository extends JpaRepository<Currency,Integer> {
 
      @Query(value = """
                 SELECT c FROM Currency c
-                WHERE (:date IS null AND c.deletedAt IS NOT null) OR c.deletedAt > :date
+                WHERE c.deletedAt IS NOT null
+                AND :date IS null OR c.deletedAt > :date
            """)
      Slice<Currency> findAllByDeletetedAtAfter(LocalDateTime date);
 

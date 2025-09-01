@@ -94,6 +94,7 @@ public class ProducerWarehouseJob {
                             .status("COMPLETED")
                             .build()    
                     );
+                    result.clear();
                     return RepeatStatus.FINISHED;
                 }, transactionManager)
                 .allowStartIfComplete(true)
@@ -107,7 +108,7 @@ public class ProducerWarehouseJob {
         LocalDateTime dateTime = syncJobRepository.findLastByTopic("warehouse")
             .map(job -> job.getExecutedAt())
             .orElse(null);
-
+        dateTime = null;
         return new RepositoryItemReaderBuilder<Warehouse>()
             .name("warehouseUpsertReader")
             .repository(warehouseRepository)

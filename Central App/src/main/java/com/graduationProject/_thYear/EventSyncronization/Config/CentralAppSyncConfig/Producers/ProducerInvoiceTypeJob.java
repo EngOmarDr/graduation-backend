@@ -94,6 +94,7 @@ public class ProducerInvoiceTypeJob {
                             .status("COMPLETED")
                             .build()    
                     );
+                    result.clear();
                     return RepeatStatus.FINISHED;
                 }, transactionManager)
                 .allowStartIfComplete(true)
@@ -107,7 +108,7 @@ public class ProducerInvoiceTypeJob {
         LocalDateTime dateTime = syncJobRepository.findLastByTopic("invoiceType")
             .map(job -> job.getExecutedAt())
             .orElse(null);
-
+        dateTime = null;
         return new RepositoryItemReaderBuilder<InvoiceType>()
             .name("invoiceTypeUpsertReader")
             .repository(invoiceTypeRepository)
@@ -124,7 +125,7 @@ public class ProducerInvoiceTypeJob {
         LocalDateTime dateTime = syncJobRepository.findLastByTopic("invoiceType")
             .map(job -> job.getExecutedAt())
             .orElse(null);
-
+        dateTime = null;
         return new RepositoryItemReaderBuilder<InvoiceType>()
             .name("invoiceTypeDeleteReader")
             .repository(invoiceTypeRepository)

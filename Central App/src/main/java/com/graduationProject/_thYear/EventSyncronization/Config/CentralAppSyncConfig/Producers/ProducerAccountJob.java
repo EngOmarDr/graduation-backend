@@ -94,6 +94,7 @@ public class ProducerAccountJob {
                             .status("COMPLETED")
                             .build()    
                     );
+                    result.clear();
                     return RepeatStatus.FINISHED;
                 }, transactionManager)
                 .allowStartIfComplete(true)
@@ -107,7 +108,7 @@ public class ProducerAccountJob {
         LocalDateTime dateTime = syncJobRepository.findLastByTopic("account")
             .map(job -> job.getExecutedAt())
             .orElse(null);
-
+        dateTime = null;
         return new RepositoryItemReaderBuilder<Account>()
             .name("accountUpsertReader")
             .repository(accountRepository)

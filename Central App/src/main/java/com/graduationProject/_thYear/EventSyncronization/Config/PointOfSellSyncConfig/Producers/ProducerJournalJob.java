@@ -31,7 +31,7 @@ import com.graduationProject._thYear.Journal.repositories.JournalHeaderRepositor
 
 @Configuration
 @Profile("pos-app")
-public class ProducerJounalJob {
+public class ProducerJournalJob {
      @Autowired
     private SyncJobRepository syncJobRepository;
     
@@ -40,14 +40,14 @@ public class ProducerJounalJob {
 
     private List<JournalRecord> result = new ArrayList<>();
     
-    // @Bean("syncJournalJob")
-    // public Job syncJournalJob(JobRepository jobRepository, Step getUpsertedJournalsStep, Step getDeletedJournalsStep, Step journalTasklet) {
-    // return new JobBuilder("syncJournalJob", jobRepository)
-    //     .start(getUpsertedJournalsStep)
-    //     .next(getDeletedJournalsStep)
-    //     .next(journalTasklet)
-    //     .build();
-    // }
+    @Bean("syncJournalJob")
+    public Job syncJournalJob(JobRepository jobRepository, Step getUpsertedJournalsStep, Step getDeletedJournalsStep, Step journalTasklet) {
+    return new JobBuilder("syncJournalJob", jobRepository)
+        .start(getUpsertedJournalsStep)
+        .next(getDeletedJournalsStep)
+        .next(journalTasklet)
+        .build();
+    }
 
 
 
@@ -125,6 +125,7 @@ public class ProducerJounalJob {
             .map(job -> job.getExecutedAt())
             .orElse(null);
 
+        dateTime = null;
         return new RepositoryItemReaderBuilder<JournalHeader>()
             .name("journalDeleteReader")
             .repository(journalRepository)

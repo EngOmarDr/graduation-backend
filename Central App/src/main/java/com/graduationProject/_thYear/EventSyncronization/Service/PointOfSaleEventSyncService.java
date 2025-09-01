@@ -19,9 +19,9 @@ public class PointOfSaleEventSyncService implements EventSyncService {
     @Qualifier("syncInvoiceJob")
     Job syncInvoiceJob;
 
-    // @Autowired
-    // @Qualifier("syncJournalJob")
-    // Job syncJournalJob;
+    @Autowired
+    @Qualifier("syncJournalJob")
+    Job syncJournalJob;
 
     @Autowired
     JobLauncher jobLauncher;
@@ -47,19 +47,19 @@ public class PointOfSaleEventSyncService implements EventSyncService {
                 .build());
         }
 
-        // try {
-        //     jobLauncher.run(syncJournalJob, new JobParametersBuilder()
-        //         .addLong("createAt", System.currentTimeMillis())
-        //         .toJobParameters());
-        // } catch (Exception e){
-        //     // e.printStackTrace();
-        //     syncJobRepository.save(
-        //         SyncJob.builder()
-        //             .topic("journal")
-        //             .status("FAILED")
-        //             .build()    
-        //     );
-        // }
+        try {
+            jobLauncher.run(syncJournalJob, new JobParametersBuilder()
+                .addLong("createAt", System.currentTimeMillis())
+                .toJobParameters());
+        } catch (Exception e){
+            // e.printStackTrace();
+            syncJobRepository.save(
+                SyncJob.builder()
+                    .topic("journal")
+                    .status("FAILED")
+                    .build()    
+            );
+        }
     }
     
 }
