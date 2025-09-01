@@ -31,7 +31,7 @@ import com.graduationProject._thYear.Invoice.repositories.InvoiceHeaderRepositor
 
 @Configuration
 @Profile("pos-app")
-public class ProducerInvocieJob {
+public class ProducerInvoiceJob {
 
    @Autowired
     private SyncJobRepository syncJobRepository;
@@ -41,14 +41,14 @@ public class ProducerInvocieJob {
 
     private List<InvoiceRecord> result = new ArrayList<>();
     
-    // @Bean
-    // public Job syncInvoiceJob(JobRepository jobRepository, Step getUpsertedInvoicesStep, Step getDeletedInvoicesStep, Step invoiceTasklet) {
-    // return new JobBuilder("syncInvoiceJob", jobRepository)
-    //     .start(getUpsertedInvoicesStep)
-    //     .next(getDeletedInvoicesStep)
-    //     .next(invoiceTasklet)
-    //     .build();
-    // }
+    @Bean("syncInvoiceJob")
+    public Job syncInvoiceJob(JobRepository jobRepository, Step getUpsertedInvoicesStep, Step getDeletedInvoicesStep, Step invoiceTasklet) {
+    return new JobBuilder("syncInvoiceJob", jobRepository)
+        .start(getUpsertedInvoicesStep)
+        .next(getDeletedInvoicesStep)
+        .next(invoiceTasklet)
+        .build();
+    }
 
 
 
@@ -109,6 +109,7 @@ public class ProducerInvocieJob {
             .map(job -> job.getExecutedAt())
             .orElse(null);
 
+        dateTime = null;
         return new RepositoryItemReaderBuilder<InvoiceHeader>()
             .name("invoiceUpsertReader")
             .repository(invoiceRepository)
@@ -129,7 +130,7 @@ public class ProducerInvocieJob {
         return new RepositoryItemReaderBuilder<InvoiceHeader>()
             .name("invoiceDeleteReader")
             .repository(invoiceRepository)
-            .methodName("findAllByUpsertedAtAfter")
+            .methodName("findAllByDeletedAtAfter")
             .arguments(dateTime)
             .sorts(Collections.singletonMap("id", Sort.Direction.ASC))
             .build();

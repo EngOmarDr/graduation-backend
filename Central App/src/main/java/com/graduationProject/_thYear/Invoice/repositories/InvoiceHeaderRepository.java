@@ -145,9 +145,10 @@ public interface InvoiceHeaderRepository extends JpaRepository<InvoiceHeader,Int
 
      @Query(value = """
                 SELECT ih FROM InvoiceHeader ih
-                WHERE (:date IS null AND ih.deletedAt IS NOT NULL) OR ih.deletedAt > :date
+                WHERE ih.deletedAt IS NOT null
+                AND (:date IS null) OR ih.deletedAt > :date
            """)
-     Slice<InvoiceHeader> findAllByDeletetedAtAfter(LocalDateTime date);
+     Slice<InvoiceHeader> findAllByDeletedAtAfter(LocalDateTime date, PageRequest pageRequest);
 
 
     List<InvoiceHeader> findByInvoiceType_Type(Type type);

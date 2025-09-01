@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -54,6 +55,8 @@ public class InvoiceRecord {
         return InvoiceRecord.builder()
             .globalId(invoiceHeader.getGlobalId())
             .accountId(invoiceHeader.getAccount().getGlobalId())
+            .warehouseId(invoiceHeader.getWarehouse().getGlobalId())
+            .invoiceTypeId(invoiceHeader.getInvoiceType().getGlobalId())
             .currencyId(invoiceHeader.getCurrency().getGlobalId())
             .currencyValue(invoiceHeader.getCurrencyValue())
             .total(invoiceHeader.getTotal())
@@ -150,7 +153,9 @@ public class InvoiceRecord {
                 .username(user.getUsername())
                 .password(user.getPassword())
                 .role(user.getRole())
-                .warehouseId(user.getWarehouse().getGlobalId())
+                .warehouseId(Optional.ofNullable(user.getWarehouse())
+                    .map(warehouse -> warehouse.getGlobalId())
+                    .orElse(null))
                 .build();
         }
     }

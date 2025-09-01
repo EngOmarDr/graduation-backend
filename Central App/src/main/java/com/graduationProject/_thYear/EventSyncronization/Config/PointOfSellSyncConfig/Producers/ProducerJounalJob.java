@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
@@ -38,7 +40,7 @@ public class ProducerJounalJob {
 
     private List<JournalRecord> result = new ArrayList<>();
     
-    // @Bean
+    // @Bean("syncJournalJob")
     // public Job syncJournalJob(JobRepository jobRepository, Step getUpsertedJournalsStep, Step getDeletedJournalsStep, Step journalTasklet) {
     // return new JobBuilder("syncJournalJob", jobRepository)
     //     .start(getUpsertedJournalsStep)

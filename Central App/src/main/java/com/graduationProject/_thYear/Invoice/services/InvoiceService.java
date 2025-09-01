@@ -463,7 +463,7 @@ public class InvoiceService {
         Currency currency = currencyRepo.findByGlobalId(invoiceRecord.getCurrencyId())
             .orElseThrow(() -> new ResourceNotFoundException("currency id not found while syncronizing"));
 
-        User user = authenticationService.saveOrUpdate(invoiceRecord.getUser());
+        User user = null;
 
         invoice = invoice.toBuilder()
             .globalId(invoiceRecord.getGlobalId())

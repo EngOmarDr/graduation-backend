@@ -204,8 +204,13 @@ public class AuthenticationService {
     public User saveOrUpdate(UserRecord userRecord){
         User user = repository.findByGlobalId(userRecord.getGlobalId())
             .orElse(new User());
-        Warehouse warehouse = warehouseRepository.findByGlobalId(userRecord.getWarehouseId())
-            .orElseThrow(() -> new ResourceNotFoundException("warehouse id not found to sync user"));
+
+        
+        Warehouse warehouse = null;
+        if(userRecord.getWarehouseId() != null){
+            warehouse = warehouseRepository.findByGlobalId(userRecord.getWarehouseId())
+                .orElseThrow(() -> new ResourceNotFoundException("warehouse id not found to sync user"));
+        }
         
         user = user.toBuilder()
             .globalId(userRecord.getGlobalId())
@@ -216,6 +221,7 @@ public class AuthenticationService {
             .role(userRecord.getRole())
             .warehouse(warehouse)
             .build();
+
         repository.save(user);
         return user;
     }

@@ -90,7 +90,7 @@ public class ProducerWarehouseJob {
                     syncJobRepository.save(
                         SyncJob.builder()
                             .batchSize(result.size())
-                            .topic("product")
+                            .topic("warehouse")
                             .status("COMPLETED")
                             .build()    
                     );
