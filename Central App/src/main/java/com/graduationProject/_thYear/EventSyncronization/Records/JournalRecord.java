@@ -25,11 +25,12 @@ public class JournalRecord {
 
     
     private UUID globalId;
-    private BranchRecord branch;
+    private UUID branchId;
     private LocalDateTime date;
     private BigDecimal totalDebit;
     private BigDecimal totalCredit;
-    private CurrencyRecord currency;
+    private UUID currencyId;
+    private BigDecimal currencyValue;
     private Boolean isPosted;
     private Integer parentType;
     private Integer parentId;
@@ -37,17 +38,21 @@ public class JournalRecord {
     private List<JournalItemRecord> journalItems;
 
     public static JournalRecord fromJournalEntity(JournalHeader journalHeader){
+        System.out.println("inside journal record");
+        System.out.println(journalHeader.getBranch().getGlobalId());
+        System.out.println(journalHeader.getCurrencyValue());
         return JournalRecord.builder()
             .globalId(journalHeader.getGlobalId())
-            .branch(BranchRecord.fromBranchEntity(journalHeader.getBranch()))
+            .branchId(journalHeader.getBranch().getGlobalId())
             .date(journalHeader.getDate())
             .totalCredit(journalHeader.getCredit())
             .totalDebit(journalHeader.getDebit())
-            .currency(CurrencyRecord.fromCurrencyEntity(journalHeader.getCurrency()))
+            .currencyId(journalHeader.getCurrency().getGlobalId())
             .isPosted(journalHeader.getIsPosted())
             .parentId(journalHeader.getParentId())
             .parentType(journalHeader.getParentType())
             .kind(journalHeader.getKind())
+            .currencyValue(journalHeader.getCurrencyValue())
             .journalItems(journalHeader.getJournalItems().stream()
                 .map(item -> JournalItemRecord.fromJournalItemEntity(item))
                 .collect(Collectors.toList()))
@@ -61,20 +66,22 @@ public class JournalRecord {
     @Builder
     public static class JournalItemRecord{
         private UUID globalId;
-        private AccountRecord account;
+        private UUID accountId;
         private BigDecimal debit;
+        private BigDecimal currencyValue;
         private BigDecimal credit;
-        private CurrencyRecord currency;
+        private UUID currencyId;
         private LocalDateTime date;
         private String notes;
 
         public static JournalItemRecord fromJournalItemEntity(JournalItem journalItem){
             return JournalItemRecord.builder()
                 .globalId(journalItem.getGlobalId())
-                .account(AccountRecord.fromAccountEntity(journalItem.getAccount()))
+                .accountId(journalItem.getAccount().getGlobalId())
                 .debit(journalItem.getDebit())
                 .credit(journalItem.getCredit())
-                .currency(CurrencyRecord.fromCurrencyEntity(journalItem.getCurrency()))
+                .currencyId(journalItem.getCurrency().getGlobalId())
+                .currencyValue(journalItem.getCurrencyValue())
                 .date(journalItem.getDate())
                 .notes(journalItem.getNotes())
                 .build();

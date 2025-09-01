@@ -10,12 +10,19 @@ import com.graduationProject._thYear.Journal.models.JournalKind;
 import com.graduationProject._thYear.Journal.repositories.JournalHeaderRepository;
 import com.graduationProject._thYear.Journal.repositories.JournalItemRepository;
 import com.graduationProject._thYear.Warehouse.models.Warehouse;
+import com.graduationProject._thYear.exceptionHandler.ResourceNotFoundException;
 import com.graduationProject._thYear.Account.repositories.AccountRepository;
 import com.graduationProject._thYear.Auth.models.Role;
 import com.graduationProject._thYear.Auth.models.User;
 import com.graduationProject._thYear.Branch.models.Branch;
 import com.graduationProject._thYear.Branch.repositories.BranchRepository;
 import com.graduationProject._thYear.Currency.repositories.CurrencyRepository;
+import com.graduationProject._thYear.EventSyncronization.Records.InvoiceRecord;
+import com.graduationProject._thYear.EventSyncronization.Records.JournalRecord;
+import com.graduationProject._thYear.EventSyncronization.Records.JournalRecord.JournalItemRecord;
+import com.graduationProject._thYear.Invoice.models.InvoiceHeader;
+import com.graduationProject._thYear.InvoiceType.models.InvoiceType;
+
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.Tuple;
 import jakarta.validation.constraints.NotNull;
@@ -222,6 +229,63 @@ public class JournalServiceImpl implements JournalService {
                 // Save the updated journal
                 journalHeader = journalHeaderRepository.save(journalHeader);
                 return mapToJournalResponse(journalHeader);
+        }
+
+        @Override
+        public JournalHeader saveOrUpdate(JournalRecord journalRecord){
+
+                JournalHeader journal = journalHeaderRepository.findByGlobalId(journalRecord.getGlobalId())
+                .orElse(new JournalHeader());
+
+                Branch branch = branchRepository.findByGlobalId(journalRecord.getBranchId())
+                        .orElseThrow(() -> new ResourceNotFoundException("branch id not found while syncronizing"));
+
+        
+                Currency currency = currencyRepository.findByGlobalId(journalRecord.getCurrencyId())
+                        .orElseThrow(() -> new ResourceNotFoundException("currency id not found while syncronizing"));
+
+
+                journal = journal.toBuilder()
+                        .globalId(journalRecord.getGlobalId())
+                        .branch(branch)
+                        .currency(currency)
+                        .debit(journalRecord.getTotalDebit())
+                        .credit(journalRecord.getTotalCredit())
+                        .date(journalRecord.getDate())
+                        .parentId(journalRecord.getParentId())
+                        .parentType(journalRecord.getParentType())
+                        .currencyValue(journalRecord.getCurrencyValue())
+                        .kind(journalRecord.getKind())
+                        .isPosted(journalRecord.getIsPosted())
+                        .build();       
+
+                journal.resetItems(saveOrUpdateItemBulk(journalRecord.getJournalItems(), journal));
+                journalHeaderRepository.save(journal);
+                return journal;
+        }
+        private JournalItem saveOrUpdateItem(JournalItemRecord journalItemRecord, JournalHeader journal) {
+                Currency currency = currencyRepository.findByGlobalId(journalItemRecord.getCurrencyId())
+                        .orElseThrow(() -> new ResourceNotFoundException("currency id not found while syncronizing"));
+                Account account = accountRepository.findByGlobalId(journalItemRecord.getAccountId())
+                        .orElseThrow(() -> new ResourceNotFoundException("account id not found while syncronizing"));
+                return JournalItem.builder()
+                        .currency(currency)
+                        .currencyValue(journalItemRecord.getCurrencyValue())
+                        .account(account)
+                        .journalHeader(journal)
+                        .debit(journalItemRecord.getDebit())
+                        .credit(journalItemRecord.getCredit())
+                        .date(journalItemRecord.getDate())
+                        .notes(journalItemRecord.getNotes())
+                        .build();
+                
+        }
+
+
+        private List<JournalItem> saveOrUpdateItemBulk(List<JournalItemRecord> journalItems, JournalHeader journal) {
+                return journalItems.stream()
+                        .map(item -> saveOrUpdateItem(item, journal))
+                        .collect(Collectors.toList());
         }
 
         @Transactional

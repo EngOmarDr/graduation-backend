@@ -95,6 +95,7 @@ public class ProducerInvoiceJob {
                             .status("COMPLETED")
                             .build()    
                     );
+                    result.clear();
                     return RepeatStatus.FINISHED;
                 }, transactionManager)
                 .allowStartIfComplete(true)

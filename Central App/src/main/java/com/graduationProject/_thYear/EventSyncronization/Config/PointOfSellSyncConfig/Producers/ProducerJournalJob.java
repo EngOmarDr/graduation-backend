@@ -94,6 +94,7 @@ public class ProducerJournalJob {
                             .status("COMPLETED")
                             .build()    
                     );
+                    result.clear();
                     return RepeatStatus.FINISHED;
                 }, transactionManager)
                 .allowStartIfComplete(true)
@@ -107,7 +108,7 @@ public class ProducerJournalJob {
         LocalDateTime dateTime = syncJobRepository.findLastByTopic("journal")
             .map(job -> job.getExecutedAt())
             .orElse(null);
-
+        dateTime = null;
         return new RepositoryItemReaderBuilder<JournalHeader>()
             .name("journalUpsertReader")
             .repository(journalRepository)

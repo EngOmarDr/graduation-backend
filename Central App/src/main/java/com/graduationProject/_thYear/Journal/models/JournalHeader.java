@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "journalHeader")
-@Builder
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -99,5 +99,10 @@ public class JournalHeader {
 
       @Column(name = "deletedAt")
     private LocalDateTime deletedAt;
+
+      public void resetItems(List<JournalItem> items) {
+          journalItems.clear();
+          journalItems.addAll(items);
+      }
 
 }
