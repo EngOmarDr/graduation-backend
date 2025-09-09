@@ -17,11 +17,8 @@ import com.graduationProject._thYear.Auth.models.User;
 import com.graduationProject._thYear.Branch.models.Branch;
 import com.graduationProject._thYear.Branch.repositories.BranchRepository;
 import com.graduationProject._thYear.Currency.repositories.CurrencyRepository;
-import com.graduationProject._thYear.EventSyncronization.Records.InvoiceRecord;
 import com.graduationProject._thYear.EventSyncronization.Records.JournalRecord;
 import com.graduationProject._thYear.EventSyncronization.Records.JournalRecord.JournalItemRecord;
-import com.graduationProject._thYear.Invoice.models.InvoiceHeader;
-import com.graduationProject._thYear.InvoiceType.models.InvoiceType;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.Tuple;

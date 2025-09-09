@@ -13,7 +13,6 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import com.graduationProject._thYear.Invoice.models.InvoiceHeader;
 import com.graduationProject._thYear.Journal.models.JournalHeader;
 
 

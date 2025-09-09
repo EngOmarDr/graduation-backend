@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import com.graduationProject._thYear.EventSyncronization.Records.WarehouseRecord.BranchRecord;
-import com.graduationProject._thYear.Journal.dtos.response.JournalItemResponse;
 import com.graduationProject._thYear.Journal.models.JournalHeader;
 import com.graduationProject._thYear.Journal.models.JournalItem;
 import com.graduationProject._thYear.Journal.models.JournalKind;
