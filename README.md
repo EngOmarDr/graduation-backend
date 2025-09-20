@@ -1,6 +1,6 @@
 # Big Retail Enhanced
 
-Retail ERP solution for large busnisses designed with scalibility and reliability in mind, includes all basic features needed to run a real retail business, in addition to supporting distributed mode based on message queue so every store can have it's own dedicated server while syncronizing its data automatically with the central server in the background.
+Retail ERP solution for large businesses designed with scalability and reliability in mind, includes all basic features needed to run a real retail business, in addition to supporting distributed mode based on message queue so every store can have it's own dedicated server while syncronizing its data automatically with the central server in the background.
 
 ## Main feautres:
 - Integrated Accounting & Financial Reporting: Journal records are automatically created to reflect business processes to then be used to generate comprehinsive reports in order to help businesses with decision making.
